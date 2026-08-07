@@ -50,6 +50,11 @@ class User extends Authenticatable
         return $this->hasMany(Attendance::class);
     }
 
+    public function agendas()
+    {
+        return $this->belongsToMany(Agenda::class, 'agenda_user');
+    }
+
     public function leaveRequests()
     {
         return $this->hasMany(LeaveRequest::class);

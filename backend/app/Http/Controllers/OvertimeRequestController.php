@@ -78,4 +78,19 @@ class OvertimeRequestController extends Controller
 
         return response()->json($overtimeRequest);
     }
+
+    public function destroy(OvertimeRequest $overtimeRequest)
+    {
+        if (Auth::user()->role !== 'admin' && Auth::id() !== $overtimeRequest->user_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        
+        if ($overtimeRequest->status !== 'pending') {
+            return response()->json(['message' => 'Hanya pengajuan dengan status pending yang dapat dibatalkan.'], 400);
+        }
+
+        $overtimeRequest->delete();
+
+        return response()->json(['message' => 'Pengajuan berhasil dibatalkan.']);
+    }
 }

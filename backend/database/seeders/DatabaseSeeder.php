@@ -57,13 +57,20 @@ class DatabaseSeeder extends Seeder
 
         // Create 100 Employees
         $users = [];
+ 
         for ($i = 1; $i <= 100; $i++) {
             $users[] = User::create([
                 'name' => $faker->name,
                 'email' => "employee{$i}@hris.com",
                 'password' => Hash::make('password'),
                 'role' => 'employee',
-                'nik' => 'EMP-' . str_pad($i, 3, '0', STR_PAD_LEFT),
+                'nik' => sprintf(
+                    '%06d%02d%02d%04d',
+                    rand(340201, 340499), 
+                    rand(1, 31),
+                    rand(1, 12),
+                    $i + 1000
+                ),
                 'status' => $faker->boolean(90) ? 'active' : 'inactive',
                 'division_id' => $faker->randomElement($divisions)->id,
                 'position_id' => $faker->randomElement($positions)->id,

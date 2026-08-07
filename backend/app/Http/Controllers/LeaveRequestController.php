@@ -50,6 +50,13 @@ class LeaveRequestController extends Controller
             'reason' => 'required|string',
         ]);
 
+        if ($validated['type'] === 'annual') {
+            $days = \Carbon\Carbon::parse($validated['start_date'])->diffInDays(\Carbon\Carbon::parse($validated['end_date'])) + 1;
+            if (Auth::user()->leave_quota < $days) {
+                return response()->json(['message' => 'Sisa kuota cuti Anda tidak mencukupi (Sisa: ' . Auth::user()->leave_quota . ' hari)'], 400);
+            }
+        }
+
         $leave = LeaveRequest::create(array_merge($validated, [
             'user_id' => Auth::id(),
             'status' => 'pending'
@@ -69,8 +76,36 @@ class LeaveRequestController extends Controller
             'admin_note' => 'nullable|string',
         ]);
 
+        if ($leaveRequest->type === 'annual') {
+            $days = \Carbon\Carbon::parse($leaveRequest->start_date)->diffInDays(\Carbon\Carbon::parse($leaveRequest->end_date)) + 1;
+            
+            if ($validated['status'] === 'approved' && $leaveRequest->status !== 'approved') {
+                if ($leaveRequest->user->leave_quota < $days) {
+                    return response()->json(['message' => 'Kuota cuti karyawan tidak mencukupi (Sisa: ' . $leaveRequest->user->leave_quota . ' hari)'], 400);
+                }
+                $leaveRequest->user->decrement('leave_quota', $days);
+            } elseif ($validated['status'] !== 'approved' && $leaveRequest->status === 'approved') {
+                $leaveRequest->user->increment('leave_quota', $days);
+            }
+        }
+
         $leaveRequest->update($validated);
 
         return response()->json($leaveRequest);
+    }
+
+    public function destroy(LeaveRequest $leaveRequest)
+    {
+        if (Auth::user()->role !== 'admin' && Auth::id() !== $leaveRequest->user_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        
+        if ($leaveRequest->status !== 'pending') {
+            return response()->json(['message' => 'Hanya pengajuan dengan status pending yang dapat dibatalkan.'], 400);
+        }
+
+        $leaveRequest->delete();
+
+        return response()->json(['message' => 'Pengajuan berhasil dibatalkan.']);
     }
 }

@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -66,7 +67,7 @@ class DashboardController extends Controller
         }
 
         // Division Stats
-        $divisionStats = User::select('division_id', \DB::raw('count(*) as count'))
+        $divisionStats = User::select('division_id', DB::raw('count(*) as count'))
             ->where('role', 'employee')
             ->where('status', 'active')
             ->groupBy('division_id')

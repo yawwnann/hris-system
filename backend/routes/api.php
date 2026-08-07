@@ -7,12 +7,15 @@ use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AgendaController;
+use App\Http\Controllers\RosterController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
+    Route::post('logout', [App\Http\Controllers\AuthController::class, 'logout']);
+    Route::get('me', [App\Http\Controllers\AuthController::class, 'me']);
+    Route::post('me/profile', [App\Http\Controllers\AuthController::class, 'updateProfile']);
     
     // Dashboard
     Route::get('dashboard/admin', [App\Http\Controllers\DashboardController::class, 'adminSummary']);
@@ -22,6 +25,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('divisions', DivisionController::class);
     Route::apiResource('positions', PositionController::class);
     Route::apiResource('shifts', ShiftController::class);
+    Route::apiResource('agendas', AgendaController::class);
+    Route::apiResource('rosters', RosterController::class)->only(['index', 'store']);
     
     // Employee Management
     Route::apiResource('users', UserController::class);
@@ -36,11 +41,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('leave-requests', [App\Http\Controllers\LeaveRequestController::class, 'index']);
     Route::post('leave-requests', [App\Http\Controllers\LeaveRequestController::class, 'store']);
     Route::put('leave-requests/{leaveRequest}/status', [App\Http\Controllers\LeaveRequestController::class, 'updateStatus']);
+    Route::delete('leave-requests/{leaveRequest}', [App\Http\Controllers\LeaveRequestController::class, 'destroy']);
 
     // Overtime Requests
     Route::get('overtime-requests', [App\Http\Controllers\OvertimeRequestController::class, 'index']);
     Route::post('overtime-requests', [App\Http\Controllers\OvertimeRequestController::class, 'store']);
     Route::put('overtime-requests/{overtimeRequest}/status', [App\Http\Controllers\OvertimeRequestController::class, 'updateStatus']);
+    Route::delete('overtime-requests/{overtimeRequest}', [App\Http\Controllers\OvertimeRequestController::class, 'destroy']);
+
+    // Announcements
+    Route::apiResource('announcements', App\Http\Controllers\AnnouncementController::class);
+
+    // Reports
+    Route::get('reports/export', [App\Http\Controllers\ReportController::class, 'export']);
 
     // Settings
     Route::get('settings', [App\Http\Controllers\SettingController::class, 'show']);
