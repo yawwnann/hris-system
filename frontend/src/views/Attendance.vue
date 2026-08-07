@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { 
   UserCheck, 
   MapPin, 
@@ -40,16 +40,20 @@ const searchQuery = ref("");
 // Pagination
 const currentPage = ref(1);
 const itemsPerPage = 10;
+const totalPages = ref(1);
+const totalItems = ref(0);
 
 // Fetch Data
 const fetchData = async () => {
   loading.value = true;
   try {
     const [historyRes, todayRes] = await Promise.all([
-      api.get("/attendance"),
+      api.get("/attendance", { params: { search: searchQuery.value, page: currentPage.value, per_page: itemsPerPage } }),
       api.get("/attendance/today")
     ]);
-    history.value = historyRes.data;
+    history.value = historyRes.data.data;
+    totalPages.value = historyRes.data.last_page;
+    totalItems.value = historyRes.data.total;
     todayRecord.value = todayRes.data;
   } catch (error) {
     console.error("Failed to fetch attendance data", error);
@@ -64,22 +68,16 @@ onMounted(() => {
 });
 
 // Computed properties for filtering and pagination
-const filteredHistory = computed(() => {
-  if (!searchQuery.value) return history.value;
-  const lowerCaseQuery = searchQuery.value.toLowerCase();
-  return history.value.filter(
-    (record) => 
-      record.user?.name?.toLowerCase().includes(lowerCaseQuery) ||
-      record.date?.toLowerCase().includes(lowerCaseQuery)
-  );
+const filteredHistory = computed(() => history.value);
+const paginatedHistory = computed(() => history.value);
+
+watch(searchQuery, () => {
+  currentPage.value = 1;
+  fetchData();
 });
 
-const totalPages = computed(() => Math.ceil(filteredHistory.value.length / itemsPerPage));
-
-const paginatedHistory = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return filteredHistory.value.slice(start, end);
+watch(currentPage, () => {
+  fetchData();
 });
 
 const nextPage = () => {
@@ -303,8 +301,8 @@ const handleClockAction = (type: 'in' | 'out') => {
           <div class="border-t border-gray-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-zinc-950/50">
             <div class="text-sm text-gray-500 dark:text-zinc-400">
               Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedHistory.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, filteredHistory.length) }}</span> dari 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ filteredHistory.length }}</span> data kehadiran
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> dari 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> data kehadiran
             </div>
             <div class="flex items-center space-x-2">
               <Button 

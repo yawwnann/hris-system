@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { 
   Calendar,
   Plus, 
@@ -60,6 +60,8 @@ const searchQuery = ref("");
 // Pagination
 const currentPage = ref(1);
 const itemsPerPage = 10;
+const totalPages = ref(1);
+const totalItems = ref(0);
 
 // Dialogs State
 const isAddDialogOpen = ref(false);
@@ -82,8 +84,12 @@ const approvalData = ref({
 const fetchLeaves = async () => {
   loading.value = true;
   try {
-    const { data } = await api.get("/leave-requests");
-    leaves.value = data;
+    const { data } = await api.get("/leave-requests", {
+      params: { search: searchQuery.value, page: currentPage.value, per_page: itemsPerPage }
+    });
+    leaves.value = data.data;
+    totalPages.value = data.last_page;
+    totalItems.value = data.total;
   } catch (error) {
     console.error("Failed to fetch leave requests", error);
     toast.error("Gagal mengambil data pengajuan cuti/izin");
@@ -96,22 +102,16 @@ onMounted(() => {
   fetchLeaves();
 });
 
-const filteredLeaves = computed(() => {
-  if (!searchQuery.value) return leaves.value;
-  const lowerCaseQuery = searchQuery.value.toLowerCase();
-  return leaves.value.filter(
-    (leave) => 
-      leave.reason?.toLowerCase().includes(lowerCaseQuery) ||
-      (leave.user && leave.user.name?.toLowerCase().includes(lowerCaseQuery))
-  );
+const filteredLeaves = computed(() => leaves.value);
+const paginatedLeaves = computed(() => leaves.value);
+
+watch(searchQuery, () => {
+  currentPage.value = 1;
+  fetchLeaves();
 });
 
-const totalPages = computed(() => Math.ceil(filteredLeaves.value.length / itemsPerPage));
-
-const paginatedLeaves = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return filteredLeaves.value.slice(start, end);
+watch(currentPage, () => {
+  fetchLeaves();
 });
 
 const nextPage = () => {
@@ -313,8 +313,8 @@ const getTypeLabel = (type: string) => {
           <div class="border-t border-gray-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-zinc-950/50">
             <div class="text-sm text-gray-500 dark:text-zinc-400">
               Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedLeaves.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, filteredLeaves.length) }}</span> dari 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ filteredLeaves.length }}</span> pengajuan
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> dari 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> pengajuan
             </div>
             <div class="flex items-center space-x-2">
               <Button 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { 
   Building2, 
   Plus, 
@@ -48,6 +48,8 @@ const searchQuery = ref("");
 // Pagination
 const currentPage = ref(1);
 const itemsPerPage = 10;
+const totalPages = ref(1);
+const totalItems = ref(0);
 
 // Dialog State
 const isDialogOpen = ref(false);
@@ -62,8 +64,12 @@ const formData = ref({
 const fetchDepartments = async () => {
   loading.value = true;
   try {
-    const { data } = await api.get("/divisions");
-    departments.value = data;
+    const { data } = await api.get("/divisions", {
+      params: { search: searchQuery.value, page: currentPage.value, per_page: itemsPerPage }
+    });
+    departments.value = data.data;
+    totalPages.value = data.last_page;
+    totalItems.value = data.total;
   } catch (error) {
     console.error("Failed to fetch departments", error);
     toast.error("Gagal mengambil data departemen");
@@ -76,21 +82,17 @@ onMounted(() => {
   fetchDepartments();
 });
 
-// Computed properties for filtering and pagination
-const filteredDepartments = computed(() => {
-  if (!searchQuery.value) return departments.value;
-  const lowerCaseQuery = searchQuery.value.toLowerCase();
-  return departments.value.filter(
-    (dept) => dept.name?.toLowerCase().includes(lowerCaseQuery)
-  );
+// Computed properties for filtering and pagination (Now handled by backend)
+const filteredDepartments = computed(() => departments.value);
+const paginatedDepartments = computed(() => departments.value);
+
+watch(searchQuery, () => {
+  currentPage.value = 1;
+  fetchDepartments();
 });
 
-const totalPages = computed(() => Math.ceil(filteredDepartments.value.length / itemsPerPage));
-
-const paginatedDepartments = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return filteredDepartments.value.slice(start, end);
+watch(currentPage, () => {
+  fetchDepartments();
 });
 
 const nextPage = () => {
@@ -253,8 +255,8 @@ const deleteDepartment = async (id: number) => {
           <div class="border-t border-gray-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-zinc-950/50">
             <div class="text-sm text-gray-500 dark:text-zinc-400">
               Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedDepartments.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, filteredDepartments.length) }}</span> dari 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ filteredDepartments.length }}</span> departemen
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> dari 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> departemen
             </div>
             <div class="flex items-center space-x-2">
               <Button 

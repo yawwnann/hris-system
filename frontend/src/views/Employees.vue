@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { 
   Users, 
   Plus, 
@@ -42,6 +42,8 @@ const searchQuery = ref("");
 // Pagination
 const currentPage = ref(1);
 const itemsPerPage = 10;
+const totalPages = ref(1);
+const totalItems = ref(0);
 
 // Form State
 const isFormOpen = ref(false);
@@ -51,8 +53,12 @@ const selectedEmployee = ref<any>(null);
 const fetchEmployees = async () => {
   loading.value = true;
   try {
-    const { data } = await api.get("/users");
-    employees.value = data;
+    const { data } = await api.get("/users", {
+      params: { search: searchQuery.value, page: currentPage.value, per_page: itemsPerPage }
+    });
+    employees.value = data.data;
+    totalPages.value = data.last_page;
+    totalItems.value = data.total;
   } catch (error) {
     console.error("Failed to fetch employees", error);
     toast.error("Gagal mengambil data karyawan");
@@ -87,24 +93,17 @@ const deleteEmployee = async (id: number) => {
   }
 };
 
-// Computed properties for filtering and pagination
-const filteredEmployees = computed(() => {
-  if (!searchQuery.value) return employees.value;
-  const lowerCaseQuery = searchQuery.value.toLowerCase();
-  return employees.value.filter(
-    (emp) =>
-      emp.name?.toLowerCase().includes(lowerCaseQuery) ||
-      emp.email?.toLowerCase().includes(lowerCaseQuery) ||
-      emp.nik?.toLowerCase().includes(lowerCaseQuery)
-  );
+// Computed properties for filtering and pagination (Now handled by backend)
+const filteredEmployees = computed(() => employees.value);
+const paginatedEmployees = computed(() => employees.value);
+
+watch(searchQuery, () => {
+  currentPage.value = 1;
+  fetchEmployees();
 });
 
-const totalPages = computed(() => Math.ceil(filteredEmployees.value.length / itemsPerPage));
-
-const paginatedEmployees = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage;
-  const end = start + itemsPerPage;
-  return filteredEmployees.value.slice(start, end);
+watch(currentPage, () => {
+  fetchEmployees();
 });
 
 const nextPage = () => {
@@ -244,8 +243,8 @@ const prevPage = () => {
           <div class="border-t border-gray-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-zinc-950/50">
             <div class="text-sm text-gray-500 dark:text-zinc-400">
               Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedEmployees.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, filteredEmployees.length) }}</span> dari 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ filteredEmployees.length }}</span> karyawan
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> dari 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> karyawan
             </div>
             <div class="flex items-center space-x-2">
               <Button 

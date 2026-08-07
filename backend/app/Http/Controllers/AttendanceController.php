@@ -13,11 +13,33 @@ class AttendanceController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        if ($user->role === 'admin') {
-            return response()->json(Attendance::with('user')->orderBy('date', 'desc')->get());
-        } else {
-            return response()->json(Attendance::where('user_id', $user->id)->orderBy('date', 'desc')->get());
+        
+        $query = Attendance::with('user');
+        
+        if ($user->role !== 'admin') {
+            $query->where('user_id', $user->id);
         }
+
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->whereHas('user', function ($q2) use ($search) {
+                    $q2->where('name', 'like', "%{$search}%");
+                })->orWhere('status', 'like', "%{$search}%");
+            });
+        }
+
+        $sortBy = $request->input('sort_by', 'date');
+        $sortDir = $request->input('sort_dir', 'desc');
+        $query->orderBy($sortBy, $sortDir);
+
+        $perPage = $request->input('per_page', 10);
+        
+        if ($perPage == -1 || $request->input('paginate') === 'false') {
+            return response()->json($query->get());
+        }
+
+        return response()->json($query->paginate($perPage));
     }
 
     public function today()

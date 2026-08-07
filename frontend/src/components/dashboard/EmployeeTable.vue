@@ -29,8 +29,8 @@ const loading = ref(true);
 const fetchEmployees = async () => {
   try {
     const { data } = await api.get("/users");
-    // Asumsikan data dari API berbentuk array of objects
-    employees.value = data;
+    // Asumsikan data dari API berbentuk paginated object
+    employees.value = data.data;
   } catch (error) {
     console.error("Failed to fetch employees", error);
   } finally {

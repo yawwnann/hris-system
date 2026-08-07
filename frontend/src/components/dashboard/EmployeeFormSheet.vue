@@ -80,9 +80,9 @@ watch(() => props.modelValue, (val) => {
 const fetchOptions = async () => {
   try {
     const [divRes, posRes, shiftRes] = await Promise.all([
-      api.get('/divisions'),
-      api.get('/positions'),
-      api.get('/shifts')
+      api.get('/divisions', { params: { paginate: false } }),
+      api.get('/positions', { params: { paginate: false } }),
+      api.get('/shifts', { params: { paginate: false } })
     ]);
     divisions.value = divRes.data;
     positions.value = posRes.data;
