@@ -5,6 +5,7 @@ import {
   Search,
   MoreHorizontal,
   CheckCircle,
+  XCircle,
 } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,16 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -64,6 +75,9 @@ const totalItems = ref(0);
 const isAddDialogOpen = ref(false);
 const isApprovalDialogOpen = ref(false);
 const isSubmitting = ref(false);
+
+const isDeleteDialogOpen = ref(false);
+const itemToDelete = ref<number | null>(null);
 
 const formData = ref({
   date: "",
@@ -176,6 +190,25 @@ const submitApproval = async () => {
   }
 };
 
+const confirmDelete = (id: number) => {
+  itemToDelete.value = id;
+  isDeleteDialogOpen.value = true;
+};
+
+const executeDelete = async () => {
+  if (!itemToDelete.value) return;
+  try {
+    await api.delete(`/overtime-requests/${itemToDelete.value}`);
+    toast.success("Pengajuan berhasil dibatalkan");
+    fetchOvertimes();
+  } catch (error: any) {
+    toast.error(error.response?.data?.message || "Gagal membatalkan pengajuan");
+  } finally {
+    isDeleteDialogOpen.value = false;
+    itemToDelete.value = null;
+  }
+};
+
 const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYYY");
 const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:mm:ss").format("HH:mm") : "-";
 
@@ -228,7 +261,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Durasi</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Alasan</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Status</TableHead>
-                  <TableHead v-if="authStore.user?.role === 'admin'" class="text-right font-semibold text-gray-600 dark:text-zinc-300 pr-4">Aksi</TableHead>
+                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300 pr-4">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -288,7 +321,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                     </Badge>
                   </TableCell>
                   
-                  <TableCell v-if="authStore.user?.role === 'admin'" class="text-right py-4 pr-4">
+                  <TableCell class="text-right py-4 pr-4">
                     <DropdownMenu v-if="ot.status === 'pending'">
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" class="h-8 w-8 text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100">
@@ -296,8 +329,11 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" class="w-40 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                        <DropdownMenuItem @click="openApprovalDialog(ot)" class="cursor-pointer text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
+                        <DropdownMenuItem v-if="authStore.user?.role === 'admin'" @click="openApprovalDialog(ot)" class="cursor-pointer text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
                           <CheckCircle class="mr-2 h-4 w-4" /> Proses
+                        </DropdownMenuItem>
+                        <DropdownMenuItem @click="confirmDelete(ot.id)" class="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
+                          <XCircle class="mr-2 h-4 w-4" /> Batalkan
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -455,6 +491,22 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
         </form>
       </DialogContent>
     </Dialog>
+
+    <!-- Alert Dialog Konfirmasi Hapus -->
+    <AlertDialog v-model:open="isDeleteDialogOpen">
+      <AlertDialogContent class="bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800">
+        <AlertDialogHeader>
+          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Batalkan Pengajuan?</AlertDialogTitle>
+          <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
+            Apakah Anda yakin ingin membatalkan pengajuan ini?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Tidak</AlertDialogCancel>
+          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Ya, Batalkan</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
 
   </div>
 </template>

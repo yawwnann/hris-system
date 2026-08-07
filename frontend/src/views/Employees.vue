@@ -27,6 +27,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import AppSidebar from "@/components/layout/AppSidebar.vue";
 import AppHeader from "@/components/layout/AppHeader.vue";
 import AppBreadcrumb from "@/components/layout/AppBreadcrumb.vue";
@@ -48,6 +58,9 @@ const totalItems = ref(0);
 // Form State
 const isFormOpen = ref(false);
 const selectedEmployee = ref<any>(null);
+
+const isDeleteDialogOpen = ref(false);
+const itemToDelete = ref<number | null>(null);
 
 // Fetch Employees
 const fetchEmployees = async () => {
@@ -81,15 +94,23 @@ const openEditForm = (employee: any) => {
   isFormOpen.value = true;
 };
 
-const deleteEmployee = async (id: number) => {
-  if (!confirm("Apakah Anda yakin ingin menghapus karyawan ini? Data yang dihapus tidak dapat dikembalikan.")) return;
+const confirmDelete = (id: number) => {
+  itemToDelete.value = id;
+  isDeleteDialogOpen.value = true;
+};
+
+const executeDelete = async () => {
+  if (!itemToDelete.value) return;
   
   try {
-    await api.delete(`/users/${id}`);
+    await api.delete(`/users/${itemToDelete.value}`);
     toast.success("Karyawan berhasil dihapus");
     fetchEmployees();
   } catch (error) {
     toast.error("Gagal menghapus karyawan");
+  } finally {
+    isDeleteDialogOpen.value = false;
+    itemToDelete.value = null;
   }
 };
 
@@ -225,10 +246,10 @@ const prevPage = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" class="w-40 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                        <DropdownMenuItem @click="openEditForm(employee)" class="cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 text-gray-700 dark:text-gray-300">
+                        <DropdownMenuItem @click="openEditForm(employee)" class="cursor-pointer text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
                           <Edit class="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem @click="deleteEmployee(employee.id)" class="cursor-pointer text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 focus:text-red-600 dark:focus:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20">
+                        <DropdownMenuItem @click="confirmDelete(employee.id)" class="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
                           <Trash2 class="mr-2 h-4 w-4" /> Hapus
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -277,5 +298,21 @@ const prevPage = () => {
       :employeeToEdit="selectedEmployee" 
       @saved="fetchEmployees" 
     />
+
+    <!-- Alert Dialog Konfirmasi Hapus -->
+    <AlertDialog v-model:open="isDeleteDialogOpen">
+      <AlertDialogContent class="bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800">
+        <AlertDialogHeader>
+          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Hapus Karyawan?</AlertDialogTitle>
+          <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
+            Karyawan ini akan dihapus. Semua data terkait tidak dapat dikembalikan.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Batal</AlertDialogCancel>
+          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Ya, Hapus</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 </template>
