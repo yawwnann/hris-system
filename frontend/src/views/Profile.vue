@@ -65,11 +65,11 @@ const saveProfile = async () => {
     });
     
     authStore.user = response.data;
-    toast.success("Profil berhasil diperbarui");
+    toast.success("Profile successfully updated");
     formData.value.password = "";
   } catch (error: any) {
     console.error(error);
-    toast.error(error.response?.data?.message || "Gagal memperbarui profil");
+    toast.error(error.response?.data?.message || "Failed to update profile");
   } finally {
     isSubmitting.value = false;
   }
@@ -90,10 +90,10 @@ const saveProfile = async () => {
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
               <User class="w-6 h-6 mr-3 text-indigo-600 dark:text-indigo-400" />
-              Profil Karyawan
+              Employee Profile
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
-              Kelola informasi pribadi dan keamanan akun Anda.
+              Manage your personal information and account security.
             </p>
           </div>
         </div>
@@ -115,49 +115,49 @@ const saveProfile = async () => {
                   <input type="file" ref="fileInput" accept="image/*" class="hidden" @change="handleFileChange" />
                 </div>
                 <h3 class="font-semibold text-gray-900 dark:text-zinc-100 text-lg">{{ authStore.user?.name }}</h3>
-                <p class="text-gray-500 dark:text-zinc-400 text-sm">{{ authStore.user?.position?.name || 'Belum ada jabatan' }}</p>
+                <p class="text-gray-500 dark:text-zinc-400 text-sm">{{ authStore.user?.position?.name || 'No position yet' }}</p>
                 <div class="mt-4 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-xs rounded-full font-medium">
-                  {{ authStore.user?.division?.name || 'Belum ada divisi' }}
+                  {{ authStore.user?.division?.name || 'No division yet' }}
                 </div>
               </div>
 
               <!-- Form Section -->
               <div class="p-8 md:w-2/3 space-y-6">
                 <div class="space-y-4">
-                  <h3 class="text-base font-semibold text-gray-800 dark:text-zinc-200 border-b border-gray-100 dark:border-zinc-800 pb-2">Informasi Kontak</h3>
+                  <h3 class="text-base font-semibold text-gray-800 dark:text-zinc-200 border-b border-gray-100 dark:border-zinc-800 pb-2">Contact Information</h3>
                   <div class="grid grid-cols-1 gap-4">
                     <div class="space-y-2">
-                      <Label class="text-gray-700 dark:text-gray-300">Nomor Telepon</Label>
+                      <Label class="text-gray-700 dark:text-gray-300">Phone Number</Label>
                       <div class="relative">
                         <Phone class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <Input v-model="formData.phone" placeholder="Contoh: 081234567890" class="pl-9 bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800" />
+                        <Input v-model="formData.phone" placeholder="Example: 081234567890" class="pl-9 bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800" />
                       </div>
                     </div>
                     <div class="space-y-2">
-                      <Label class="text-gray-700 dark:text-gray-300">Alamat Lengkap</Label>
+                      <Label class="text-gray-700 dark:text-gray-300">Full Address</Label>
                       <div class="relative">
                         <MapPin class="w-4 h-4 absolute left-3 top-3 text-gray-400" />
-                        <Textarea v-model="formData.address" placeholder="Masukkan alamat lengkap" class="pl-9 min-h-[80px] bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800" />
+                        <Textarea v-model="formData.address" placeholder="Enter full address" class="pl-9 min-h-[80px] bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800" />
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div class="space-y-4 pt-4">
-                  <h3 class="text-base font-semibold text-gray-800 dark:text-zinc-200 border-b border-gray-100 dark:border-zinc-800 pb-2">Keamanan Akun</h3>
+                  <h3 class="text-base font-semibold text-gray-800 dark:text-zinc-200 border-b border-gray-100 dark:border-zinc-800 pb-2">Account Security</h3>
                   <div class="space-y-2">
-                    <Label class="text-gray-700 dark:text-gray-300">Password Baru</Label>
+                    <Label class="text-gray-700 dark:text-gray-300">New Password</Label>
                     <div class="relative">
                       <Lock class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <Input type="password" v-model="formData.password" placeholder="Biarkan kosong jika tidak ingin mengubah" class="pl-9 bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800" />
+                      <Input type="password" v-model="formData.password" placeholder="Leave blank if you do not want to change" class="pl-9 bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800" />
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">* Minimal 6 karakter.</p>
+                    <p class="text-xs text-gray-500 mt-1">* Minimum 6 characters.</p>
                   </div>
                 </div>
 
                 <div class="pt-6 flex justify-end">
                   <Button type="submit" :disabled="isSubmitting" class="bg-indigo-600 hover:bg-indigo-700 text-white w-full md:w-auto">
-                    <Save class="w-4 h-4 mr-2" /> {{ isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan' }}
+                    <Save class="w-4 h-4 mr-2" /> {{ isSubmitting ? 'Saving...' : 'Save Changes' }}
                   </Button>
                 </div>
               </div>

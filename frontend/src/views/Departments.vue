@@ -87,7 +87,7 @@ const fetchDepartments = async () => {
     totalItems.value = data.total;
   } catch (error) {
     console.error("Failed to fetch departments", error);
-    toast.error("Gagal mengambil data departemen");
+    toast.error("Failed to fetch department data");
   } finally {
     loading.value = false;
   }
@@ -133,7 +133,7 @@ const openEditDialog = (dept: any) => {
 
 const saveDepartment = async () => {
   if (!formData.value.name.trim()) {
-    toast.error("Nama departemen tidak boleh kosong");
+    toast.error("Department name cannot be empty");
     return;
   }
   
@@ -141,15 +141,15 @@ const saveDepartment = async () => {
   try {
     if (editMode.value) {
       await api.put(`/divisions/${formData.value.id}`, { name: formData.value.name });
-      toast.success("Departemen berhasil diperbarui");
+      toast.success("Department successfully updated");
     } else {
       await api.post("/divisions", { name: formData.value.name });
-      toast.success("Departemen baru berhasil ditambahkan");
+      toast.success("New department successfully added");
     }
     isDialogOpen.value = false;
     fetchDepartments();
   } catch (error: any) {
-    toast.error(error.response?.data?.message || "Gagal menyimpan departemen");
+    toast.error(error.response?.data?.message || "Failed to save department");
   } finally {
     isSubmitting.value = false;
   }
@@ -165,10 +165,10 @@ const executeDelete = async () => {
   
   try {
     await api.delete(`/divisions/${itemToDelete.value}`);
-    toast.success("Departemen berhasil dihapus");
+    toast.success("Department successfully deleted");
     fetchDepartments();
   } catch (error) {
-    toast.error("Gagal menghapus departemen");
+    toast.error("Failed to delete department");
   } finally {
     isDeleteDialogOpen.value = false;
     itemToDelete.value = null;
@@ -189,9 +189,9 @@ const executeDelete = async () => {
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
-              Departemen & Divisi
+              Departments & Divisions
             </h1>
-            <p class="text-gray-500 dark:text-zinc-400 mt-1">Kelola daftar divisi dan jumlah karyawannya.</p>
+            <p class="text-gray-500 dark:text-zinc-400 mt-1">Manage the list of divisions and their number of employees.</p>
           </div>
           
           <div class="flex items-center space-x-3">
@@ -199,12 +199,12 @@ const executeDelete = async () => {
               <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
               <Input 
                 v-model="searchQuery"
-                placeholder="Cari departemen..." 
+                placeholder="Search departments..." 
                 class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100"
               />
             </div>
             <Button @click="openAddDialog" class="bg-indigo-600 hover:bg-indigo-700 text-white dark:text-white">
-              <Plus class="w-4 h-4 mr-2" /> Tambah Departemen
+              <Plus class="w-4 h-4 mr-2" /> Add Department
             </Button>
           </div>
         </div>
@@ -216,20 +216,20 @@ const executeDelete = async () => {
               <TableHeader class="bg-gray-50 dark:bg-zinc-950/50">
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
                   <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">ID</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Nama Departemen</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Total Karyawan</TableHead>
-                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300">Aksi</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Department Name</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Total Employees</TableHead>
+                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <TableRow v-if="loading">
                   <TableCell colspan="4" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    Memuat data departemen...
+                    Loading department data...
                   </TableCell>
                 </TableRow>
                 <TableRow v-else-if="paginatedDepartments.length === 0">
                   <TableCell colspan="4" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    Tidak ada departemen ditemukan.
+                    No departments found.
                   </TableCell>
                 </TableRow>
                 <TableRow 
@@ -248,7 +248,7 @@ const executeDelete = async () => {
                   
                   <TableCell class="py-4">
                     <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-400">
-                      {{ dept.users_count || 0 }} Karyawan
+                      {{ dept.users_count || 0 }} Employees
                     </div>
                   </TableCell>
                   
@@ -264,7 +264,7 @@ const executeDelete = async () => {
                           <Edit class="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem @click="confirmDelete(dept.id)" class="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
-                          <Trash2 class="mr-2 h-4 w-4" /> Hapus
+                          <Trash2 class="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -277,9 +277,9 @@ const executeDelete = async () => {
           <!-- Pagination -->
           <div class="border-t border-gray-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-zinc-950/50">
             <div class="text-sm text-gray-500 dark:text-zinc-400">
-              Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedDepartments.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> dari 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> departemen
+              Showing <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedDepartments.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> of 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> departments
             </div>
             <div class="flex items-center space-x-2">
               <Button 
@@ -289,7 +289,7 @@ const executeDelete = async () => {
                 :disabled="currentPage === 1"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Sebelumnya
+                Previous
               </Button>
               <Button 
                 variant="outline" 
@@ -298,7 +298,7 @@ const executeDelete = async () => {
                 :disabled="currentPage >= totalPages"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Selanjutnya
+                Next
               </Button>
             </div>
           </div>
@@ -310,19 +310,19 @@ const executeDelete = async () => {
     <Dialog v-model:open="isDialogOpen">
       <DialogContent class="sm:max-w-[425px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
         <DialogHeader>
-          <DialogTitle class="text-gray-900 dark:text-zinc-100">{{ editMode ? 'Edit Departemen' : 'Tambah Departemen' }}</DialogTitle>
+          <DialogTitle class="text-gray-900 dark:text-zinc-100">{{ editMode ? 'Edit Department' : 'Add Department' }}</DialogTitle>
           <DialogDescription class="text-gray-500 dark:text-zinc-400">
-            {{ editMode ? 'Ubah nama departemen di bawah ini.' : 'Masukkan nama departemen/divisi baru.' }}
+            {{ editMode ? 'Change the department name below.' : 'Enter a new department/division name.' }}
           </DialogDescription>
         </DialogHeader>
         
         <form @submit.prevent="saveDepartment" class="space-y-4 py-4">
           <div class="space-y-2">
-            <Label for="name" class="text-gray-700 dark:text-gray-300">Nama Departemen</Label>
+            <Label for="name" class="text-gray-700 dark:text-gray-300">Department Name</Label>
             <Input 
               id="name" 
               v-model="formData.name" 
-              placeholder="Contoh: IT Support" 
+              placeholder="Example: IT Support" 
               class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
               autoFocus
             />
@@ -330,10 +330,10 @@ const executeDelete = async () => {
           
           <DialogFooter class="pt-4">
             <Button type="button" variant="outline" @click="isDialogOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-              Batal
+              Cancel
             </Button>
             <Button type="submit" :disabled="isSubmitting" class="bg-indigo-600 hover:bg-indigo-700 text-white">
-              {{ isSubmitting ? 'Menyimpan...' : 'Simpan' }}
+              {{ isSubmitting ? 'Saving...' : 'Save' }}
             </Button>
           </DialogFooter>
         </form>
@@ -344,14 +344,14 @@ const executeDelete = async () => {
     <AlertDialog v-model:open="isDeleteDialogOpen">
       <AlertDialogContent class="bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800">
         <AlertDialogHeader>
-          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Hapus Departemen?</AlertDialogTitle>
+          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Delete Department?</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
-            Departemen ini akan dihapus. Aksi ini tidak dapat dibatalkan.
+            This department will be deleted. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Batal</AlertDialogCancel>
-          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Ya, Hapus</AlertDialogAction>
+          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Cancel</AlertDialogCancel>
+          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Yes, Delete</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

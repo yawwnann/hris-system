@@ -92,7 +92,7 @@ const fetchAnnouncements = async () => {
     totalItems.value = data.total;
   } catch (error) {
     console.error("Failed to fetch announcements", error);
-    toast.error("Gagal mengambil data pengumuman");
+    toast.error("Failed to fetch announcements data");
   } finally {
     loading.value = false;
   }
@@ -135,7 +135,7 @@ const openEditDialog = (announcement: any) => {
 
 const submitAnnouncement = async () => {
   if (!formData.value.title || !formData.value.content) {
-    toast.error("Harap isi judul dan konten pengumuman");
+    toast.error("Please fill in the announcement title and content");
     return;
   }
 
@@ -147,15 +147,15 @@ const submitAnnouncement = async () => {
     };
     if (editId.value) {
       await api.put(`/announcements/${editId.value}`, payload);
-      toast.success("Pengumuman berhasil diperbarui");
+      toast.success("Announcement successfully updated");
     } else {
       await api.post("/announcements", payload);
-      toast.success("Pengumuman berhasil dibuat");
+      toast.success("Announcement successfully created");
     }
     isAddDialogOpen.value = false;
     fetchAnnouncements();
   } catch (error: any) {
-    toast.error(error.response?.data?.message || "Gagal menyimpan pengumuman");
+    toast.error(error.response?.data?.message || "Failed to save announcement");
   } finally {
     isSubmitting.value = false;
   }
@@ -170,10 +170,10 @@ const executeDelete = async () => {
   if (!itemToDelete.value) return;
   try {
     await api.delete(`/announcements/${itemToDelete.value}`);
-    toast.success("Pengumuman berhasil dihapus");
+    toast.success("Announcement successfully deleted");
     fetchAnnouncements();
   } catch (error: any) {
-    toast.error(error.response?.data?.message || "Gagal menghapus pengumuman");
+    toast.error(error.response?.data?.message || "Failed to delete announcement");
   } finally {
     isDeleteDialogOpen.value = false;
     itemToDelete.value = null;
@@ -197,10 +197,10 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
               <Megaphone class="w-6 h-6 mr-3 text-indigo-600 dark:text-indigo-400" />
-              Pengumuman
+              Announcements
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
-              {{ authStore.user?.role === 'admin' ? 'Kelola informasi dan pengumuman untuk seluruh karyawan.' : 'Informasi dan pengumuman terbaru dari perusahaan.' }}
+              {{ authStore.user?.role === 'admin' ? 'Manage information and announcements for all employees.' : 'Latest information and announcements from the company.' }}
             </p>
           </div>
           
@@ -209,23 +209,23 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
               <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
               <Input 
                 v-model="searchQuery"
-                placeholder="Cari pengumuman..."
+                placeholder="Search announcements..."
                 class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100"
               />
             </div>
             <Button v-if="authStore.user?.role === 'admin'" @click="openAddDialog" class="bg-indigo-600 hover:bg-indigo-700 text-white">
-              <Plus class="w-4 h-4 mr-2" /> Buat Pengumuman
+              <Plus class="w-4 h-4 mr-2" /> Create Announcement
             </Button>
           </div>
         </div>
 
         <!-- Empty State -->
         <div v-if="loading" class="flex justify-center items-center h-64">
-           <div class="text-gray-500 dark:text-zinc-400">Memuat pengumuman...</div>
+           <div class="text-gray-500 dark:text-zinc-400">Loading announcements...</div>
         </div>
         <div v-else-if="announcements.length === 0" class="flex flex-col items-center justify-center h-64 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-gray-300 dark:border-zinc-700">
            <Megaphone class="w-12 h-12 text-gray-300 dark:text-zinc-600 mb-4" />
-           <p class="text-gray-500 dark:text-zinc-400">Belum ada pengumuman saat ini.</p>
+           <p class="text-gray-500 dark:text-zinc-400">No announcements available yet.</p>
         </div>
 
         <!-- Grid Container -->
@@ -238,7 +238,7 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
             <div class="p-6 flex-1 flex flex-col">
               <div class="flex justify-between items-start mb-4">
                 <Badge :variant="item.status === 'published' ? 'default' : 'secondary'" :class="item.status === 'published' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100' : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400'">
-                  {{ item.status === 'published' ? 'Dipublikasikan' : 'Draft' }}
+                  {{ item.status === 'published' ? 'Published' : 'Draft' }}
                 </Badge>
                 
                 <DropdownMenu v-if="authStore.user?.role === 'admin'">
@@ -252,7 +252,7 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
                       <Edit class="mr-2 h-4 w-4" /> Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem @click="confirmDelete(item.id)" class="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
-                      <Trash2 class="mr-2 h-4 w-4" /> Hapus
+                      <Trash2 class="mr-2 h-4 w-4" /> Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -279,7 +279,7 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="mt-8 flex items-center justify-between bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 px-6 py-4 rounded-xl shadow-sm">
           <div class="text-sm text-gray-500 dark:text-zinc-400">
-            Halaman <span class="font-medium text-gray-900 dark:text-zinc-100">{{ currentPage }}</span> dari <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalPages }}</span>
+            Page <span class="font-medium text-gray-900 dark:text-zinc-100">{{ currentPage }}</span> of <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalPages }}</span>
           </div>
           <div class="flex items-center space-x-2">
             <Button 
@@ -289,7 +289,7 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
               :disabled="currentPage === 1"
               class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
             >
-              Sebelumnya
+              Previous
             </Button>
             <Button 
               variant="outline" 
@@ -298,7 +298,7 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
               :disabled="currentPage >= totalPages"
               class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
             >
-              Selanjutnya
+              Next
             </Button>
           </div>
         </div>
@@ -310,30 +310,30 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
     <Dialog v-model:open="isAddDialogOpen">
       <DialogContent class="sm:max-w-[600px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
         <DialogHeader>
-          <DialogTitle class="text-gray-900 dark:text-zinc-100">{{ editId ? 'Edit Pengumuman' : 'Buat Pengumuman Baru' }}</DialogTitle>
+          <DialogTitle class="text-gray-900 dark:text-zinc-100">{{ editId ? 'Edit Announcement' : 'Create New Announcement' }}</DialogTitle>
           <DialogDescription class="text-gray-500 dark:text-zinc-400">
-            Pastikan isi pesan jelas dan mudah dipahami oleh semua karyawan.
+            Ensure the message content is clear and easy for all employees to understand.
           </DialogDescription>
         </DialogHeader>
         
         <form @submit.prevent="submitAnnouncement" class="space-y-5 py-4">
           <div class="space-y-2">
-            <Label for="title" class="text-gray-700 dark:text-gray-300">Judul Pengumuman</Label>
+            <Label for="title" class="text-gray-700 dark:text-gray-300">Announcement Title</Label>
             <Input 
               id="title" 
               v-model="formData.title" 
-              placeholder="Contoh: Perubahan Jam Kerja..." 
+              placeholder="E.g., Change in Working Hours..." 
               class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
               required
             />
           </div>
 
           <div class="space-y-2">
-            <Label for="content" class="text-gray-700 dark:text-gray-300">Isi Pengumuman</Label>
+            <Label for="content" class="text-gray-700 dark:text-gray-300">Announcement Content</Label>
             <Textarea 
               id="content" 
               v-model="formData.content" 
-              placeholder="Tuliskan rincian pengumuman disini..." 
+              placeholder="Write the announcement details here..." 
               class="min-h-[150px] bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
               required
             />
@@ -344,18 +344,18 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
               <Label class="text-gray-700 dark:text-gray-300">Status</Label>
               <Select v-model="formData.status">
                 <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
-                  <SelectValue placeholder="Pilih status" />
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                   <SelectGroup>
-                    <SelectItem value="published">Publish Sekarang</SelectItem>
-                    <SelectItem value="draft">Simpan sbg Draft</SelectItem>
+                    <SelectItem value="published">Publish Now</SelectItem>
+                    <SelectItem value="draft">Save as Draft</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
             <div class="space-y-2">
-              <Label for="publish_date" class="text-gray-700 dark:text-gray-300">Tanggal Publikasi (Opsional)</Label>
+              <Label for="publish_date" class="text-gray-700 dark:text-gray-300">Publish Date (Optional)</Label>
               <Input 
                 id="publish_date" 
                 type="datetime-local"
@@ -367,10 +367,10 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
           
           <DialogFooter class="pt-4">
             <Button type="button" variant="outline" @click="isAddDialogOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-              Batal
+              Cancel
             </Button>
             <Button type="submit" :disabled="isSubmitting" class="bg-indigo-600 hover:bg-indigo-700 text-white">
-              {{ isSubmitting ? 'Menyimpan...' : 'Simpan Pengumuman' }}
+              {{ isSubmitting ? 'Saving...' : 'Save Announcement' }}
             </Button>
           </DialogFooter>
         </form>
@@ -381,14 +381,14 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
     <AlertDialog v-model:open="isDeleteDialogOpen">
       <AlertDialogContent class="bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800">
         <AlertDialogHeader>
-          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Apakah Anda yakin?</AlertDialogTitle>
+          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Are you sure?</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
-            Pengumuman ini akan dihapus secara permanen dan tidak dapat dikembalikan.
+            This announcement will be permanently deleted and cannot be recovered.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Batal</AlertDialogCancel>
-          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Hapus Pengumuman</AlertDialogAction>
+          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Cancel</AlertDialogCancel>
+          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Delete Announcement</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

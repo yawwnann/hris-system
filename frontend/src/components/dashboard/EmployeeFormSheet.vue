@@ -88,7 +88,7 @@ const fetchOptions = async () => {
     positions.value = posRes.data;
     shifts.value = shiftRes.data;
   } catch (error) {
-    toast.error('Gagal memuat data opsi divisi/posisi');
+    toast.error('Failed to load division/position options');
   }
 };
 
@@ -103,16 +103,16 @@ const saveEmployee = async () => {
     
     if (isEditing.value) {
       await api.put(`/users/${props.employeeToEdit.id}`, payload);
-      toast.success('Berhasil mengubah data karyawan');
+      toast.success('Successfully updated employee data');
     } else {
       await api.post('/users', payload);
-      toast.success('Berhasil menambah karyawan baru');
+      toast.success('Successfully added new employee');
     }
     
     isOpen.value = false;
     emit('saved');
   } catch (error: any) {
-    toast.error(error.response?.data?.message || 'Terjadi kesalahan saat menyimpan data');
+    toast.error(error.response?.data?.message || 'An error occurred while saving data');
   } finally {
     loading.value = false;
   }
@@ -123,18 +123,18 @@ const saveEmployee = async () => {
   <Sheet v-model:open="isOpen">
     <SheetContent class="sm:max-w-xl w-[90vw] overflow-y-auto bg-white dark:bg-zinc-950 border-l border-gray-200 dark:border-zinc-800">
       <SheetHeader class="mb-6">
-        <SheetTitle class="text-gray-900 dark:text-gray-100">{{ isEditing ? 'Edit Karyawan' : 'Tambah Karyawan Baru' }}</SheetTitle>
+        <SheetTitle class="text-gray-900 dark:text-gray-100">{{ isEditing ? 'Edit Employee' : 'Add New Employee' }}</SheetTitle>
         <SheetDescription class="text-gray-500 dark:text-gray-400">
-          Silakan lengkapi form di bawah ini dengan data karyawan yang benar.
+          Please fill in the form below with the correct employee data.
         </SheetDescription>
       </SheetHeader>
       
       <form @submit.prevent="saveEmployee" class="space-y-6 pb-20">
         <div class="space-y-4">
-          <h3 class="text-sm font-semibold text-gray-900 dark:text-zinc-300 border-b pb-2 border-gray-100 dark:border-zinc-800">Informasi Pribadi</h3>
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-zinc-300 border-b pb-2 border-gray-100 dark:border-zinc-800">Personal Information</h3>
           
           <div class="space-y-1">
-            <Label class="text-gray-700 dark:text-gray-300">Nama Lengkap</Label>
+            <Label class="text-gray-700 dark:text-gray-300">Full Name</Label>
             <Input v-model="form.name" required placeholder="John Doe" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100" />
           </div>
           
@@ -144,7 +144,7 @@ const saveEmployee = async () => {
               <Input v-model="form.email" type="email" required placeholder="john@example.com" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100" />
             </div>
             <div class="space-y-1">
-              <Label class="text-gray-700 dark:text-gray-300">Nomor Induk (NIK)</Label>
+              <Label class="text-gray-700 dark:text-gray-300">ID Number (NIK)</Label>
               <Input v-model="form.nik" placeholder="EMP-001" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100" />
             </div>
           </div>
@@ -153,24 +153,24 @@ const saveEmployee = async () => {
             <div class="space-y-1">
               <Label class="text-gray-700 dark:text-gray-300">Password</Label>
               <Input v-model="form.password" type="password" :required="!isEditing" placeholder="******" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100" />
-              <p v-if="isEditing" class="text-[10px] text-gray-500 mt-1">Kosongkan jika tidak ingin mengubah password.</p>
+              <p v-if="isEditing" class="text-[10px] text-gray-500 mt-1">Leave blank if you do not want to change the password.</p>
             </div>
             <div class="space-y-1">
-              <Label class="text-gray-700 dark:text-gray-300">Nomor Telepon</Label>
+              <Label class="text-gray-700 dark:text-gray-300">Phone Number</Label>
               <Input v-model="form.phone" placeholder="+62 8..." class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100" />
             </div>
           </div>
         </div>
         
         <div class="space-y-4">
-          <h3 class="text-sm font-semibold text-gray-900 dark:text-zinc-300 border-b pb-2 border-gray-100 dark:border-zinc-800">Pekerjaan & Status</h3>
+          <h3 class="text-sm font-semibold text-gray-900 dark:text-zinc-300 border-b pb-2 border-gray-100 dark:border-zinc-800">Job & Status</h3>
           
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-1">
-              <Label class="text-gray-700 dark:text-gray-300">Divisi</Label>
+              <Label class="text-gray-700 dark:text-gray-300">Division</Label>
               <Select v-model="form.division_id">
                 <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-                  <SelectValue placeholder="Pilih Divisi" />
+                  <SelectValue placeholder="Select Division" />
                 </SelectTrigger>
                 <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                   <SelectItem v-for="div in divisions" :key="div.id" :value="String(div.id)" class="text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-zinc-800">{{ div.name }}</SelectItem>
@@ -178,10 +178,10 @@ const saveEmployee = async () => {
               </Select>
             </div>
             <div class="space-y-1">
-              <Label class="text-gray-700 dark:text-gray-300">Posisi/Jabatan</Label>
+              <Label class="text-gray-700 dark:text-gray-300">Position</Label>
               <Select v-model="form.position_id">
                 <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-                  <SelectValue placeholder="Pilih Posisi" />
+                  <SelectValue placeholder="Select Position" />
                 </SelectTrigger>
                 <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                   <SelectItem v-for="pos in positions" :key="pos.id" :value="String(pos.id)" class="text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-zinc-800">{{ pos.name }}</SelectItem>
@@ -192,10 +192,10 @@ const saveEmployee = async () => {
           
           <div class="grid grid-cols-2 gap-4">
              <div class="space-y-1">
-              <Label class="text-gray-700 dark:text-gray-300">Shift Kerja</Label>
+              <Label class="text-gray-700 dark:text-gray-300">Work Shift</Label>
               <Select v-model="form.shift_id">
                 <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-                  <SelectValue placeholder="Pilih Shift" />
+                  <SelectValue placeholder="Select Shift" />
                 </SelectTrigger>
                 <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                   <SelectItem v-for="shift in shifts" :key="shift.id" :value="String(shift.id)" class="text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-zinc-800">{{ shift.name }} ({{ shift.start_time }} - {{ shift.end_time }})</SelectItem>
@@ -203,13 +203,13 @@ const saveEmployee = async () => {
               </Select>
             </div>
              <div class="space-y-1">
-              <Label class="text-gray-700 dark:text-gray-300">Hak Akses Sistem</Label>
+              <Label class="text-gray-700 dark:text-gray-300">System Access Rights</Label>
               <Select v-model="form.role">
                 <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-                  <SelectValue placeholder="Pilih Akses" />
+                  <SelectValue placeholder="Select Access" />
                 </SelectTrigger>
                 <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                  <SelectItem value="employee" class="text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-zinc-800">Employee / Karyawan</SelectItem>
+                  <SelectItem value="employee" class="text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-zinc-800">Employee</SelectItem>
                   <SelectItem value="admin" class="text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-zinc-800">Super Admin</SelectItem>
                 </SelectContent>
               </Select>
@@ -217,14 +217,14 @@ const saveEmployee = async () => {
           </div>
           
           <div class="space-y-1">
-            <Label class="text-gray-700 dark:text-gray-300">Status Aktif</Label>
+            <Label class="text-gray-700 dark:text-gray-300">Active Status</Label>
             <Select v-model="form.status">
               <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-                <SelectValue placeholder="Pilih Status" />
+                <SelectValue placeholder="Select Status" />
               </SelectTrigger>
               <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                <SelectItem value="active" class="text-green-600 dark:text-green-400 focus:bg-green-50 dark:focus:bg-green-900/20">Aktif Bekerja</SelectItem>
-                <SelectItem value="inactive" class="text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20">Nonaktif / Keluar</SelectItem>
+                <SelectItem value="active" class="text-green-600 dark:text-green-400 focus:bg-green-50 dark:focus:bg-green-900/20">Active Working</SelectItem>
+                <SelectItem value="inactive" class="text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20">Inactive / Left</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -232,9 +232,9 @@ const saveEmployee = async () => {
 
         <SheetFooter class="absolute bottom-0 left-0 right-0 p-4 bg-white dark:bg-zinc-950 border-t border-gray-200 dark:border-zinc-800">
           <div class="flex justify-end space-x-2 w-full">
-            <Button type="button" variant="outline" @click="isOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">Batal</Button>
+            <Button type="button" variant="outline" @click="isOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">Cancel</Button>
             <Button type="submit" :disabled="loading" class="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[120px]">
-              {{ loading ? 'Menyimpan...' : 'Simpan Karyawan' }}
+              {{ loading ? 'Saving...' : 'Save Employee' }}
             </Button>
           </div>
         </SheetFooter>

@@ -57,7 +57,7 @@ const fetchData = async () => {
     todayRecord.value = todayRes.data;
   } catch (error) {
     console.error("Failed to fetch attendance data", error);
-    toast.error("Gagal mengambil data kehadiran");
+    toast.error("Failed to fetch attendance data");
   } finally {
     loading.value = false;
   }
@@ -95,12 +95,12 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
 // Geolocation & Clock In / Out
 const handleClockAction = (type: 'in' | 'out') => {
   if (!navigator.geolocation) {
-    toast.error("Geolocation tidak didukung oleh browser Anda");
+    toast.error("Geolocation is not supported by your browser");
     return;
   }
 
   locationLoading.value = true;
-  toast.info("Mendapatkan lokasi Anda...");
+  toast.info("Getting your location...");
 
   navigator.geolocation.getCurrentPosition(
     async (position) => {
@@ -111,12 +111,12 @@ const handleClockAction = (type: 'in' | 'out') => {
         const endpoint = type === 'in' ? "/attendance/check-in" : "/attendance/check-out";
         const { data } = await api.post(endpoint, { lat, long });
         
-        toast.success(data.message || `Berhasil ${type === 'in' ? 'Check In' : 'Check Out'}`);
+        toast.success(data.message || `Successfully ${type === 'in' ? 'Check In' : 'Check Out'}`);
         fetchData(); // Refresh data
       } catch (error: any) {
-        toast.error(error.response?.data?.message || `Gagal melakukan ${type === 'in' ? 'Check In' : 'Check Out'}`);
+        toast.error(error.response?.data?.message || `Failed to ${type === 'in' ? 'Check In' : 'Check Out'}`);
         if(error.response?.data?.distance) {
-            toast.error(`Jarak Anda: ${error.response.data.distance}. Batas: ${error.response.data.allowed_radius}`);
+            toast.error(`Your distance: ${error.response.data.distance}. Limit: ${error.response.data.allowed_radius}`);
         }
       } finally {
         locationLoading.value = false;
@@ -125,7 +125,7 @@ const handleClockAction = (type: 'in' | 'out') => {
     (error) => {
       console.error(error);
       locationLoading.value = false;
-      toast.error("Gagal mendapatkan lokasi. Pastikan Anda mengizinkan akses lokasi.");
+      toast.error("Failed to get location. Make sure you allow location access.");
     },
     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
   );
@@ -145,10 +145,10 @@ const handleClockAction = (type: 'in' | 'out') => {
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
-              Kehadiran & Absensi
+              Attendance
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
-              {{ authStore.user?.role === 'admin' ? 'Pantau riwayat kehadiran seluruh karyawan.' : 'Catat kehadiran Anda hari ini dan lihat riwayat.' }}
+              {{ authStore.user?.role === 'admin' ? 'Monitor attendance history of all employees.' : 'Record your attendance today and view history.' }}
             </p>
           </div>
         </div>
@@ -187,7 +187,7 @@ const handleClockAction = (type: 'in' | 'out') => {
                   class="h-14 px-8 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
                 >
                   <MapPin class="w-5 h-5 mr-2" /> 
-                  {{ locationLoading ? 'Mendapatkan Lokasi...' : 'Clock In Sekarang' }}
+                  {{ locationLoading ? 'Getting Location...' : 'Clock In Now' }}
                 </Button>
                 
                 <Button 
@@ -197,12 +197,12 @@ const handleClockAction = (type: 'in' | 'out') => {
                   class="h-14 px-8 text-base font-bold bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
                 >
                   <MapPin class="w-5 h-5 mr-2" /> 
-                  {{ locationLoading ? 'Mendapatkan Lokasi...' : 'Clock Out Sekarang' }}
+                  {{ locationLoading ? 'Getting Location...' : 'Clock Out Now' }}
                 </Button>
 
                 <div v-else class="flex items-center space-x-2 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-6 py-4 rounded-xl border border-green-200 dark:border-green-800/30">
                   <CheckCircle class="w-6 h-6" />
-                  <span class="font-bold text-base">Tugas Hari Ini Selesai</span>
+                  <span class="font-bold text-base">Today's Tasks Completed</span>
                 </div>
               </div>
             </div>
@@ -213,14 +213,14 @@ const handleClockAction = (type: 'in' | 'out') => {
         <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden">
           <div class="p-4 border-b border-gray-200 dark:border-zinc-800 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50/50 dark:bg-zinc-950/30">
             <h3 class="font-semibold text-gray-800 dark:text-zinc-200 flex items-center">
-              <Calendar class="w-4 h-4 mr-2" /> Riwayat Kehadiran
+              <Calendar class="w-4 h-4 mr-2" /> Attendance History
             </h3>
             
             <div class="relative w-full md:w-72">
               <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
               <Input 
                 v-model="searchQuery"
-                :placeholder="authStore.user?.role === 'admin' ? 'Cari nama atau tanggal...' : 'Cari tanggal...'" 
+                :placeholder="authStore.user?.role === 'admin' ? 'Search name or date...' : 'Search date...'" 
                 class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 h-9"
               />
             </div>
@@ -230,23 +230,23 @@ const handleClockAction = (type: 'in' | 'out') => {
             <Table>
               <TableHeader class="bg-gray-50 dark:bg-zinc-950/50">
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
-                  <TableHead v-if="authStore.user?.role === 'admin'" class="font-semibold text-gray-600 dark:text-zinc-300">Karyawan</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Tanggal</TableHead>
+                  <TableHead v-if="authStore.user?.role === 'admin'" class="font-semibold text-gray-600 dark:text-zinc-300">Employee</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Date</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Clock In</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Clock Out</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Total Jam</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Total Hours</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <TableRow v-if="loading">
                   <TableCell :colspan="authStore.user?.role === 'admin' ? 6 : 5" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    Memuat riwayat kehadiran...
+                    Loading attendance history...
                   </TableCell>
                 </TableRow>
                 <TableRow v-else-if="paginatedHistory.length === 0">
                   <TableCell :colspan="authStore.user?.role === 'admin' ? 6 : 5" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    Tidak ada riwayat kehadiran.
+                    No attendance history.
                   </TableCell>
                 </TableRow>
                 <TableRow 
@@ -277,16 +277,16 @@ const handleClockAction = (type: 'in' | 'out') => {
                   
                   <TableCell class="py-4 text-center">
                     <div class="text-gray-900 dark:text-zinc-200 font-medium">
-                      {{ record.total_hours ? record.total_hours + ' jam' : '-' }}
+                      {{ record.total_hours ? record.total_hours + ' hours' : '-' }}
                     </div>
                   </TableCell>
                   
                   <TableCell class="py-4 text-center">
                     <Badge v-if="record.status === 'present'" variant="outline" class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/30">
-                      Tepat Waktu
+                      On Time
                     </Badge>
                     <Badge v-else-if="record.status === 'late'" variant="outline" class="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800/30">
-                      Terlambat
+                      Late
                     </Badge>
                     <Badge v-else variant="outline" class="bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 border-gray-200 dark:border-zinc-700">
                       {{ record.status }}
@@ -300,9 +300,9 @@ const handleClockAction = (type: 'in' | 'out') => {
           <!-- Pagination -->
           <div class="border-t border-gray-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-zinc-950/50">
             <div class="text-sm text-gray-500 dark:text-zinc-400">
-              Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedHistory.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> dari 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> data kehadiran
+              Showing <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedHistory.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> of 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> attendance records
             </div>
             <div class="flex items-center space-x-2">
               <Button 
@@ -312,7 +312,7 @@ const handleClockAction = (type: 'in' | 'out') => {
                 :disabled="currentPage === 1"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Sebelumnya
+                Previous
               </Button>
               <Button 
                 variant="outline" 
@@ -321,7 +321,7 @@ const handleClockAction = (type: 'in' | 'out') => {
                 :disabled="currentPage >= totalPages"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Selanjutnya
+                Next
               </Button>
             </div>
           </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\LeaveRequest;
 use App\Models\OvertimeRequest;
+use App\Models\CalendarEvent;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -75,10 +76,23 @@ class DashboardController extends Controller
             ->get();
 
         // Upcoming Calendar Events
-        $upcomingEvents = \App\Models\WorkCalendar::where('date', '>=', $today)
-            ->orderBy('date')
-            ->limit(3)
-            ->get();
+        $upcomingEvents = CalendarEvent::whereDate('start_datetime', '>=', $today)
+            ->with(['users:id,name', 'divisions:id,name'])
+            ->orderBy('start_datetime', 'asc')
+            ->limit(5)
+            ->get()->map(function($event) {
+                return [
+                    'id' => $event->id,
+                    'title' => $event->title,
+                    'description' => $event->title, // mapping untuk frontend lama
+                    'type' => $event->category,
+                    'date' => Carbon::parse($event->start_datetime)->format('Y-m-d H:i'),
+                    'color' => $event->color,
+                    'users' => $event->users,
+                    'divisions' => $event->divisions,
+                    'total_participants' => $event->users->count() + $event->divisions->count()
+                ];
+            });
 
         return response()->json([
             'total_employees' => $totalEmployees,
@@ -114,6 +128,25 @@ class DashboardController extends Controller
         $pendingOvertimes = OvertimeRequest::where('user_id', $user->id)
             ->where('status', 'pending')->count();
 
+        // Upcoming Calendar Events
+        $upcomingEvents = CalendarEvent::whereDate('start_datetime', '>=', $today)
+            ->with(['users:id,name', 'divisions:id,name'])
+            ->orderBy('start_datetime', 'asc')
+            ->limit(3)
+            ->get()->map(function($event) {
+                return [
+                    'id' => $event->id,
+                    'title' => $event->title,
+                    'description' => $event->title,
+                    'type' => $event->category,
+                    'date' => Carbon::parse($event->start_datetime)->format('Y-m-d H:i'),
+                    'color' => $event->color,
+                    'users' => $event->users,
+                    'divisions' => $event->divisions,
+                    'total_participants' => $event->users->count() + $event->divisions->count()
+                ];
+            });
+
         return response()->json([
             'leave_quota' => $user->leave_quota,
             'today_status' => $todayAttendance ? $todayAttendance->status : 'Not Checked In',
@@ -122,7 +155,8 @@ class DashboardController extends Controller
             'recent_attendances' => Attendance::where('user_id', $user->id)
                 ->orderBy('date', 'desc')
                 ->limit(5)
-                ->get()
+                ->get(),
+            'upcoming_events' => $upcomingEvents,
         ]);
     }
 }

@@ -74,7 +74,7 @@ const fetchEmployees = async () => {
     totalItems.value = data.total;
   } catch (error) {
     console.error("Failed to fetch employees", error);
-    toast.error("Gagal mengambil data karyawan");
+    toast.error("Failed to fetch employees data");
   } finally {
     loading.value = false;
   }
@@ -104,10 +104,10 @@ const executeDelete = async () => {
   
   try {
     await api.delete(`/users/${itemToDelete.value}`);
-    toast.success("Karyawan berhasil dihapus");
+    toast.success("Employee successfully deleted");
     fetchEmployees();
   } catch (error) {
-    toast.error("Gagal menghapus karyawan");
+    toast.error("Failed to delete employee");
   } finally {
     isDeleteDialogOpen.value = false;
     itemToDelete.value = null;
@@ -149,9 +149,9 @@ const prevPage = () => {
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
-              Karyawan
+              Employees
             </h1>
-            <p class="text-gray-500 dark:text-zinc-400 mt-1">Kelola data seluruh karyawan, divisi, dan posisi.</p>
+            <p class="text-gray-500 dark:text-zinc-400 mt-1">Manage data for all employees, divisions, and positions.</p>
           </div>
           
           <div class="flex items-center space-x-3">
@@ -159,7 +159,7 @@ const prevPage = () => {
               <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
               <Input 
                 v-model="searchQuery"
-                placeholder="Cari nama atau NIK..." 
+                placeholder="Search by name or NIK..." 
                 class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100"
               />
             </div>
@@ -167,7 +167,7 @@ const prevPage = () => {
               <Download class="w-4 h-4 mr-2" /> Export
             </Button>
             <Button @click="openAddForm" class="bg-indigo-600 hover:bg-indigo-700 text-white dark:text-white">
-              <Plus class="w-4 h-4 mr-2" /> Tambah Karyawan
+              <Plus class="w-4 h-4 mr-2" /> Add Employee
             </Button>
           </div>
         </div>
@@ -178,22 +178,22 @@ const prevPage = () => {
             <Table>
               <TableHeader class="bg-gray-50 dark:bg-zinc-950/50">
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
-                  <TableHead class="w-[250px] font-semibold text-gray-600 dark:text-zinc-300">Karyawan</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Posisi & Divisi</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Kontak</TableHead>
+                  <TableHead class="w-[250px] font-semibold text-gray-600 dark:text-zinc-300">Employee</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Position & Division</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Contact</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Status</TableHead>
-                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300">Aksi</TableHead>
+                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <TableRow v-if="loading">
                   <TableCell colspan="5" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    Memuat data karyawan...
+                    Loading employee data...
                   </TableCell>
                 </TableRow>
                 <TableRow v-else-if="paginatedEmployees.length === 0">
                   <TableCell colspan="5" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    Tidak ada data ditemukan.
+                    No data found.
                   </TableCell>
                 </TableRow>
                 <TableRow 
@@ -230,10 +230,10 @@ const prevPage = () => {
                   <!-- Status -->
                   <TableCell class="py-4">
                     <Badge v-if="employee.status === 'active'" variant="outline" class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/30">
-                      Aktif
+                      Active
                     </Badge>
                     <Badge v-else variant="outline" class="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/30">
-                      Nonaktif
+                      Inactive
                     </Badge>
                   </TableCell>
                   
@@ -250,7 +250,7 @@ const prevPage = () => {
                           <Edit class="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
                         <DropdownMenuItem @click="confirmDelete(employee.id)" class="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
-                          <Trash2 class="mr-2 h-4 w-4" /> Hapus
+                          <Trash2 class="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -263,9 +263,9 @@ const prevPage = () => {
           <!-- Pagination -->
           <div class="border-t border-gray-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-zinc-950/50">
             <div class="text-sm text-gray-500 dark:text-zinc-400">
-              Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedEmployees.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> dari 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> karyawan
+              Showing <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedEmployees.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> of 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> employees
             </div>
             <div class="flex items-center space-x-2">
               <Button 
@@ -275,7 +275,7 @@ const prevPage = () => {
                 :disabled="currentPage === 1"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Sebelumnya
+                Previous
               </Button>
               <Button 
                 variant="outline" 
@@ -284,7 +284,7 @@ const prevPage = () => {
                 :disabled="currentPage >= totalPages"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Selanjutnya
+                Next
               </Button>
             </div>
           </div>
@@ -303,14 +303,14 @@ const prevPage = () => {
     <AlertDialog v-model:open="isDeleteDialogOpen">
       <AlertDialogContent class="bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800">
         <AlertDialogHeader>
-          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Hapus Karyawan?</AlertDialogTitle>
+          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Delete Employee?</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
-            Karyawan ini akan dihapus. Semua data terkait tidak dapat dikembalikan.
+            This employee will be deleted. All related data cannot be recovered.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Batal</AlertDialogCancel>
-          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Ya, Hapus</AlertDialogAction>
+          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Cancel</AlertDialogCancel>
+          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Yes, Delete</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

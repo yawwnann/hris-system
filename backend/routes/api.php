@@ -9,8 +9,12 @@ use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\RosterController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\CalendarEventController;
+use App\Http\Controllers\AnnouncementController;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [App\Http\Controllers\AuthController::class, 'logout']);
@@ -50,7 +54,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('overtime-requests/{overtimeRequest}', [App\Http\Controllers\OvertimeRequestController::class, 'destroy']);
 
     // Announcements
-    Route::apiResource('announcements', App\Http\Controllers\AnnouncementController::class);
+    Route::apiResource('announcements', AnnouncementController::class);
+
+    // Calendar Events
+    Route::apiResource('calendar-events', CalendarEventController::class);
 
     // Reports
     Route::get('reports/export', [App\Http\Controllers\ReportController::class, 'export']);

@@ -43,7 +43,7 @@ const fetchSettings = async () => {
     }
   } catch (error) {
     console.error("Failed to fetch settings", error);
-    toast.error("Gagal memuat pengaturan");
+    toast.error("Failed to load settings");
   } finally {
     loading.value = false;
   }
@@ -62,10 +62,10 @@ const saveSettings = async () => {
       default_time_out: formData.value.default_time_out.length === 5 ? formData.value.default_time_out + ':00' : formData.value.default_time_out,
     };
     await api.post("/settings", payload);
-    toast.success("Pengaturan berhasil disimpan");
+    toast.success("Settings saved successfully");
   } catch (error: any) {
     console.error(error);
-    toast.error(error.response?.data?.message || "Gagal menyimpan pengaturan");
+    toast.error(error.response?.data?.message || "Failed to save settings");
   } finally {
     isSubmitting.value = false;
   }
@@ -86,16 +86,16 @@ const saveSettings = async () => {
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
               <SettingsIcon class="w-6 h-6 mr-3 text-indigo-600 dark:text-indigo-400" />
-              Pengaturan Sistem
+              System Settings
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
-              Konfigurasi pengaturan utama aplikasi HRIS.
+              Configure main settings of the HRIS application.
             </p>
           </div>
         </div>
 
         <div v-if="loading" class="flex justify-center items-center h-64">
-           <div class="text-gray-500 dark:text-zinc-400">Memuat pengaturan...</div>
+           <div class="text-gray-500 dark:text-zinc-400">Loading settings...</div>
         </div>
 
         <div v-else class="max-w-4xl space-y-6">
@@ -104,16 +104,16 @@ const saveSettings = async () => {
             <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm mb-6 overflow-hidden">
               <div class="border-b border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-950/50 px-6 py-4 flex items-center">
                 <Building class="w-5 h-5 mr-2 text-gray-400 dark:text-zinc-500" />
-                <h2 class="text-base font-semibold text-gray-800 dark:text-zinc-200">Profil Perusahaan</h2>
+                <h2 class="text-base font-semibold text-gray-800 dark:text-zinc-200">Company Profile</h2>
               </div>
               <div class="p-6 space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div class="space-y-2">
-                    <Label class="text-gray-700 dark:text-gray-300">Nama Perusahaan</Label>
-                    <Input v-model="formData.company_name" placeholder="Masukkan nama perusahaan" class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
+                    <Label class="text-gray-700 dark:text-gray-300">Company Name</Label>
+                    <Input v-model="formData.company_name" placeholder="Enter company name" class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
                   </div>
                   <div class="space-y-2">
-                    <Label class="text-gray-700 dark:text-gray-300">Zona Waktu</Label>
+                    <Label class="text-gray-700 dark:text-gray-300">Timezone</Label>
                     <Input v-model="formData.timezone" placeholder="e.g. Asia/Jakarta" class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
                   </div>
                 </div>
@@ -124,12 +124,12 @@ const saveSettings = async () => {
             <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm mb-6 overflow-hidden">
               <div class="border-b border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-950/50 px-6 py-4 flex items-center">
                 <MapPin class="w-5 h-5 mr-2 text-gray-400 dark:text-zinc-500" />
-                <h2 class="text-base font-semibold text-gray-800 dark:text-zinc-200">Lokasi & Geofencing</h2>
+                <h2 class="text-base font-semibold text-gray-800 dark:text-zinc-200">Location & Geofencing</h2>
               </div>
               <div class="p-6 space-y-4">
                 <div class="space-y-2">
-                  <Label class="text-gray-700 dark:text-gray-300">Alamat Kantor Pusat</Label>
-                  <Input v-model="formData.office_location" placeholder="Masukkan alamat lengkap kantor" class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
+                  <Label class="text-gray-700 dark:text-gray-300">Head Office Address</Label>
+                  <Input v-model="formData.office_location" placeholder="Enter full office address" class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -142,12 +142,12 @@ const saveSettings = async () => {
                     <Input v-model="formData.office_long" placeholder="106.8456" class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
                   </div>
                   <div class="space-y-2">
-                    <Label class="text-gray-700 dark:text-gray-300">Radius Absen (Meter)</Label>
+                    <Label class="text-gray-700 dark:text-gray-300">Attendance Radius (Meters)</Label>
                     <Input type="number" v-model="formData.attendance_radius" class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
                   </div>
                 </div>
                 <p class="text-xs text-gray-500 dark:text-zinc-400 mt-2">
-                  * Karyawan hanya bisa melakukan absen jika berada dalam radius ini dari koordinat kantor.
+                  * Employees can only clock in/out if they are within this radius from the office coordinates.
                 </p>
               </div>
             </div>
@@ -156,21 +156,21 @@ const saveSettings = async () => {
             <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm mb-6 overflow-hidden">
               <div class="border-b border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-950/50 px-6 py-4 flex items-center">
                 <Clock class="w-5 h-5 mr-2 text-gray-400 dark:text-zinc-500" />
-                <h2 class="text-base font-semibold text-gray-800 dark:text-zinc-200">Jam Kerja Default</h2>
+                <h2 class="text-base font-semibold text-gray-800 dark:text-zinc-200">Default Working Hours</h2>
               </div>
               <div class="p-6 space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div class="space-y-2">
-                    <Label class="text-gray-700 dark:text-gray-300">Jam Masuk (Default)</Label>
+                    <Label class="text-gray-700 dark:text-gray-300">Clock In (Default)</Label>
                     <Input type="time" step="1" v-model="formData.default_time_in" class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
                   </div>
                   <div class="space-y-2">
-                    <Label class="text-gray-700 dark:text-gray-300">Jam Keluar (Default)</Label>
+                    <Label class="text-gray-700 dark:text-gray-300">Clock Out (Default)</Label>
                     <Input type="time" step="1" v-model="formData.default_time_out" class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
                   </div>
                 </div>
                 <p class="text-xs text-gray-500 dark:text-zinc-400 mt-2">
-                  * Digunakan jika karyawan belum memiliki shift khusus.
+                  * Used if the employee does not have a specific shift.
                 </p>
               </div>
             </div>
@@ -178,7 +178,7 @@ const saveSettings = async () => {
             <!-- Submit -->
             <div class="flex justify-end pt-4">
               <Button type="submit" :disabled="isSubmitting" class="bg-indigo-600 hover:bg-indigo-700 text-white">
-                <Save class="w-4 h-4 mr-2" /> {{ isSubmitting ? 'Menyimpan...' : 'Simpan Pengaturan' }}
+                <Save class="w-4 h-4 mr-2" /> {{ isSubmitting ? 'Saving...' : 'Save Settings' }}
               </Button>
             </div>
           </form>

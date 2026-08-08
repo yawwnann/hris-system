@@ -37,10 +37,10 @@ const exportReport = async () => {
     link.click();
     document.body.removeChild(link);
     
-    toast.success("Laporan berhasil diunduh");
+    toast.success("Report downloaded successfully");
   } catch (error) {
     console.error("Export error", error);
-    toast.error("Gagal mengekspor laporan");
+    toast.error("Failed to export report");
   } finally {
     isExporting.value = false;
   }
@@ -61,10 +61,10 @@ const exportReport = async () => {
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
               <FileBarChart class="w-6 h-6 mr-3 text-indigo-600 dark:text-indigo-400" />
-              Laporan & Export
+              Reports & Export
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
-              Unduh rekapitulasi data absensi, cuti, dan lembur karyawan.
+              Download recap of employee attendance, leave, and overtime data.
             </p>
           </div>
         </div>
@@ -73,21 +73,21 @@ const exportReport = async () => {
           <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden">
             <div class="border-b border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-950/50 px-6 py-4 flex items-center">
               <Download class="w-5 h-5 mr-2 text-gray-400 dark:text-zinc-500" />
-              <h2 class="text-base font-semibold text-gray-800 dark:text-zinc-200">Export ke CSV</h2>
+              <h2 class="text-base font-semibold text-gray-800 dark:text-zinc-200">Export to CSV</h2>
             </div>
             
             <form @submit.prevent="exportReport" class="p-6 space-y-6">
               <div class="space-y-2">
-                <Label class="text-gray-700 dark:text-gray-300">Jenis Laporan</Label>
+                <Label class="text-gray-700 dark:text-gray-300">Report Type</Label>
                 <Select v-model="formData.type">
                   <SelectTrigger class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
-                    <SelectValue placeholder="Pilih Laporan" />
+                    <SelectValue placeholder="Select Report" />
                   </SelectTrigger>
                   <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                     <SelectGroup>
-                      <SelectItem value="attendance">Laporan Absensi (Kehadiran)</SelectItem>
-                      <SelectItem value="leaves">Laporan Cuti & Izin</SelectItem>
-                      <SelectItem value="overtime">Laporan Lembur</SelectItem>
+                      <SelectItem value="attendance">Attendance Report</SelectItem>
+                      <SelectItem value="leaves">Leave & Permission Report</SelectItem>
+                      <SelectItem value="overtime">Overtime Report</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -95,18 +95,18 @@ const exportReport = async () => {
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-2">
-                  <Label class="text-gray-700 dark:text-gray-300">Dari Tanggal</Label>
+                  <Label class="text-gray-700 dark:text-gray-300">From Date</Label>
                   <Input type="date" v-model="formData.start_date" required class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
                 </div>
                 <div class="space-y-2">
-                  <Label class="text-gray-700 dark:text-gray-300">Sampai Tanggal</Label>
+                  <Label class="text-gray-700 dark:text-gray-300">To Date</Label>
                   <Input type="date" v-model="formData.end_date" required class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
                 </div>
               </div>
 
               <div class="pt-4 border-t border-gray-100 dark:border-zinc-800 flex justify-end">
                 <Button type="submit" :disabled="isExporting" class="bg-indigo-600 hover:bg-indigo-700 text-white w-full md:w-auto">
-                  <Download class="w-4 h-4 mr-2" /> {{ isExporting ? 'Memproses...' : 'Download CSV' }}
+                  <Download class="w-4 h-4 mr-2" /> {{ isExporting ? 'Processing...' : 'Download CSV' }}
                 </Button>
               </div>
             </form>

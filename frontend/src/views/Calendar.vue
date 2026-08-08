@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { 
   Calendar as CalendarIcon, 
   ChevronLeft, 
   ChevronRight, 
   Plus, 
-  Users, 
+  MapPin, 
   Clock,
+  ListFilter,
   Check
 } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -22,14 +25,34 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import AppSidebar from "@/components/layout/AppSidebar.vue";
 import AppHeader from "@/components/layout/AppHeader.vue";
+import AppBreadcrumb from "@/components/layout/AppBreadcrumb.vue";
+import CalendarEventFormDialog from "@/components/calendar/CalendarEventFormDialog.vue";
+import CalendarEventViewDialog from "@/components/calendar/CalendarEventViewDialog.vue";
 import api from "@/lib/axios";
 import { toast } from "vue-sonner";
 import moment from "moment";
@@ -37,444 +60,472 @@ import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
 
-// Calendar state
+// State
 const currentDate = ref(moment());
-const agendas = ref<any[]>([]);
-const rosters = ref<any[]>([]);
-const employees = ref<any[]>([]);
-const shifts = ref<any[]>([]);
+const events = ref<any[]>([]);
+const usersList = ref<any[]>([]);
+const divisionsList = ref<any[]>([]);
 const loading = ref(true);
 const isSubmitting = ref(false);
 
-// Dialog state
-const isDialogOpen = ref(false);
-const selectedDate = ref("");
-const activeTab = ref("detail"); // detail, agenda, or shift
+// Filters
+const activeCategories = ref<string[]>([
+  'WORKDAY', 'WEEKEND', 'NATIONAL_HOLIDAY', 'COMPANY_HOLIDAY', 
+  'COLLECTIVE_LEAVE', 'SHIFT', 'TRAINING', 'MEETING', 'COMPANY_EVENT', 'MAINTENANCE', 'OTHER'
+]);
 
-// Agenda Form
-const agendaForm = ref({
+const categoriesList = [
+  { value: 'WORKDAY', label: 'Workday', color: '#10b981' },
+  { value: 'WEEKEND', label: 'Weekend', color: '#6b7280' },
+  { value: 'NATIONAL_HOLIDAY', label: 'National Holiday', color: '#ef4444' },
+  { value: 'COMPANY_HOLIDAY', label: 'Company Holiday', color: '#f97316' },
+  { value: 'COLLECTIVE_LEAVE', label: 'Collective Leave', color: '#f59e0b' },
+  { value: 'SHIFT', label: 'Special Shift', color: '#8b5cf6' },
+  { value: 'TRAINING', label: 'Training', color: '#0ea5e9' },
+  { value: 'MEETING', label: 'Meeting', color: '#3b82f6' },
+  { value: 'COMPANY_EVENT', label: 'Company Event', color: '#ec4899' },
+  { value: 'MAINTENANCE', label: 'Maintenance', color: '#64748b' },
+  { value: 'OTHER', label: 'Other', color: '#94a3b8' },
+];
+
+// Form
+const isDialogOpen = ref(false);
+const editId = ref<number | null>(null);
+const eventForm = ref({
   title: "",
   description: "",
-  start_time: "",
-  end_time: "",
-  user_ids: [] as number[]
+  category: "WORKDAY",
+  start_datetime: moment().format("YYYY-MM-DDTHH:mm"),
+  end_datetime: moment().add(1, 'hours').format("YYYY-MM-DDTHH:mm"),
+  location: "",
+  color: "#3b82f6",
+  is_working_day: true,
+  is_all_day: false,
+  is_recurring: false,
+  recurrence_rule: "",
+  user_ids: [] as number[],
+  division_ids: [] as number[],
 });
 
-// Roster Form
-const rosterForm = ref({
-  shift_id: "",
-  user_ids: [] as number[]
-});
+const isDeleteDialogOpen = ref(false);
+const itemToDelete = ref<number | null>(null);
+const selectedEvent = ref<any>(null);
+const isViewDialogOpen = ref(false);
 
-const fetchCalendarData = async () => {
+// Methods
+const fetchEvents = async () => {
   loading.value = true;
-  const month = currentDate.value.format('MM');
-  const year = currentDate.value.format('YYYY');
-  
   try {
-    const [agendaRes, rosterRes] = await Promise.all([
-      api.get(`/agendas?month=${month}&year=${year}`),
-      api.get(`/rosters?month=${month}&year=${year}`)
+    const start = currentDate.value.clone().startOf('month').startOf('isoWeek').format('YYYY-MM-DD');
+    const end = currentDate.value.clone().endOf('month').endOf('isoWeek').format('YYYY-MM-DD');
+    
+    const [eventsRes, usersRes, divsRes] = await Promise.all([
+      api.get('/calendar-events', {
+        params: { start, end, categories: activeCategories.value.join(',') }
+      }),
+      usersList.value.length === 0 ? api.get('/users') : Promise.resolve(null),
+      divisionsList.value.length === 0 ? api.get('/divisions') : Promise.resolve(null)
     ]);
-    agendas.value = agendaRes.data;
-    rosters.value = rosterRes.data;
+    
+    events.value = eventsRes.data.data;
+    if (usersRes) usersList.value = usersRes.data.data;
+    if (divsRes) divisionsList.value = divsRes.data.data;
   } catch (error) {
-    toast.error("Gagal memuat data kalender");
+    console.error(error);
+    toast.error("Failed to fetch calendar data");
   } finally {
     loading.value = false;
   }
 };
 
-const fetchOptions = async () => {
-  if (authStore.user?.role !== 'admin') return;
-  try {
-    const [empRes, shiftRes] = await Promise.all([
-      api.get("/users"),
-      api.get("/shifts")
-    ]);
-    employees.value = empRes.data;
-    shifts.value = shiftRes.data;
-  } catch (error) {
-    console.error(error);
+watch(currentDate, () => fetchEvents(), { deep: true });
+watch(activeCategories, () => fetchEvents(), { deep: true });
+
+onMounted(() => {
+  fetchEvents();
+});
+
+const toggleCategory = (category: string) => {
+  const index = activeCategories.value.indexOf(category);
+  if (index > -1) {
+    activeCategories.value.splice(index, 1);
+  } else {
+    activeCategories.value.push(category);
   }
 };
 
-onMounted(() => {
-  fetchCalendarData();
-  fetchOptions();
+const getCategoryColor = (catValue: string, customColor: string | null) => {
+  if (customColor) return customColor;
+  const found = categoriesList.find(c => c.value === catValue);
+  return found ? found.color : '#3b82f6';
+};
+
+const getCategoryLabel = (catValue: string) => {
+  const found = categoriesList.find(c => c.value === catValue);
+  return found ? found.label : catValue;
+};
+
+const getInitials = (name: string) => {
+  return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+};
+
+// Calendar Grid Generation
+const calendarDays = computed(() => {
+  const startDay = currentDate.value.clone().startOf("month").startOf("isoWeek");
+  const endDay = currentDate.value.clone().endOf("month").endOf("isoWeek");
+  const days = [];
+  
+  let day = startDay.clone();
+  while (day.isSameOrBefore(endDay)) {
+    const dateStr = day.format("YYYY-MM-DD");
+    // Get events for this day
+    const dayEvents = events.value.filter(e => {
+      const eStart = moment(e.start_datetime).startOf('day');
+      const eEnd = moment(e.end_datetime).startOf('day');
+      return day.isBetween(eStart, eEnd, 'day', '[]');
+    });
+
+    // Auto add weekend event for Sundays
+    if (day.day() === 0 && activeCategories.value.includes('WEEKEND')) {
+      dayEvents.push({
+        id: `sunday-${dateStr}`,
+        title: 'Weekend Holiday',
+        category: 'WEEKEND',
+        is_all_day: true,
+        start_datetime: dateStr,
+        end_datetime: dateStr,
+        color: '#6b7280',
+        _is_virtual: true
+      });
+    }
+
+    days.push({
+      date: day.clone(),
+      dateStr,
+      isCurrentMonth: day.isSame(currentDate.value, "month"),
+      isToday: day.isSame(moment(), "day"),
+      isPast: day.isBefore(moment(), "day"),
+      events: dayEvents,
+    });
+    day.add(1, "day");
+  }
+  return days;
 });
 
 const nextMonth = () => {
-  currentDate.value = moment(currentDate.value).add(1, 'month');
-  fetchCalendarData();
+  currentDate.value = currentDate.value.clone().add(1, "month");
 };
 
 const prevMonth = () => {
-  currentDate.value = moment(currentDate.value).subtract(1, 'month');
-  fetchCalendarData();
+  currentDate.value = currentDate.value.clone().subtract(1, "month");
 };
 
-const goToToday = () => {
-  currentDate.value = moment();
-  fetchCalendarData();
-};
-
-// Calendar Grid Logic
-const calendarGrid = computed(() => {
-  const startOfMonth = moment(currentDate.value).startOf('month');
-  const endOfMonth = moment(currentDate.value).endOf('month');
-  const startDate = moment(startOfMonth).startOf('week');
-  const endDate = moment(endOfMonth).endOf('week');
+const openAddForm = (date?: string) => {
+  editId.value = null;
+  const start = date ? `${date}T09:00` : moment().format("YYYY-MM-DDTHH:mm");
+  const end = date ? `${date}T17:00` : moment().add(1, 'hours').format("YYYY-MM-DDTHH:mm");
   
-  const grid = [];
-  let current = moment(startDate);
-  
-  while (current.isBefore(endDate)) {
-    const dateStr = current.format('YYYY-MM-DD');
-    grid.push({
-      date: current.clone(),
-      dateStr,
-      isCurrentMonth: current.month() === currentDate.value.month(),
-      isToday: current.isSame(moment(), 'day'),
-      agendas: agendas.value.filter(a => a.date === dateStr),
-      rosters: rosters.value.filter(r => r.date === dateStr)
-    });
-    current.add(1, 'days');
-  }
-  return grid;
-});
-
-const openDialog = (dateStr: string) => {
-  selectedDate.value = dateStr;
-  activeTab.value = 'detail';
-  
-  // Reset forms
-  agendaForm.value = { title: "", description: "", start_time: "", end_time: "", user_ids: [] };
-  rosterForm.value = { shift_id: "", user_ids: [] };
-  
+  eventForm.value = {
+    title: "",
+    description: "",
+    category: "COMPANY_EVENT",
+    start_datetime: start,
+    end_datetime: end,
+    location: "",
+    color: "#3b82f6",
+    is_working_day: true,
+    is_all_day: false,
+    is_recurring: false,
+    recurrence_rule: "",
+    user_ids: [],
+    division_ids: [],
+  };
   isDialogOpen.value = true;
 };
 
-const toggleEmployeeSelection = (type: 'agenda' | 'roster', empId: number) => {
-  const form = type === 'agenda' ? agendaForm.value : rosterForm.value;
-  const index = form.user_ids.indexOf(empId);
-  if (index === -1) {
-    form.user_ids.push(empId);
-  } else {
-    form.user_ids.splice(index, 1);
-  }
+const openEditForm = (event: any) => {
+  editId.value = event.id;
+  eventForm.value = {
+    title: event.title,
+    description: event.description || "",
+    category: event.category,
+    start_datetime: moment(event.start_datetime).format("YYYY-MM-DDTHH:mm"),
+    end_datetime: moment(event.end_datetime).format("YYYY-MM-DDTHH:mm"),
+    location: event.location || "",
+    color: event.color || "#3b82f6",
+    is_working_day: event.is_working_day,
+    is_all_day: event.is_all_day,
+    is_recurring: event.is_recurring,
+    recurrence_rule: event.recurrence_rule || "",
+    user_ids: event.users?.map((u: any) => u.id) || [],
+    division_ids: event.divisions?.map((d: any) => d.id) || [],
+  };
+  isViewDialogOpen.value = false;
+  isDialogOpen.value = true;
 };
 
-const selectAllEmployees = (type: 'agenda' | 'roster') => {
-  const form = type === 'agenda' ? agendaForm.value : rosterForm.value;
-  if (form.user_ids.length === employees.value.length) {
-    form.user_ids = [];
-  } else {
-    form.user_ids = employees.value.map(e => e.id);
-  }
+const toggleUser = (id: number) => {
+  const index = eventForm.value.user_ids.indexOf(id);
+  if (index > -1) eventForm.value.user_ids.splice(index, 1);
+  else eventForm.value.user_ids.push(id);
 };
 
-const submitAgenda = async () => {
-  if (!agendaForm.value.title) {
-    toast.error("Judul agenda wajib diisi");
-    return;
-  }
-  
+const toggleDivision = (id: number) => {
+  const index = eventForm.value.division_ids.indexOf(id);
+  if (index > -1) eventForm.value.division_ids.splice(index, 1);
+  else eventForm.value.division_ids.push(id);
+};
+
+const viewEvent = (event: any) => {
+  if (event._is_virtual) return; // Don't open virtual weekend events
+  selectedEvent.value = event;
+  isViewDialogOpen.value = true;
+};
+
+const saveEvent = async () => {
   isSubmitting.value = true;
   try {
-    await api.post("/agendas", {
-      ...agendaForm.value,
-      date: selectedDate.value,
-      start_time: agendaForm.value.start_time || null,
-      end_time: agendaForm.value.end_time || null
-    });
-    toast.success("Agenda berhasil dibuat");
+    if (editId.value) {
+      await api.put(`/calendar-events/${editId.value}`, eventForm.value);
+      toast.success("Event successfully updated");
+    } else {
+      await api.post("/calendar-events", eventForm.value);
+      toast.success("Event successfully added");
+    }
     isDialogOpen.value = false;
-    fetchCalendarData();
-  } catch (error) {
-    toast.error("Gagal membuat agenda");
+    fetchEvents();
+  } catch (error: any) {
+    toast.error(error.response?.data?.message || "Failed to save event");
   } finally {
     isSubmitting.value = false;
   }
 };
 
-const submitRoster = async () => {
-  if (!rosterForm.value.shift_id || rosterForm.value.user_ids.length === 0) {
-    toast.error("Shift dan setidaknya satu karyawan harus dipilih");
-    return;
-  }
-  
-  isSubmitting.value = true;
+const confirmDelete = (id: number) => {
+  itemToDelete.value = id;
+  isDeleteDialogOpen.value = true;
+};
+
+const executeDelete = async () => {
+  if (!itemToDelete.value) return;
   try {
-    await api.post("/rosters", {
-      date: selectedDate.value,
-      shift_id: rosterForm.value.shift_id,
-      user_ids: rosterForm.value.user_ids
-    });
-    toast.success("Shift karyawan berhasil diatur");
-    isDialogOpen.value = false;
-    fetchCalendarData();
+    await api.delete(`/calendar-events/${itemToDelete.value}`);
+    toast.success("Event successfully deleted");
+    isViewDialogOpen.value = false;
+    fetchEvents();
   } catch (error) {
-    toast.error("Gagal mengatur shift");
+    toast.error("Failed to delete event");
   } finally {
-    isSubmitting.value = false;
+    isDeleteDialogOpen.value = false;
+    itemToDelete.value = null;
   }
 };
+
 </script>
 
 <template>
   <div class="min-h-screen flex bg-[#fbfbfb] dark:bg-zinc-950 text-sm transition-colors">
     <AppSidebar />
     
-    <main class="flex-1 flex flex-col min-w-0">
+    <main class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
       <AppHeader />
       
-      <ScrollArea class="flex-1 p-8">
-        <!-- Page Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+      <div class="flex-1 flex flex-col p-6 overflow-hidden">
+        <AppBreadcrumb />
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
-              <CalendarIcon class="w-6 h-6 mr-3 text-indigo-600 dark:text-indigo-400" />
-              Kalender Kerja & Plotting
+              Calendar Management
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
-              Pantau dan atur agenda, rapat, serta penugasan shift karyawan per tanggal.
+              Manage work schedules, holidays, company agendas, and other events.
             </p>
           </div>
-          
-          <div class="flex items-center space-x-4 bg-white dark:bg-zinc-900 p-2 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-sm">
-            <Button variant="outline" size="sm" @click="goToToday" class="mr-2 text-xs font-medium">Bulan Ini</Button>
-            <Button variant="ghost" size="icon" @click="prevMonth" class="text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg">
-              <ChevronLeft class="w-5 h-5" />
-            </Button>
-            <div class="font-bold text-lg w-40 text-center text-gray-800 dark:text-zinc-200">
-              {{ currentDate.format('MMMM YYYY') }}
-            </div>
-            <Button variant="ghost" size="icon" @click="nextMonth" class="text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg">
-              <ChevronRight class="w-5 h-5" />
-            </Button>
-          </div>
+          <Button v-if="authStore.user?.role === 'admin'" @click="openAddForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Plus class="w-4 h-4 mr-2" /> Add Event
+          </Button>
         </div>
 
-        <!-- Calendar Grid -->
-        <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden">
-          <div class="grid grid-cols-7 border-b border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-950/50">
-            <div v-for="day in ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']" :key="day" class="py-3 text-center text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider">
-              {{ day }}
-            </div>
-          </div>
+        <div class="flex-1 flex flex-col lg:flex-row gap-6 overflow-hidden">
           
-          <div class="grid grid-cols-7 auto-rows-fr">
-            <div 
-              v-for="(day, idx) in calendarGrid" 
-              :key="idx"
-              @click="openDialog(day.dateStr)"
-              class="min-h-[120px] p-2 border-r border-b border-gray-100 dark:border-zinc-800 transition-colors relative group"
-              :class="{
-                'bg-gray-50/30 dark:bg-zinc-950/30': !day.isCurrentMonth,
-                'hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 cursor-pointer': true
-              }"
-            >
-              <div class="flex justify-between items-start mb-2">
-                <span 
-                  class="w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium"
-                  :class="{
-                    'bg-indigo-600 text-white shadow-md': day.isToday,
-                    'text-gray-900 dark:text-zinc-100': !day.isToday && day.isCurrentMonth,
-                    'text-gray-400 dark:text-zinc-600': !day.isCurrentMonth
-                  }"
-                >
-                  {{ day.date.format('D') }}
-                </span>
-                
-                <Button v-if="authStore.user?.role === 'admin'" variant="ghost" size="icon" class="w-6 h-6 opacity-0 group-hover:opacity-100 text-indigo-500 transition-opacity">
-                  <Plus class="w-4 h-4" />
+          <!-- Sidebar Filter -->
+          <div class="w-full lg:w-64 flex-shrink-0 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-950/30">
+              <h3 class="font-semibold text-gray-800 dark:text-zinc-200 flex items-center">
+                <ListFilter class="w-4 h-4 mr-2" /> Category Filter
+              </h3>
+            </div>
+            <ScrollArea class="flex-1 p-4">
+              <div class="space-y-3">
+                <div v-for="cat in categoriesList" :key="cat.value" class="flex items-center space-x-2">
+                  <Checkbox 
+                    :id="`filter-${cat.value}`" 
+                    :checked="activeCategories.includes(cat.value)"
+                    @update:checked="toggleCategory(cat.value)"
+                  />
+                  <div class="w-3 h-3 rounded-full flex-shrink-0" :style="{ backgroundColor: cat.color }"></div>
+                  <label :for="`filter-${cat.value}`" class="text-sm cursor-pointer text-gray-700 dark:text-gray-300 select-none flex-1 truncate">
+                    {{ cat.label }}
+                  </label>
+                </div>
+              </div>
+            </ScrollArea>
+          </div>
+
+          <!-- Calendar Area -->
+          <div class="flex-1 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex flex-col overflow-hidden shadow-sm">
+            <!-- Calendar Header -->
+            <div class="p-4 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                <Button variant="outline" size="icon" @click="prevMonth" class="h-8 w-8">
+                  <ChevronLeft class="w-4 h-4" />
+                </Button>
+                <h2 class="text-lg font-bold text-gray-800 dark:text-zinc-100 min-w-[150px] text-center">
+                  {{ currentDate.format("MMMM YYYY") }}
+                </h2>
+                <Button variant="outline" size="icon" @click="nextMonth" class="h-8 w-8">
+                  <ChevronRight class="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="sm" @click="currentDate = moment()" class="ml-2 text-indigo-600 dark:text-indigo-400">
+                  Today
                 </Button>
               </div>
               
-              <!-- Chips for Agendas -->
-              <div class="space-y-1.5 mt-2">
-                <div v-for="agenda in day.agendas" :key="'a'+agenda.id" class="px-2 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800/30 rounded text-xs truncate font-medium">
-                  {{ agenda.title }}
-                </div>
-                
-                <!-- Summary of Rosters -->
-                <div v-if="day.rosters.length > 0" class="px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/30 rounded text-xs font-medium flex items-center justify-between">
-                  <span>{{ day.rosters.length }} Shift Set</span>
-                  <Users class="w-3 h-3" />
+              <div v-if="loading" class="text-sm text-gray-500 animate-pulse">Loading...</div>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+              <div class="grid grid-cols-7 border-b border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-950">
+                <div v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']" :key="day" class="py-2 text-center text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider">
+                  {{ day }}
                 </div>
               </div>
+              <ScrollArea class="flex-1">
+                <div class="grid grid-cols-7 auto-rows-fr h-full min-h-[600px]">
+                  <div 
+                    v-for="(day, index) in calendarDays" 
+                    :key="index"
+                    class="border-b border-r border-gray-100 dark:border-zinc-800 p-1 flex flex-col min-h-[120px] transition-colors relative group"
+                    :class="[
+                      day.isCurrentMonth ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50 dark:bg-zinc-950/50',
+                      { 'ring-2 ring-indigo-500 ring-inset z-10': day.isToday },
+                      { 'past-day bg-gray-100/50 dark:bg-zinc-900/40 opacity-50': day.isPast }
+                    ]"
+                  >
+                    <!-- Date Number -->
+                    <div class="flex justify-between items-start p-1">
+                      <span 
+                        class="text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full"
+                        :class="[
+                          day.isToday ? 'bg-indigo-600 text-white' : (day.isCurrentMonth ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-zinc-600'),
+                          day.date.day() === 0 ? 'text-red-500 dark:text-red-400' : ''
+                        ]"
+                      >
+                        {{ day.date.format("D") }}
+                      </span>
+                      <Button v-if="authStore.user?.role === 'admin' && !day.isPast && day.date.day() !== 0" variant="ghost" size="icon" class="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" @click="openAddForm(day.dateStr)">
+                        <Plus class="w-3 h-3" />
+                      </Button>
+                    </div>
+
+                    <!-- Events list -->
+                    <div class="flex-1 overflow-y-auto mt-1 space-y-1 px-1 custom-scrollbar">
+                      <div 
+                        v-for="event in day.events" 
+                        :key="event.id"
+                        @click="viewEvent(event)"
+                        class="text-[11px] px-1.5 py-1 rounded cursor-pointer truncate transition-all hover:opacity-80"
+                        :style="{ 
+                          backgroundColor: event.is_all_day ? getCategoryColor(event.category, event.color) : 'transparent',
+                          color: event.is_all_day ? '#fff' : getCategoryColor(event.category, event.color),
+                          borderLeft: event.is_all_day ? 'none' : `3px solid ${getCategoryColor(event.category, event.color)}`
+                        }"
+                      >
+                        <span v-if="!event.is_all_day" class="font-medium mr-1">{{ moment(event.start_datetime).format('HH:mm') }}</span>
+                        {{ event.title }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </ScrollArea>
             </div>
           </div>
         </div>
-      </ScrollArea>
+      </div>
     </main>
 
-    <!-- Dialog Create Agenda & Roster -->
-    <Dialog v-model:open="isDialogOpen">
-      <DialogContent class="sm:max-w-[600px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800 p-0 overflow-hidden">
-        <DialogHeader class="p-6 pb-0">
-          <DialogTitle class="text-xl text-gray-900 dark:text-zinc-100">Plotting Tanggal: {{ moment(selectedDate).format('DD MMMM YYYY') }}</DialogTitle>
-          <DialogDescription class="text-gray-500 dark:text-zinc-400">
-            Atur agenda pertemuan atau plotting shift kerja karyawan.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <Tabs v-model="activeTab" class="w-full">
-          <div class="px-6 pt-4">
-            <TabsList class="grid w-full bg-gray-100 dark:bg-zinc-900 p-1 rounded-lg" :class="authStore.user?.role === 'admin' ? 'grid-cols-3' : 'grid-cols-1'">
-              <TabsTrigger value="detail" class="rounded-md data-[state=active]:bg-white data-[state=active]:dark:bg-zinc-800 data-[state=active]:shadow-sm">Detail Jadwal</TabsTrigger>
-              <TabsTrigger v-if="authStore.user?.role === 'admin'" value="agenda" class="rounded-md data-[state=active]:bg-white data-[state=active]:dark:bg-zinc-800 data-[state=active]:shadow-sm">Buat Agenda</TabsTrigger>
-              <TabsTrigger v-if="authStore.user?.role === 'admin'" value="shift" class="rounded-md data-[state=active]:bg-white data-[state=active]:dark:bg-zinc-800 data-[state=active]:shadow-sm">Plotting Shift</TabsTrigger>
-            </TabsList>
-          </div>
-          
-          <div class="p-6 pt-4 h-[400px] overflow-y-auto">
-            <TabsContent value="detail" class="m-0 space-y-4 outline-none">
-              <div v-if="!calendarGrid.find(d => d.dateStr === selectedDate)?.agendas.length && !calendarGrid.find(d => d.dateStr === selectedDate)?.rosters.length" class="text-center text-gray-500 dark:text-zinc-400 py-10">
-                Tidak ada agenda atau jadwal shift pada tanggal ini.
-              </div>
-              
-              <div v-else class="space-y-6">
-                <!-- Agendas List -->
-                <div v-if="calendarGrid.find(d => d.dateStr === selectedDate)?.agendas.length">
-                  <h3 class="font-semibold text-gray-900 dark:text-zinc-100 mb-3 flex items-center">
-                    <CalendarIcon class="w-4 h-4 mr-2 text-indigo-500" /> Agenda Kegiatan
-                  </h3>
-                  <div class="space-y-3">
-                    <div v-for="agenda in calendarGrid.find(d => d.dateStr === selectedDate)?.agendas" :key="agenda.id" class="p-3 border border-gray-100 dark:border-zinc-800 rounded-lg bg-gray-50 dark:bg-zinc-900/50">
-                      <div class="font-medium text-gray-900 dark:text-zinc-100">{{ agenda.title }}</div>
-                      <div class="text-xs text-gray-500 dark:text-zinc-400 mt-1 flex items-center gap-3">
-                        <span v-if="agenda.start_time" class="flex items-center"><Clock class="w-3 h-3 mr-1" /> {{ agenda.start_time }} - {{ agenda.end_time || 'Selesai' }}</span>
-                        <span v-if="agenda.description" class="truncate">{{ agenda.description }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- Rosters List -->
-                <div v-if="calendarGrid.find(d => d.dateStr === selectedDate)?.rosters.length">
-                  <h3 class="font-semibold text-gray-900 dark:text-zinc-100 mb-3 flex items-center">
-                    <Users class="w-4 h-4 mr-2 text-emerald-500" /> Shift Karyawan
-                  </h3>
-                  <div class="space-y-3">
-                    <div v-for="roster in calendarGrid.find(d => d.dateStr === selectedDate)?.rosters" :key="roster.id" class="p-3 border border-gray-100 dark:border-zinc-800 rounded-lg bg-gray-50 dark:bg-zinc-900/50 flex justify-between items-center">
-                      <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-xs">
-                          {{ roster.user?.name?.charAt(0) || 'U' }}
-                        </div>
-                        <div>
-                          <div class="font-medium text-gray-900 dark:text-zinc-100 text-sm">{{ roster.user?.name || 'Karyawan' }}</div>
-                          <div class="text-xs text-gray-500 dark:text-zinc-400">{{ roster.shift?.name || 'Shift' }} ({{ roster.shift?.start_time }} - {{ roster.shift?.end_time }})</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
+    <!-- Dialog View Event -->
+    <CalendarEventViewDialog
+      v-model:open="isViewDialogOpen"
+      :selectedEvent="selectedEvent"
+      :isAdmin="authStore.user?.role === 'admin'"
+      @edit="openEditForm"
+      @delete="confirmDelete"
+    />
 
-            <TabsContent value="agenda" class="m-0 space-y-4 outline-none">
-              <div class="space-y-2">
-                <Label class="text-gray-700 dark:text-gray-300">Judul Agenda <span class="text-red-500">*</span></Label>
-                <Input v-model="agendaForm.title" placeholder="Contoh: Rapat Evaluasi Bulanan" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
-              </div>
-              
-              <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-2">
-                  <Label class="text-gray-700 dark:text-gray-300">Waktu Mulai</Label>
-                  <Input type="time" v-model="agendaForm.start_time" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
-                </div>
-                <div class="space-y-2">
-                  <Label class="text-gray-700 dark:text-gray-300">Waktu Selesai</Label>
-                  <Input type="time" v-model="agendaForm.end_time" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
-                </div>
-              </div>
-              
-              <div class="space-y-2">
-                <Label class="text-gray-700 dark:text-gray-300">Deskripsi/Catatan</Label>
-                <Input v-model="agendaForm.description" placeholder="Lokasi atau link meeting..." class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
-              </div>
-              
-              <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-zinc-800">
-                <div class="flex justify-between items-center">
-                  <Label class="text-gray-700 dark:text-gray-300">Peserta Agenda</Label>
-                  <div class="flex items-center space-x-2">
-                    <span class="text-xs text-indigo-600 dark:text-indigo-400 font-medium">{{ agendaForm.user_ids.length }} Terpilih</span>
-                    <Button variant="ghost" size="sm" class="h-6 text-xs px-2" @click="selectAllEmployees('agenda')">
-                      Pilih Semua
-                    </Button>
-                  </div>
-                </div>
-                <div class="grid grid-cols-2 gap-2 max-h-[150px] overflow-y-auto p-1">
-                  <div 
-                    v-for="emp in employees" 
-                    :key="emp.id"
-                    @click="toggleEmployeeSelection('agenda', emp.id)"
-                    class="flex items-center space-x-2 p-2 rounded border cursor-pointer transition-colors"
-                    :class="agendaForm.user_ids.includes(emp.id) ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800/30' : 'bg-white border-gray-200 dark:bg-zinc-900 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800'"
-                  >
-                    <div class="w-4 h-4 rounded border flex items-center justify-center shrink-0" :class="agendaForm.user_ids.includes(emp.id) ? 'bg-indigo-600 border-indigo-600' : 'border-gray-300 dark:border-zinc-600'">
-                      <Check v-if="agendaForm.user_ids.includes(emp.id)" class="w-3 h-3 text-white" />
-                    </div>
-                    <span class="text-xs font-medium text-gray-700 dark:text-zinc-300 truncate">{{ emp.name }}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <Button @click="submitAgenda" :disabled="isSubmitting" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white mt-4">
-                {{ isSubmitting ? 'Menyimpan...' : 'Simpan Agenda' }}
-              </Button>
-            </TabsContent>
-            
-            <TabsContent value="shift" class="m-0 space-y-4 outline-none">
-              <div class="space-y-2">
-                <Label class="text-gray-700 dark:text-gray-300">Pilih Shift Kerja <span class="text-red-500">*</span></Label>
-                <Select v-model="rosterForm.shift_id">
-                  <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-zinc-300">
-                    <SelectValue placeholder="Pilih shift..." />
-                  </SelectTrigger>
-                  <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                    <SelectItem v-for="shift in shifts" :key="shift.id" :value="String(shift.id)" class="text-gray-700 dark:text-zinc-300">
-                      {{ shift.name }} ({{ shift.start_time }} - {{ shift.end_time }})
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-zinc-800">
-                <div class="flex justify-between items-center">
-                  <Label class="text-gray-700 dark:text-gray-300">Pilih Karyawan</Label>
-                  <div class="flex items-center space-x-2">
-                    <span class="text-xs text-indigo-600 dark:text-indigo-400 font-medium">{{ rosterForm.user_ids.length }} Terpilih</span>
-                    <Button variant="ghost" size="sm" class="h-6 text-xs px-2" @click="selectAllEmployees('roster')">
-                      Pilih Semua
-                    </Button>
-                  </div>
-                </div>
-                <div class="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto p-1">
-                  <div 
-                    v-for="emp in employees" 
-                    :key="emp.id"
-                    @click="toggleEmployeeSelection('roster', emp.id)"
-                    class="flex items-center space-x-2 p-2 rounded border cursor-pointer transition-colors"
-                    :class="rosterForm.user_ids.includes(emp.id) ? 'bg-indigo-50 border-indigo-200 dark:bg-indigo-900/20 dark:border-indigo-800/30' : 'bg-white border-gray-200 dark:bg-zinc-900 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800'"
-                  >
-                    <div class="w-4 h-4 rounded border flex items-center justify-center shrink-0" :class="rosterForm.user_ids.includes(emp.id) ? 'bg-indigo-600 border-indigo-600' : 'border-gray-300 dark:border-zinc-600'">
-                      <Check v-if="rosterForm.user_ids.includes(emp.id)" class="w-3 h-3 text-white" />
-                    </div>
-                    <span class="text-xs font-medium text-gray-700 dark:text-zinc-300 truncate">{{ emp.name }}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <Button @click="submitRoster" :disabled="isSubmitting" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white mt-4">
-                {{ isSubmitting ? 'Menyimpan...' : 'Simpan Shift Karyawan' }}
-              </Button>
-            </TabsContent>
-          </div>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
+    <!-- Dialog Add/Edit Event -->
+    <CalendarEventFormDialog
+      v-model:open="isDialogOpen"
+      :editId="editId"
+      :eventForm="eventForm"
+      :categoriesList="categoriesList"
+      :divisionsList="divisionsList"
+      :usersList="usersList"
+      :isSubmitting="isSubmitting"
+      @save="saveEvent"
+    />
+
+    <!-- Alert Dialog Konfirmasi Hapus -->
+    <AlertDialog v-model:open="isDeleteDialogOpen">
+      <AlertDialogContent class="bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800">
+        <AlertDialogHeader>
+          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Delete Event?</AlertDialogTitle>
+          <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
+            Are you sure you want to delete this event from the calendar?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Cancel</AlertDialogCancel>
+          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Yes, Delete</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
   </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 10px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(82, 82, 91, 0.5);
+}
+.past-day {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(0, 0, 0, 0.02) 10px,
+    rgba(0, 0, 0, 0.02) 20px
+  );
+}
+.dark .past-day {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(255, 255, 255, 0.02) 10px,
+    rgba(255, 255, 255, 0.02) 20px
+  );
+}
+</style>

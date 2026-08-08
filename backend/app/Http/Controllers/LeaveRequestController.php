@@ -106,6 +106,6 @@ class LeaveRequestController extends Controller
 
         $leaveRequest->delete();
 
-        return response()->json(['message' => 'Pengajuan berhasil dibatalkan.']);
+        return response()->json(['message' => 'Request successfully cancelled.']);
     }
 }

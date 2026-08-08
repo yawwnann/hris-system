@@ -91,6 +91,6 @@ class OvertimeRequestController extends Controller
 
         $overtimeRequest->delete();
 
-        return response()->json(['message' => 'Pengajuan berhasil dibatalkan.']);
+        return response()->json(['message' => 'Request successfully cancelled.']);
     }
 }

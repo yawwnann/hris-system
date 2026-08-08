@@ -11,7 +11,12 @@ const nextEvent = computed(() => {
     : null;
 });
 
-const totalEmp = computed(() => props.stats?.total_employees || 0);
+const totalEmp = computed(() => nextEvent.value?.total_participants || 0);
+
+const getInitials = (name: string) => {
+  if (!name) return 'A';
+  return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+};
 </script>
 
 <template>
@@ -30,25 +35,22 @@ const totalEmp = computed(() => props.stats?.total_employees || 0);
           Date: {{ nextEvent.date }}
         </div>
 
-        <div class="flex items-center space-x-3 mb-6">
+        <div v-if="totalEmp > 0" class="flex items-center space-x-3 mb-6">
           <div class="flex -space-x-2">
-            <Avatar class="w-7 h-7 border-2 border-white bg-blue-100 dark:bg-blue-900/40"
-              ><AvatarFallback class="text-[10px]">A</AvatarFallback></Avatar
-            >
-            <Avatar class="w-7 h-7 border-2 border-white bg-green-100 dark:bg-green-900/40"
-              ><AvatarFallback class="text-[10px]">B</AvatarFallback></Avatar
-            >
-            <Avatar class="w-7 h-7 border-2 border-white bg-orange-100 dark:bg-orange-900/40"
-              ><AvatarFallback class="text-[10px]">C</AvatarFallback></Avatar
-            >
+            <Avatar v-for="(div, idx) in (nextEvent.divisions || []).slice(0, 3)" :key="'d'+idx" class="w-7 h-7 border-2 border-white dark:border-zinc-950 bg-green-100 dark:bg-green-900/40 text-green-700">
+              <AvatarFallback class="text-[10px] font-bold">{{ getInitials(div.name) }}</AvatarFallback>
+            </Avatar>
+            <Avatar v-for="(user, idx) in (nextEvent.users || []).slice(0, Math.max(0, 3 - (nextEvent.divisions?.length || 0)))" :key="'u'+idx" class="w-7 h-7 border-2 border-white dark:border-zinc-950 bg-blue-100 dark:bg-blue-900/40 text-blue-700">
+              <AvatarFallback class="text-[10px] font-bold">{{ getInitials(user.name) }}</AvatarFallback>
+            </Avatar>
             <div
               v-if="totalEmp > 3"
-              class="w-7 h-7 rounded-full bg-gray-100 dark:bg-zinc-800 border-2 border-white flex items-center justify-center text-[10px] font-medium"
+              class="w-7 h-7 rounded-full bg-gray-100 dark:bg-zinc-800 border-2 border-white dark:border-zinc-950 flex items-center justify-center text-[10px] font-medium text-gray-600 dark:text-zinc-400 z-10"
             >
               +{{ totalEmp - 3 }}
             </div>
           </div>
-          <span class="text-xs text-gray-500 dark:text-zinc-400">{{ totalEmp }} Participants</span>
+          <span class="text-xs text-gray-500 dark:text-zinc-400">{{ totalEmp }} Peserta Terlibat</span>
         </div>
 
         <Button
