@@ -14,8 +14,10 @@ import DeviceUsage from "@/components/dashboard/DeviceUsage.vue";
 import WorkCalendar from "@/components/dashboard/WorkCalendar.vue";
 import NextAgenda from "@/components/dashboard/NextAgenda.vue";
 import AttendanceReport from "@/components/dashboard/AttendanceReport.vue";
+import QuickApprovals from "@/components/dashboard/QuickApprovals.vue";
+import EmployeeStatus from "@/components/dashboard/EmployeeStatus.vue";
 
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import api from "@/lib/axios";
 
@@ -37,6 +39,15 @@ const fetchDashboardStats = async () => {
     loading.value = false;
   }
 };
+
+const currentDateRange = computed(() => {
+  const date = new Date();
+  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  
+  const options: Intl.DateTimeFormatOptions = { day: '2-digit', month: 'short', year: 'numeric' };
+  return `${firstDay.toLocaleDateString('en-GB', options)} - ${lastDay.toLocaleDateString('en-GB', options)}`;
+});
 
 onMounted(() => {
   fetchDashboardStats();
@@ -61,7 +72,7 @@ onMounted(() => {
               variant="outline"
               class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-600 dark:text-gray-300 h-9"
             >
-              <CalendarIcon class="w-4 h-4 mr-2" /> 10 Jul 2026 - 06 Aug 2026
+              <CalendarIcon class="w-4 h-4 mr-2" /> {{ currentDateRange }}
             </Button>
             <Button
               size="icon"
@@ -83,6 +94,7 @@ onMounted(() => {
           <!-- LEFT CONTENT (Col Span 3) -->
           <div class="xl:col-span-3 space-y-6">
             <SummaryCards :stats="stats" />
+            <QuickApprovals :stats="stats" v-if="authStore.user?.role === 'admin'" />
             <EmployeeOverview :stats="stats" />
             <AttendanceOverviewBar :stats="stats" />
             <EmployeeTable />
@@ -91,6 +103,7 @@ onMounted(() => {
 
           <!-- RIGHT CONTENT (Col Span 1) -->
           <div class="space-y-6">
+            <EmployeeStatus :stats="stats" />
             <DeviceUsage :stats="stats" />
             <WorkCalendar :stats="stats" />
             <NextAgenda :stats="stats" />

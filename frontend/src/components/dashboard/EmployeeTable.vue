@@ -189,7 +189,7 @@ onMounted(() => {
 
       <div class="mt-4 flex items-center justify-between">
         <p class="text-xs text-gray-500 dark:text-zinc-400">
-          Showing 5 of {{ employees.length }} employees
+          Showing {{ Math.min(5, employees.length) }} of {{ employees.length }} employees
         </p>
         <div class="flex space-x-2">
           <router-link to="/employees">

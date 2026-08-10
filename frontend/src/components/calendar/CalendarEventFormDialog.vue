@@ -21,10 +21,11 @@ import {
 } from "@/components/ui/select";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
+  DropdownMenuItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Check } from "lucide-vue-next";
 
 const props = defineProps<{
   open: boolean;
@@ -38,14 +39,14 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:open', 'save']);
 
-const toggleUser = (id: number) => {
-  const index = props.eventForm.user_ids.indexOf(id);
+const toggleUser = (id: any) => {
+  const index = props.eventForm.user_ids.findIndex((uId: any) => uId == id);
   if (index > -1) props.eventForm.user_ids.splice(index, 1);
   else props.eventForm.user_ids.push(id);
 };
 
-const toggleDivision = (id: number) => {
-  const index = props.eventForm.division_ids.indexOf(id);
+const toggleDivision = (id: any) => {
+  const index = props.eventForm.division_ids.findIndex((dId: any) => dId == id);
   if (index > -1) props.eventForm.division_ids.splice(index, 1);
   else props.eventForm.division_ids.push(id);
 };
@@ -145,14 +146,15 @@ const toggleDivision = (id: number) => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent class="w-[250px] max-h-[200px] overflow-y-auto">
-                      <DropdownMenuCheckboxItem
+                      <DropdownMenuItem
                         v-for="div in divisionsList"
                         :key="div.id"
-                        :checked="eventForm.division_ids.includes(div.id)"
                         @select.prevent="toggleDivision(div.id)"
+                        class="flex items-center justify-between cursor-pointer"
                       >
-                        {{ div.name }}
-                      </DropdownMenuCheckboxItem>
+                        <span>{{ div.name }}</span>
+                        <Check v-if="eventForm.division_ids.some((dId: any) => dId == div.id)" class="w-4 h-4 text-indigo-600" />
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -166,14 +168,15 @@ const toggleDivision = (id: number) => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent class="w-[250px] max-h-[200px] overflow-y-auto">
-                      <DropdownMenuCheckboxItem
+                      <DropdownMenuItem
                         v-for="usr in usersList"
                         :key="usr.id"
-                        :checked="eventForm.user_ids.includes(usr.id)"
                         @select.prevent="toggleUser(usr.id)"
+                        class="flex items-center justify-between cursor-pointer"
                       >
-                        {{ usr.name }}
-                      </DropdownMenuCheckboxItem>
+                        <span>{{ usr.name }}</span>
+                        <Check v-if="eventForm.user_ids.some((uId: any) => uId == usr.id)" class="w-4 h-4 text-indigo-600" />
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>

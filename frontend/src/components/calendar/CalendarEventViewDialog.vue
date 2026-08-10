@@ -7,8 +7,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MapPin, Clock } from "lucide-vue-next";
+import { MapPin, Clock, Users, Building2 } from "lucide-vue-next";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import moment from "moment";
 
 const props = defineProps<{
@@ -99,19 +100,33 @@ const getInitials = (name: string) => {
         <!-- Participants -->
         <div v-if="(selectedEvent?.users?.length || 0) + (selectedEvent?.divisions?.length || 0) > 0" class="pt-2">
           <h4 class="text-xs font-semibold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-3">Participants / Involved Divisions</h4>
-          <div class="flex items-center space-x-3">
-            <div class="flex -space-x-2">
-              <Avatar v-for="(div, idx) in (selectedEvent?.divisions || []).slice(0, 3)" :key="'d'+idx" class="w-8 h-8 border-2 border-white dark:border-zinc-950 bg-green-100 dark:bg-green-900/40 text-green-700">
-                <AvatarFallback class="text-[10px] font-bold">{{ getInitials(div.name) }}</AvatarFallback>
-              </Avatar>
-              <Avatar v-for="(user, idx) in (selectedEvent?.users || []).slice(0, Math.max(0, 3 - (selectedEvent?.divisions?.length || 0)))" :key="'u'+idx" class="w-8 h-8 border-2 border-white dark:border-zinc-950 bg-blue-100 dark:bg-blue-900/40 text-blue-700">
-                <AvatarFallback class="text-[10px] font-bold">{{ getInitials(user.name) }}</AvatarFallback>
-              </Avatar>
-              <div v-if="(selectedEvent?.users?.length || 0) + (selectedEvent?.divisions?.length || 0) > 3" class="w-8 h-8 rounded-full border-2 border-white dark:border-zinc-950 bg-gray-100 dark:bg-zinc-800 flex items-center justify-center text-[10px] font-medium text-gray-600 dark:text-zinc-400 z-10">
-                +{{ ((selectedEvent?.users?.length || 0) + (selectedEvent?.divisions?.length || 0)) - 3 }}
+          
+          <div class="space-y-4">
+            <!-- Divisions -->
+            <div v-if="selectedEvent?.divisions?.length > 0">
+              <div class="text-[11px] font-medium text-gray-500 mb-2 flex items-center">
+                <Building2 class="w-3.5 h-3.5 mr-1.5" /> 
+                Divisions ({{ selectedEvent.divisions.length }})
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <Badge variant="outline" v-for="div in selectedEvent.divisions" :key="div.id" class="bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900 font-normal">
+                  {{ div.name }}
+                </Badge>
               </div>
             </div>
-            <span class="text-xs text-gray-500 dark:text-zinc-400">{{ (selectedEvent?.users?.length || 0) + (selectedEvent?.divisions?.length || 0) }} Participants</span>
+
+            <!-- Employees -->
+            <div v-if="selectedEvent?.users?.length > 0">
+              <div class="text-[11px] font-medium text-gray-500 mb-2 flex items-center">
+                <Users class="w-3.5 h-3.5 mr-1.5" /> 
+                Employees ({{ selectedEvent.users.length }})
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <Badge variant="outline" v-for="user in selectedEvent.users" :key="user.id" class="bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900 font-normal">
+                  {{ user.name }}
+                </Badge>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -86,7 +86,7 @@ class OvertimeRequestController extends Controller
         }
         
         if ($overtimeRequest->status !== 'pending') {
-            return response()->json(['message' => 'Hanya pengajuan dengan status pending yang dapat dibatalkan.'], 400);
+            return response()->json(['message' => 'Only pending requests can be cancelled.'], 400);
         }
 
         $overtimeRequest->delete();

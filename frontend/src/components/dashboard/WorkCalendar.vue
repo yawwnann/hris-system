@@ -7,11 +7,39 @@ import {
   Calendar,
 } from "lucide-vue-next";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { computed } from "vue";
+import { computed, ref, onMounted } from "vue";
 
 const props = defineProps<{ stats: any }>();
 
 const events = computed(() => props.stats?.upcoming_events || []);
+
+// Generate current week dates
+const currentWeek = ref<{ dayStr: string; date: number; isToday: boolean }[]>([]);
+
+onMounted(() => {
+  const today = new Date();
+  const currentDay = today.getDay(); // 0 is Sunday, 1 is Monday...
+  
+  // Adjust so Monday is the first day (0-6)
+  const diffToMonday = currentDay === 0 ? -6 : 1 - currentDay;
+  
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + diffToMonday);
+
+  const days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+  const weekData = [];
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    weekData.push({
+      dayStr: days[i],
+      date: d.getDate(),
+      isToday: d.toDateString() === today.toDateString()
+    });
+  }
+  currentWeek.value = weekData;
+});
 </script>
 
 <template>
@@ -27,26 +55,26 @@ const events = computed(() => props.stats?.upcoming_events || []);
     <CardContent class="pt-2">
       <div class="flex justify-between items-center mb-6">
         <div
-          v-for="(day, index) in ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']"
-          :key="day"
+          v-for="day in currentWeek"
+          :key="day.dayStr"
           class="text-center"
         >
           <div
             class="w-8 h-8 rounded-lg flex items-center justify-center mb-1 text-sm font-medium"
             :class="
-              index === 2
-                ? 'bg-gray-900 text-white '
+              day.isToday
+                ? 'bg-gray-900 text-white dark:bg-zinc-100 dark:text-zinc-900'
                 : 'bg-gray-50 dark:bg-zinc-900/50 text-gray-600 dark:text-zinc-300'
             "
           >
-            {{ index + 1 }}
+            {{ day.date }}
           </div>
           <span
             class="text-[10px] text-gray-400 dark:text-zinc-500 uppercase font-medium"
             :class="
-              index === 2 ? 'text-black border-b-2 border-black pb-1' : ''
+              day.isToday ? 'text-black dark:text-white border-b-2 border-black dark:border-white pb-1' : ''
             "
-            >{{ day }}</span
+            >{{ day.dayStr }}</span
           >
         </div>
       </div>

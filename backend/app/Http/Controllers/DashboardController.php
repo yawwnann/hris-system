@@ -93,7 +93,88 @@ class DashboardController extends Controller
                     'total_participants' => $event->users->count() + $event->divisions->count()
                 ];
             });
+        // --- QUICK APPROVALS ---
+        $pendingLeaveRequests = LeaveRequest::with('user:id,name,position_id')->where('status', 'pending')->limit(5)->get()->map(function($req) {
+            $role = $req->user->position ? $req->user->position->name : 'Employee';
+            return [
+                'id' => 'L' . $req->id,
+                'original_id' => $req->id,
+                'type' => 'Leave',
+                'user' => $req->user->name,
+                'role' => $role,
+                'date' => Carbon::parse($req->start_date)->format('d M') . ' - ' . Carbon::parse($req->end_date)->format('d M'),
+                'duration' => null,
+                'reason' => $req->reason,
+                'status' => 'pending',
+                'created_at' => clone $req->created_at
+            ];
+        });
 
+        $pendingOvertimeRequests = OvertimeRequest::with('user:id,name,position_id')->where('status', 'pending')->limit(5)->get()->map(function($req) {
+            $role = $req->user->position ? $req->user->position->name : 'Employee';
+            return [
+                'id' => 'O' . $req->id,
+                'original_id' => $req->id,
+                'type' => 'Overtime',
+                'user' => $req->user->name,
+                'role' => $role,
+                'date' => Carbon::parse($req->date)->format('d M'),
+                'duration' => $req->duration_hours . ' Hours',
+                'reason' => $req->notes,
+                'status' => 'pending',
+                'created_at' => clone $req->created_at
+            ];
+        });
+
+        $quickApprovals = $pendingLeaveRequests->concat($pendingOvertimeRequests)->sortBy('created_at')->values()->take(5);
+
+        // --- EMPLOYEE STATUS ---
+        $awayToday = LeaveRequest::with('user:id,name')->where('status', 'approved')
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->get()->map(function($req) {
+                return [
+                    'id' => $req->id,
+                    'user' => $req->user->name,
+                    'type' => $req->type, 
+                    'is_sick' => strtolower($req->type) === 'sick' || strtolower($req->type) === 'sick leave'
+                ];
+            });
+
+        $activeUsers = User::where('status', 'active')->get();
+        $upcomingBirthdays = [];
+        $upcomingAnniversaries = [];
+
+        foreach ($activeUsers as $u) {
+            if ($u->dob) {
+                $dob = Carbon::parse($u->dob)->year(Carbon::now()->year);
+                if ($dob->isPast() && !$dob->isToday()) $dob->addYear();
+                if ($dob->diffInDays(Carbon::now()) <= 7 && $dob->isAfter(Carbon::now()->subDay())) {
+                    $upcomingBirthdays[] = [
+                        'id' => 'B'.$u->id,
+                        'user' => $u->name,
+                        'type' => 'Birthday' . ($dob->isToday() ? ' (Today)' : ' ('. $dob->format('d M') .')'),
+                        'date' => $dob->format('Y-m-d')
+                    ];
+                }
+            }
+            if ($u->join_date) {
+                $jd = Carbon::parse($u->join_date)->year(Carbon::now()->year);
+                if ($jd->isPast() && !$jd->isToday()) $jd->addYear();
+                if ($jd->diffInDays(Carbon::now()) <= 7 && $jd->isAfter(Carbon::now()->subDay())) {
+                    $years = $jd->year - Carbon::parse($u->join_date)->year;
+                    if ($years > 0) {
+                        $upcomingAnniversaries[] = [
+                            'id' => 'A'.$u->id,
+                            'user' => $u->name,
+                            'type' => $years . ' Year Anniversary' . ($jd->isToday() ? ' (Today)' : ' ('. $jd->format('d M') .')'),
+                            'date' => $jd->format('Y-m-d')
+                        ];
+                    }
+                }
+            }
+        }
+        $celebrations = collect(array_merge($upcomingBirthdays, $upcomingAnniversaries))->sortBy('date')->values();
         return response()->json([
             'total_employees' => $totalEmployees,
             'present_today' => $presentToday,
@@ -104,6 +185,9 @@ class DashboardController extends Controller
             'attendance_chart' => $chartData,
             'division_stats' => $divisionStats,
             'upcoming_events' => $upcomingEvents,
+            'quick_approvals' => $quickApprovals,
+            'away_today' => $awayToday,
+            'celebrations' => $celebrations,
         ]);
     }
 
@@ -146,7 +230,53 @@ class DashboardController extends Controller
                     'total_participants' => $event->users->count() + $event->divisions->count()
                 ];
             });
+        // --- EMPLOYEE STATUS ---
+        $awayToday = LeaveRequest::with('user:id,name')->where('status', 'approved')
+            ->whereDate('start_date', '<=', $today)
+            ->whereDate('end_date', '>=', $today)
+            ->get()->map(function($req) {
+                return [
+                    'id' => $req->id,
+                    'user' => $req->user->name,
+                    'type' => $req->type, 
+                    'is_sick' => strtolower($req->type) === 'sick' || strtolower($req->type) === 'sick leave'
+                ];
+            });
 
+        $activeUsers = User::where('status', 'active')->get();
+        $upcomingBirthdays = [];
+        $upcomingAnniversaries = [];
+
+        foreach ($activeUsers as $u) {
+            if ($u->dob) {
+                $dob = Carbon::parse($u->dob)->year(Carbon::now()->year);
+                if ($dob->isPast() && !$dob->isToday()) $dob->addYear();
+                if ($dob->diffInDays(Carbon::now()) <= 7 && $dob->isAfter(Carbon::now()->subDay())) {
+                    $upcomingBirthdays[] = [
+                        'id' => 'B'.$u->id,
+                        'user' => $u->name,
+                        'type' => 'Birthday' . ($dob->isToday() ? ' (Today)' : ' ('. $dob->format('d M') .')'),
+                        'date' => $dob->format('Y-m-d')
+                    ];
+                }
+            }
+            if ($u->join_date) {
+                $jd = Carbon::parse($u->join_date)->year(Carbon::now()->year);
+                if ($jd->isPast() && !$jd->isToday()) $jd->addYear();
+                if ($jd->diffInDays(Carbon::now()) <= 7 && $jd->isAfter(Carbon::now()->subDay())) {
+                    $years = $jd->year - Carbon::parse($u->join_date)->year;
+                    if ($years > 0) {
+                        $upcomingAnniversaries[] = [
+                            'id' => 'A'.$u->id,
+                            'user' => $u->name,
+                            'type' => $years . ' Year Anniversary' . ($jd->isToday() ? ' (Today)' : ' ('. $jd->format('d M') .')'),
+                            'date' => $jd->format('Y-m-d')
+                        ];
+                    }
+                }
+            }
+        }
+        $celebrations = collect(array_merge($upcomingBirthdays, $upcomingAnniversaries))->sortBy('date')->values();
         return response()->json([
             'leave_quota' => $user->leave_quota,
             'today_status' => $todayAttendance ? $todayAttendance->status : 'Not Checked In',
@@ -157,6 +287,8 @@ class DashboardController extends Controller
                 ->limit(5)
                 ->get(),
             'upcoming_events' => $upcomingEvents,
+            'away_today' => $awayToday,
+            'celebrations' => $celebrations,
         ]);
     }
 }

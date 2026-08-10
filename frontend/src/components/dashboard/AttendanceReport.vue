@@ -21,6 +21,12 @@ const onTimeArrivalRate = computed(() => {
   if (total === 0) return 0;
   return ((present / total) * 100).toFixed(1);
 });
+
+const getThreshold = (item: any) => {
+  const total = item.present + item.late + item.absent + item.on_leave;
+  if (total === 0) return 0;
+  return (item.present / total) * 100;
+};
 </script>
 
 <template>
@@ -50,23 +56,23 @@ const onTimeArrivalRate = computed(() => {
           <div v-for="item in chartData" :key="item.date" class="space-y-1">
             <div
               class="h-6 rounded-sm transition-colors"
-              :class="item.present > 0 ? 'bg-green-600' : 'bg-gray-200'"
+              :class="getThreshold(item) > 80 ? 'bg-green-600' : 'bg-gray-200 dark:bg-zinc-800'"
             ></div>
             <div
               class="h-6 rounded-sm transition-colors"
-              :class="item.present > 5 ? 'bg-green-50 dark:bg-green-900/200' : 'bg-gray-200'"
+              :class="getThreshold(item) > 60 ? 'bg-green-500 dark:bg-green-600/90' : 'bg-gray-200 dark:bg-zinc-800'"
             ></div>
             <div
               class="h-6 rounded-sm transition-colors"
-              :class="item.present > 10 ? 'bg-green-400' : 'bg-gray-200'"
+              :class="getThreshold(item) > 40 ? 'bg-green-400' : 'bg-gray-200 dark:bg-zinc-800'"
             ></div>
             <div
               class="h-6 rounded-sm transition-colors"
-              :class="item.present > 15 ? 'bg-green-300' : 'bg-gray-200'"
+              :class="getThreshold(item) > 20 ? 'bg-green-300' : 'bg-gray-200 dark:bg-zinc-800'"
             ></div>
             <div
               class="h-6 rounded-sm transition-colors"
-              :class="item.present > 20 ? 'bg-green-100 dark:bg-green-900/40' : 'bg-gray-200'"
+              :class="getThreshold(item) > 0 ? 'bg-green-200 dark:bg-green-900/60' : 'bg-gray-200 dark:bg-zinc-800'"
             ></div>
             <div class="text-[10px] text-gray-400 dark:text-zinc-500 text-center mt-2">
               {{ item.day }}

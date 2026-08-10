@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -127,7 +128,12 @@ const fetchEvents = async () => {
       divisionsList.value.length === 0 ? api.get('/divisions') : Promise.resolve(null)
     ]);
     
-    events.value = eventsRes.data.data;
+    // Replace 'Z' to prevent unwanted UTC to Local Time timezone shifting
+    events.value = eventsRes.data.data.map((e: any) => ({
+      ...e,
+      start_datetime: e.start_datetime ? e.start_datetime.replace('Z', '') : e.start_datetime,
+      end_datetime: e.end_datetime ? e.end_datetime.replace('Z', '') : e.end_datetime
+    }));
     if (usersRes) usersList.value = usersRes.data.data;
     if (divsRes) divisionsList.value = divsRes.data.data;
   } catch (error) {
@@ -168,6 +174,25 @@ const getCategoryLabel = (catValue: string) => {
 const getInitials = (name: string) => {
   return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 };
+
+const upcomingEvents = computed(() => {
+  const today = moment().startOf('day');
+  
+  // Find the upcoming Saturday (or today if today is Saturday)
+  let endOfWeek = today.clone();
+  while (endOfWeek.day() !== 6) { // 6 = Saturday
+    endOfWeek.add(1, 'day');
+  }
+  endOfWeek.endOf('day');
+
+  return [...events.value]
+    .filter(e => {
+      if (e._is_virtual) return false;
+      const eventStart = moment(e.start_datetime);
+      return eventStart.isSameOrAfter(today) && eventStart.isSameOrBefore(endOfWeek);
+    })
+    .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime());
+});
 
 // Calendar Grid Generation
 const calendarDays = computed(() => {
@@ -285,11 +310,18 @@ const viewEvent = (event: any) => {
 const saveEvent = async () => {
   isSubmitting.value = true;
   try {
+    // Format payload properly for backend SQL timestamps
+    const payload = {
+      ...eventForm.value,
+      start_datetime: moment(eventForm.value.start_datetime).format("YYYY-MM-DD HH:mm:ss"),
+      end_datetime: moment(eventForm.value.end_datetime).format("YYYY-MM-DD HH:mm:ss"),
+    };
+
     if (editId.value) {
-      await api.put(`/calendar-events/${editId.value}`, eventForm.value);
+      await api.put(`/calendar-events/${editId.value}`, payload);
       toast.success("Event successfully updated");
     } else {
-      await api.post("/calendar-events", eventForm.value);
+      await api.post("/calendar-events", payload);
       toast.success("Event successfully added");
     }
     isDialogOpen.value = false;
@@ -451,6 +483,37 @@ const executeDelete = async () => {
                 </div>
               </ScrollArea>
             </div>
+          </div>
+
+          <!-- Upcoming Agenda Sidebar -->
+          <div class="w-full lg:w-72 flex-shrink-0 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-950/30">
+              <h3 class="font-semibold text-gray-800 dark:text-zinc-200 flex items-center">
+                <CalendarIcon class="w-4 h-4 mr-2" /> Agenda Mendatang
+              </h3>
+            </div>
+            <ScrollArea class="flex-1 p-4">
+              <div v-if="upcomingEvents.length === 0" class="text-sm text-gray-500 text-center py-4">
+                Tidak ada agenda mendatang.
+              </div>
+              <div class="space-y-4">
+                <div v-for="evt in upcomingEvents" :key="evt.id" class="p-3 border border-gray-200 dark:border-zinc-800 rounded-lg bg-gray-50/50 dark:bg-zinc-950/50 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors" @click="viewEvent(evt)">
+                  <div class="flex items-start justify-between mb-1">
+                    <div class="text-[11px] text-gray-500 font-medium">
+                      {{ evt.is_all_day ? moment(evt.start_datetime).format('MMM D') + ', All Day' : moment(evt.start_datetime).format('MMM D, HH:mm') }}
+                    </div>
+                    <Badge variant="outline" class="text-[9px] px-1.5 py-0 rounded-sm uppercase font-bold" :style="{ borderColor: getCategoryColor(evt.category, evt.color), color: getCategoryColor(evt.category, evt.color) }">
+                      {{ getCategoryLabel(evt.category) }}
+                    </Badge>
+                  </div>
+                  <h4 class="font-semibold text-sm text-gray-900 dark:text-gray-100 mt-1 truncate">{{ evt.title }}</h4>
+                  <div class="text-[11px] text-gray-500 mt-1 flex items-center">
+                    <MapPin class="w-3 h-3 mr-1 opacity-70" v-if="evt.location" />
+                    <span class="truncate">{{ evt.location || '-' }}</span>
+                  </div>
+                </div>
+              </div>
+            </ScrollArea>
           </div>
         </div>
       </div>

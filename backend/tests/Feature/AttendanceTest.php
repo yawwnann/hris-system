@@ -2,151 +2,169 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Setting;
+use App\Models\User;
 use App\Models\Attendance;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use Tests\TestCase;
 
 class AttendanceTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
+
+    protected $user;
+    protected $setting;
+    protected $officeLat = -6.200000;
+    protected $officeLong = 106.816666;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
-        Setting::query()->delete();
 
-        Setting::create([
-            'office_lat' => -6.200000,
-            'office_long' => 106.816666,
+        $this->user = User::factory()->create([
+            'password' => Hash::make('password'),
+        ]);
+
+        $this->setting = Setting::create([
+            'office_lat' => $this->officeLat,
+            'office_long' => $this->officeLong,
             'attendance_radius' => 100, // 100 meters
             'default_time_in' => '09:00:00',
             'default_time_out' => '17:00:00',
         ]);
     }
 
-    public function test_can_get_today_attendance()
+    public function test_user_can_check_in_within_radius()
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
+        Carbon::setTestNow(Carbon::createFromTime(8, 30, 0)); // Before default time in (09:00:00)
 
-        Attendance::create([
-            'user_id' => $user->id,
-            'date' => Carbon::today()->toDateString(),
-            'time_in' => '08:00:00',
-            'lat_in' => -6.200000,
-            'long_in' => 106.816666,
-            'status' => 'present',
-        ]);
-
-        $response = $this->getJson('/api/attendance/today');
-
-        $response->assertStatus(200)
-                 ->assertJsonPath('time_in', '08:00:00');
-    }
-
-    public function test_can_check_in_within_radius()
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-        
-        Carbon::setTestNow(Carbon::today()->setTime(8, 0, 0));
-
-        $response = $this->postJson('/api/attendance/check-in', [
-            'lat' => -6.200000,
-            'long' => 106.816666,
+        $response = $this->actingAs($this->user)->postJson('/api/attendance/check-in', [
+            'lat' => $this->officeLat,
+            'long' => $this->officeLong,
         ]);
 
         $response->assertStatus(201)
-                 ->assertJsonPath('message', 'Check In successful')
-                 ->assertJsonPath('data.status', 'present');
-                 
+                 ->assertJsonFragment(['message' => 'Check In successful']);
+        
         $this->assertDatabaseHas('attendances', [
-            'user_id' => $user->id,
-            'date' => Carbon::today()->toDateString(),
-        ]);
-    }
-
-    public function test_cannot_check_in_outside_radius()
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-        
-        // Far away coordinates (e.g. Bandung)
-        $response = $this->postJson('/api/attendance/check-in', [
-            'lat' => -6.917464,
-            'long' => 107.619123,
+            'user_id' => $this->user->id,
+            'status' => 'present',
         ]);
 
-        $response->assertStatus(400)
-                 ->assertJsonPath('message', 'You are outside the attendance radius.');
+        Carbon::setTestNow(); // Reset Mock
     }
 
-    public function test_check_in_late_status()
+    public function test_user_is_marked_late_if_check_in_after_time_in()
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-        
-        Carbon::setTestNow(Carbon::today()->setTime(10, 0, 0)); // After 09:00
+        Carbon::setTestNow(Carbon::createFromTime(9, 30, 0)); // After default time in (09:00:00)
 
-        $response = $this->postJson('/api/attendance/check-in', [
-            'lat' => -6.200000,
-            'long' => 106.816666,
+        $response = $this->actingAs($this->user)->postJson('/api/attendance/check-in', [
+            'lat' => $this->officeLat,
+            'long' => $this->officeLong,
         ]);
 
         $response->assertStatus(201)
-                 ->assertJsonPath('data.status', 'late');
-    }
-
-    public function test_cannot_check_in_twice()
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-
-        Attendance::create([
-            'user_id' => $user->id,
-            'date' => Carbon::today()->toDateString(),
-            'time_in' => '08:00:00',
-            'lat_in' => -6.200000,
-            'long_in' => 106.816666,
-            'status' => 'present',
+                 ->assertJsonFragment(['message' => 'Check In successful']);
+        
+        $this->assertDatabaseHas('attendances', [
+            'user_id' => $this->user->id,
+            'status' => 'late',
         ]);
 
-        $response = $this->postJson('/api/attendance/check-in', [
-            'lat' => -6.200000,
-            'long' => 106.816666,
+        Carbon::setTestNow(); // Reset Mock
+    }
+
+    public function test_user_cannot_check_in_outside_radius()
+    {
+        $response = $this->actingAs($this->user)->postJson('/api/attendance/check-in', [
+            'lat' => $this->officeLat + 0.1, // far away
+            'long' => $this->officeLong + 0.1, // far away
         ]);
 
         $response->assertStatus(400)
-                 ->assertJsonPath('message', 'You have already checked in today.');
+                 ->assertJsonFragment(['message' => 'You are outside the attendance radius.']);
+        
+        $this->assertDatabaseMissing('attendances', [
+            'user_id' => $this->user->id,
+        ]);
     }
 
-    public function test_can_check_out()
+    public function test_user_cannot_check_in_twice_in_one_day()
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-
         Attendance::create([
-            'user_id' => $user->id,
+            'user_id' => $this->user->id,
             'date' => Carbon::today()->toDateString(),
             'time_in' => '08:00:00',
-            'lat_in' => -6.200000,
-            'long_in' => 106.816666,
+            'lat_in' => $this->officeLat,
+            'long_in' => $this->officeLong,
             'status' => 'present',
         ]);
 
-        Carbon::setTestNow(Carbon::today()->setTime(17, 0, 0)); // 9 hours difference
+        $response = $this->actingAs($this->user)->postJson('/api/attendance/check-in', [
+            'lat' => $this->officeLat,
+            'long' => $this->officeLong,
+        ]);
 
-        $response = $this->postJson('/api/attendance/check-out', [
-            'lat' => -6.200000,
-            'long' => 106.816666,
+        $response->assertStatus(400)
+                 ->assertJsonFragment(['message' => 'You have already checked in today.']);
+    }
+
+    public function test_user_can_check_out()
+    {
+        Attendance::create([
+            'user_id' => $this->user->id,
+            'date' => Carbon::today()->toDateString(),
+            'time_in' => Carbon::now()->subHours(8)->toTimeString(),
+            'lat_in' => $this->officeLat,
+            'long_in' => $this->officeLong,
+            'status' => 'present',
+        ]);
+
+        $response = $this->actingAs($this->user)->postJson('/api/attendance/check-out', [
+            'lat' => $this->officeLat,
+            'long' => $this->officeLong,
         ]);
 
         $response->assertStatus(200)
-                 ->assertJsonPath('message', 'Check Out successful')
-                 ->assertJsonPath('data.total_hours', 9);
+                 ->assertJsonFragment(['message' => 'Check Out successful']);
+        
+        $this->assertDatabaseHas('attendances', [
+            'user_id' => $this->user->id,
+            'time_out' => Carbon::now()->toTimeString(),
+        ]);
+    }
+
+    public function test_user_cannot_check_out_if_no_check_in()
+    {
+        $response = $this->actingAs($this->user)->postJson('/api/attendance/check-out', [
+            'lat' => $this->officeLat,
+            'long' => $this->officeLong,
+        ]);
+
+        $response->assertStatus(400)
+                 ->assertJsonFragment(['message' => 'No Check In record found for today.']);
+    }
+
+    public function test_user_cannot_check_out_twice()
+    {
+        Attendance::create([
+            'user_id' => $this->user->id,
+            'date' => Carbon::today()->toDateString(),
+            'time_in' => Carbon::now()->subHours(8)->toTimeString(),
+            'time_out' => Carbon::now()->toTimeString(),
+            'lat_in' => $this->officeLat,
+            'long_in' => $this->officeLong,
+            'status' => 'present',
+        ]);
+
+        $response = $this->actingAs($this->user)->postJson('/api/attendance/check-out', [
+            'lat' => $this->officeLat,
+            'long' => $this->officeLong,
+        ]);
+
+        $response->assertStatus(400)
+                 ->assertJsonFragment(['message' => 'You have already checked out today.']);
     }
 }

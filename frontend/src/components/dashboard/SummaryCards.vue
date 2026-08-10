@@ -32,11 +32,8 @@ const attendanceRate = computed(() => {
         <div class="text-3xl font-bold mb-2">
           {{ stats?.total_employees || 0 }}
         </div>
-        <div class="text-xs text-green-600 dark:text-green-400 font-medium flex items-center">
-          <span class="bg-green-100 dark:bg-green-900/40 px-1 rounded mr-1 flex items-center gap-0.5"
-            ><TrendingUp class="w-3 h-3" /> +2.8%</span
-          >
-          vs last week
+        <div class="text-xs text-gray-400 dark:text-zinc-500 font-medium mt-2">
+          Updated today
         </div>
       </CardContent>
     </Card>
@@ -47,11 +44,8 @@ const attendanceRate = computed(() => {
           <span class="font-medium text-sm">Attendance Rate</span>
         </div>
         <div class="text-3xl font-bold mb-2">{{ attendanceRate }}%</div>
-        <div class="text-xs text-green-600 dark:text-green-400 font-medium flex items-center">
-          <span class="bg-green-100 dark:bg-green-900/40 px-1 rounded mr-1 flex items-center gap-0.5"
-            ><TrendingUp class="w-3 h-3" /> +2.7%</span
-          >
-          vs last week
+        <div class="text-xs text-gray-400 dark:text-zinc-500 font-medium mt-2">
+          Updated today
         </div>
       </CardContent>
     </Card>
@@ -64,11 +58,8 @@ const attendanceRate = computed(() => {
         <div class="text-3xl font-bold mb-2">
           {{ stats?.pending_requests || 0 }}
         </div>
-        <div class="text-xs text-red-600 dark:text-red-400 font-medium flex items-center">
-          <span class="bg-red-100 dark:bg-red-900/40 px-1 rounded mr-1 flex items-center gap-0.5"
-            ><TrendingDown class="w-3 h-3" /> -0.5%</span
-          >
-          vs last week
+        <div class="text-xs text-gray-400 dark:text-zinc-500 font-medium mt-2">
+          Updated today
         </div>
       </CardContent>
     </Card>
@@ -84,11 +75,8 @@ const attendanceRate = computed(() => {
             >/{{ stats?.total_employees || 0 }}</span
           >
         </div>
-        <div class="text-xs text-green-600 dark:text-green-400 font-medium flex items-center">
-          <span class="bg-green-100 dark:bg-green-900/40 px-1 rounded mr-1 flex items-center gap-0.5"
-            ><TrendingUp class="w-3 h-3" /> +0.8%</span
-          >
-          vs last week
+        <div class="text-xs text-gray-400 dark:text-zinc-500 font-medium mt-2">
+          Updated today
         </div>
       </CardContent>
     </Card>
