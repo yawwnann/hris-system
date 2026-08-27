@@ -38,10 +38,10 @@ const getRoute = (path: string) => {
         <div>
           <div class="text-[11px] font-bold text-gray-400 dark:text-gray-500 dark:text-zinc-400 uppercase tracking-widest mb-3 px-3">Menu Utama</div>
           <div class="space-y-1">
-            <router-link :to="getRoute('/')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group" active-class="bg-emerald-800 dark:bg-emerald-700 text-white dark:text-zinc-100 hover:text-white hover:bg-emerald-900 dark:hover:bg-emerald-600">
+            <router-link :to="getRoute('/')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group [&.router-link-active]:bg-emerald-800 dark:[&.router-link-active]:bg-emerald-700 [&.router-link-active]:text-white dark:[&.router-link-active]:text-zinc-100 [&.router-link-active]:hover:bg-emerald-900 dark:[&.router-link-active]:hover:bg-emerald-600 [&.router-link-active]:hover:text-white">
               <LayoutDashboard class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Dasbor
             </router-link>
-            <router-link :to="getRoute('/attendance')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group" active-class="bg-emerald-800 dark:bg-emerald-700 text-white dark:text-zinc-100 hover:text-white hover:bg-emerald-900 dark:hover:bg-emerald-600">
+            <router-link :to="getRoute('/attendance')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group [&.router-link-active]:bg-emerald-800 dark:[&.router-link-active]:bg-emerald-700 [&.router-link-active]:text-white dark:[&.router-link-active]:text-zinc-100 [&.router-link-active]:hover:bg-emerald-900 dark:[&.router-link-active]:hover:bg-emerald-600 [&.router-link-active]:hover:text-white">
               <UserCheck class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Absensi
             </router-link>
           </div>
@@ -51,10 +51,10 @@ const getRoute = (path: string) => {
         <div v-if="authStore.user?.role === 'admin'">
           <div class="text-[11px] font-bold text-gray-400 dark:text-gray-500 dark:text-zinc-400 uppercase tracking-widest mb-3 px-3">Manajemen</div>
           <div class="space-y-1">
-            <router-link :to="getRoute('/employees')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group" active-class="bg-emerald-800 dark:bg-emerald-700 text-white dark:text-zinc-100 hover:text-white hover:bg-emerald-900 dark:hover:bg-emerald-600">
+            <router-link :to="getRoute('/employees')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group [&.router-link-active]:bg-emerald-800 dark:[&.router-link-active]:bg-emerald-700 [&.router-link-active]:text-white dark:[&.router-link-active]:text-zinc-100 [&.router-link-active]:hover:bg-emerald-900 dark:[&.router-link-active]:hover:bg-emerald-600 [&.router-link-active]:hover:text-white">
               <Users class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Karyawan
             </router-link>
-            <router-link :to="getRoute('/departments')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group" active-class="bg-emerald-800 dark:bg-emerald-700 text-white dark:text-zinc-100 hover:text-white hover:bg-emerald-900 dark:hover:bg-emerald-600">
+            <router-link :to="getRoute('/departments')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group [&.router-link-active]:bg-emerald-800 dark:[&.router-link-active]:bg-emerald-700 [&.router-link-active]:text-white dark:[&.router-link-active]:text-zinc-100 [&.router-link-active]:hover:bg-emerald-900 dark:[&.router-link-active]:hover:bg-emerald-600 [&.router-link-active]:hover:text-white">
               <FileText class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Departemen
             </router-link>
           </div>
@@ -64,13 +64,13 @@ const getRoute = (path: string) => {
         <div>
           <div class="text-[11px] font-bold text-gray-400 dark:text-gray-500 dark:text-zinc-400 uppercase tracking-widest mb-3 px-3">Informasi</div>
           <div class="space-y-1">
-            <router-link :to="getRoute('/calendar')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group" active-class="bg-emerald-800 dark:bg-emerald-700 text-white dark:text-zinc-100 hover:text-white hover:bg-emerald-900 dark:hover:bg-emerald-600">
+            <router-link :to="getRoute('/calendar')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group [&.router-link-active]:bg-emerald-800 dark:[&.router-link-active]:bg-emerald-700 [&.router-link-active]:text-white dark:[&.router-link-active]:text-zinc-100 [&.router-link-active]:hover:bg-emerald-900 dark:[&.router-link-active]:hover:bg-emerald-600 [&.router-link-active]:hover:text-white">
               <CalendarIcon class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Manajemen Kalender
             </router-link>
-            <router-link :to="getRoute('/announcements')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group" active-class="bg-emerald-800 dark:bg-emerald-700 text-white dark:text-zinc-100 hover:text-white hover:bg-emerald-900 dark:hover:bg-emerald-600">
+            <router-link :to="getRoute('/announcements')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group [&.router-link-active]:bg-emerald-800 dark:[&.router-link-active]:bg-emerald-700 [&.router-link-active]:text-white dark:[&.router-link-active]:text-zinc-100 [&.router-link-active]:hover:bg-emerald-900 dark:[&.router-link-active]:hover:bg-emerald-600 [&.router-link-active]:hover:text-white">
               <FileText class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Pengumuman
             </router-link>
-            <router-link v-if="authStore.user?.role === 'admin'" :to="getRoute('/reports')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group" active-class="bg-emerald-800 dark:bg-emerald-700 text-white dark:text-zinc-100 hover:text-white hover:bg-emerald-900 dark:hover:bg-emerald-600">
+            <router-link v-if="authStore.user?.role === 'admin'" :to="getRoute('/reports')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group [&.router-link-active]:bg-emerald-800 dark:[&.router-link-active]:bg-emerald-700 [&.router-link-active]:text-white dark:[&.router-link-active]:text-zinc-100 [&.router-link-active]:hover:bg-emerald-900 dark:[&.router-link-active]:hover:bg-emerald-600 [&.router-link-active]:hover:text-white">
               <FileText class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Laporan & Ekspor
             </router-link>
           </div>
@@ -80,10 +80,10 @@ const getRoute = (path: string) => {
         <div>
           <div class="text-[11px] font-bold text-gray-400 dark:text-gray-500 dark:text-zinc-400 uppercase tracking-widest mb-3 px-3">Pengajuan</div>
           <div class="space-y-1">
-            <router-link :to="getRoute('/leaves')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group" active-class="bg-emerald-800 dark:bg-emerald-700 text-white dark:text-zinc-100 hover:text-white hover:bg-emerald-900 dark:hover:bg-emerald-600">
+            <router-link :to="getRoute('/leaves')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group [&.router-link-active]:bg-emerald-800 dark:[&.router-link-active]:bg-emerald-700 [&.router-link-active]:text-white dark:[&.router-link-active]:text-zinc-100 [&.router-link-active]:hover:bg-emerald-900 dark:[&.router-link-active]:hover:bg-emerald-600 [&.router-link-active]:hover:text-white">
               <CalendarIcon class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Cuti
             </router-link>
-            <router-link :to="getRoute('/overtime')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group" active-class="bg-emerald-800 dark:bg-emerald-700 text-white dark:text-zinc-100 hover:text-white hover:bg-emerald-900 dark:hover:bg-emerald-600">
+            <router-link :to="getRoute('/overtime')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group [&.router-link-active]:bg-emerald-800 dark:[&.router-link-active]:bg-emerald-700 [&.router-link-active]:text-white dark:[&.router-link-active]:text-zinc-100 [&.router-link-active]:hover:bg-emerald-900 dark:[&.router-link-active]:hover:bg-emerald-600 [&.router-link-active]:hover:text-white">
               <Clock class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Lembur
             </router-link>
           </div>
@@ -93,7 +93,7 @@ const getRoute = (path: string) => {
         <div v-if="authStore.user?.role === 'admin'">
           <div class="text-[11px] font-bold text-gray-400 dark:text-gray-500 dark:text-zinc-400 uppercase tracking-widest mb-3 px-3">Sistem</div>
           <div class="space-y-1">
-            <router-link :to="getRoute('/settings')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group" active-class="bg-emerald-800 dark:bg-emerald-700 text-white dark:text-zinc-100 hover:text-white hover:bg-emerald-900 dark:hover:bg-emerald-600">
+            <router-link :to="getRoute('/settings')"  class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-gray-400 dark:text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group [&.router-link-active]:bg-emerald-800 dark:[&.router-link-active]:bg-emerald-700 [&.router-link-active]:text-white dark:[&.router-link-active]:text-zinc-100 [&.router-link-active]:hover:bg-emerald-900 dark:[&.router-link-active]:hover:bg-emerald-600 [&.router-link-active]:hover:text-white">
               <Settings class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Pengaturan
             </router-link>
           </div>

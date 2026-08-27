@@ -33,6 +33,17 @@ export const employeeDashboardMock = {
     { id: 1, type: 'meeting', title: 'Daily Standup', description: 'Online', date: '2026-08-27T10:00:00' },
     { id: 2, type: 'other', title: 'Code Review', description: 'Office', date: '2026-08-27T14:00:00' },
     { id: 3, type: 'meeting', title: 'Project Sync', description: 'Room A', date: '2026-08-28T11:00:00' }
+  ],
+  recent_attendances: Array.from({ length: 5 }).map((_, i) => ({
+    id: i + 1,
+    date: new Date(Date.now() - (i + 1) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    clock_in_time: '08:00',
+    clock_out_time: '17:00',
+    status: Math.random() > 0.1 ? 'present' : 'late'
+  })),
+  announcements: [
+    { id: 1, title: 'Maintenance Server', content: 'Server HRIS akan mengalami downtime pada hari Sabtu pukul 00:00 - 04:00.', publish_date: new Date().toISOString() },
+    { id: 2, title: 'Libur Nasional', content: 'Diingatkan kembali bahwa besok adalah hari libur nasional.', publish_date: new Date(Date.now() - 86400000).toISOString() }
   ]
 };
 

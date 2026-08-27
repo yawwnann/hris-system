@@ -189,7 +189,7 @@ const directAction = async (id: number, status: 'approved' | 'rejected') => {
       status,
       admin_note: "",
     });
-    toast.success(`Request successfully ${status}`);
+    toast.success(`Pengajuan berhasil ${status}`);
     fetchLeaves();
   } catch (error: any) {
     toast.error(error.response?.data?.message || "Failed to process approval");
@@ -207,7 +207,7 @@ const executeDelete = async () => {
   if (!itemToDelete.value) return;
   try {
     await api.delete(`/leave-requests/${itemToDelete.value}`);
-    toast.success("Request cancelled successfully");
+    toast.success("Pengajuan berhasil dibatalkan");
     fetchLeaves();
   } catch (error: any) {
     toast.error(error.response?.data?.message || "Failed to cancel request");
@@ -245,7 +245,7 @@ const getTypeLabel = (type: string) => {
               Pengajuan Cuti
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
-              {{ authStore.user?.role === 'admin' ? 'Manage employee leave requests and approvals.' : 'Submit and track your leave request status.' }}
+              {{ authStore.user?.role === 'admin' ? 'Manage employee leave requests and approvals.' : 'Ajukan dan pantau status permohonan cuti Anda.' }}
             </p>
           </div>
           
@@ -439,15 +439,15 @@ const getTypeLabel = (type: string) => {
     <Dialog v-model:open="isAddDialogOpen">
       <DialogContent class="sm:max-w-[500px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
         <DialogHeader>
-          <DialogTitle class="text-gray-900 dark:text-zinc-100">Submit Leave Request</DialogTitle>
+          <DialogTitle class="text-gray-900 dark:text-zinc-100">Ajukan Permohonan Cuti</DialogTitle>
           <DialogDescription class="text-gray-500 dark:text-zinc-400">
-            Fill out the form below to request a leave of absence.
+            Isi formulir di bawah ini untuk mengajukan permohonan cuti.
           </DialogDescription>
         </DialogHeader>
         
         <form @submit.prevent="submitLeaveRequest" class="space-y-4 py-4">
           <div class="space-y-2">
-            <Label class="text-gray-700 dark:text-gray-300">Request Type</Label>
+            <Label class="text-gray-700 dark:text-gray-300">Tipe Pengajuan</Label>
             <Select v-model="formData.type">
               <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
                 <SelectValue placeholder="Select type" />
@@ -490,7 +490,7 @@ const getTypeLabel = (type: string) => {
             <Input 
               id="reason" 
               v-model="formData.reason" 
-              placeholder="Briefly explain the reason..." 
+              placeholder="Jelaskan alasan secara singkat..." 
               class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
               required
             />
@@ -501,7 +501,7 @@ const getTypeLabel = (type: string) => {
               Cancel
             </Button>
             <Button type="submit" :disabled="isSubmitting" class="bg-orange-600 hover:bg-orange-700 text-white">
-              {{ isSubmitting ? 'Submitting...' : 'Submit Request' }}
+              {{ isSubmitting ? 'Mengirim...' : 'Submit Request' }}
             </Button>
           </DialogFooter>
         </form>
@@ -514,7 +514,7 @@ const getTypeLabel = (type: string) => {
     <AlertDialog v-model:open="isDeleteDialogOpen">
       <AlertDialogContent class="bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800">
         <AlertDialogHeader>
-          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Cancel Request?</AlertDialogTitle>
+          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Batalkan Pengajuan?</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
             Are you sure you want to cancel this request?
           </AlertDialogDescription>

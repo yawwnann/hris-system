@@ -176,7 +176,7 @@ const directAction = async (id: number, status: 'approved' | 'rejected') => {
       status,
       admin_note: "",
     });
-    toast.success(`Request successfully ${status}`);
+    toast.success(`Pengajuan berhasil ${status}`);
     fetchOvertimes();
   } catch (error: any) {
     toast.error(error.response?.data?.message || "Failed to process approval");
@@ -194,7 +194,7 @@ const executeDelete = async () => {
   if (!itemToDelete.value) return;
   try {
     await api.delete(`/overtime-requests/${itemToDelete.value}`);
-    toast.success("Request cancelled successfully");
+    toast.success("Pengajuan berhasil dibatalkan");
     fetchOvertimes();
   } catch (error: any) {
     toast.error(error.response?.data?.message || "Failed to cancel request");
@@ -225,7 +225,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
               Pengajuan Lembur
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
-              {{ authStore.user?.role === 'admin' ? 'Manage employee overtime requests and approvals.' : 'Submit and track your overtime request status.' }}
+              {{ authStore.user?.role === 'admin' ? 'Manage employee overtime requests and approvals.' : 'Ajukan dan pantau status permohonan lembur Anda.' }}
             </p>
           </div>
           
@@ -414,9 +414,9 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
     <Dialog v-model:open="isAddDialogOpen">
       <DialogContent class="sm:max-w-[500px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
         <DialogHeader>
-          <DialogTitle class="text-gray-900 dark:text-zinc-100">Submit Overtime Request</DialogTitle>
+          <DialogTitle class="text-gray-900 dark:text-zinc-100">Ajukan Permohonan Lembur</DialogTitle>
           <DialogDescription class="text-gray-500 dark:text-zinc-400">
-            Fill out the form below to request overtime hours.
+            Isi formulir di bawah ini untuk mengajukan jam lembur.
           </DialogDescription>
         </DialogHeader>
         
@@ -471,7 +471,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
               Cancel
             </Button>
             <Button type="submit" :disabled="isSubmitting" class="bg-orange-600 hover:bg-orange-700 text-white">
-              {{ isSubmitting ? 'Submitting...' : 'Submit Request' }}
+              {{ isSubmitting ? 'Mengirim...' : 'Submit Request' }}
             </Button>
           </DialogFooter>
         </form>
@@ -548,7 +548,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
     <AlertDialog v-model:open="isDeleteDialogOpen">
       <AlertDialogContent class="bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800">
         <AlertDialogHeader>
-          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Cancel Request?</AlertDialogTitle>
+          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Batalkan Pengajuan?</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
             Are you sure you want to cancel this request?
           </AlertDialogDescription>
