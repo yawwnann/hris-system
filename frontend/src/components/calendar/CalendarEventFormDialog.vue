@@ -56,7 +56,7 @@ const toggleDivision = (id: any) => {
   <Dialog :open="open" @update:open="val => emit('update:open', val)">
     <DialogContent class="sm:max-w-[600px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800 p-0 overflow-hidden">
       <DialogHeader class="p-6 pb-0">
-        <DialogTitle class="text-xl text-gray-900 dark:text-zinc-100">{{ editId ? 'Edit Event' : 'Add Event' }}</DialogTitle>
+        <DialogTitle class="text-xl text-gray-900 dark:text-zinc-100">{{ editId ? 'Ubah Acara' : 'Tambah Acara' }}</DialogTitle>
         <DialogDescription>Fill in the calendar event details below.</DialogDescription>
       </DialogHeader>
       
@@ -65,8 +65,8 @@ const toggleDivision = (id: any) => {
           <div class="space-y-4">
             <!-- Title -->
             <div>
-              <Label>Event Name</Label>
-              <Input v-model="eventForm.title" placeholder="E.g., Team Meeting, National Holiday" required class="mt-1" />
+              <Label>Nama Acara</Label>
+              <Input v-model="eventForm.title" placeholder="E.g., Team Rapat, National Holiday" required class="mt-1" />
             </div>
             
             <!-- Category -->
@@ -100,7 +100,7 @@ const toggleDivision = (id: any) => {
             <div class="flex flex-wrap gap-6 py-2">
               <div class="flex items-center space-x-2">
                 <Checkbox id="is_all_day" :checked="eventForm.is_all_day" @update:checked="eventForm.is_all_day = !!$event" />
-                <label for="is_all_day" class="text-sm font-medium leading-none cursor-pointer">All Day</label>
+                <label for="is_all_day" class="text-sm font-medium leading-none cursor-pointer">Sepanjang Hari</label>
               </div>
               <div class="flex items-center space-x-2">
                 <Checkbox id="is_working_day" :checked="eventForm.is_working_day" @update:checked="eventForm.is_working_day = !!$event" />
@@ -111,11 +111,11 @@ const toggleDivision = (id: any) => {
             <!-- Dates -->
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <Label>Start Date</Label>
+                <Label>Tanggal Mulai</Label>
                 <Input type="datetime-local" v-model="eventForm.start_datetime" required class="mt-1" />
               </div>
               <div>
-                <Label>End Date</Label>
+                <Label>Tanggal Selesai</Label>
                 <Input type="datetime-local" v-model="eventForm.end_datetime" required class="mt-1" />
               </div>
             </div>
@@ -123,18 +123,18 @@ const toggleDivision = (id: any) => {
             <!-- Location -->
             <div>
               <Label>Location</Label>
-              <Input v-model="eventForm.location" placeholder="Meeting Room A, Zoom, etc." class="mt-1" />
+              <Input v-model="eventForm.location" placeholder="Rapat Room A, Zoom, etc." class="mt-1" />
             </div>
 
             <!-- Description -->
             <div>
-              <Label>Description</Label>
+              <Label>Deskripsi</Label>
               <Textarea v-model="eventForm.description" rows="3" placeholder="Additional event details..." class="mt-1" />
             </div>
 
-            <!-- Participants -->
+            <!-- Peserta -->
             <div class="border-t border-gray-100 dark:border-zinc-800 pt-4 mt-2">
-              <Label class="text-sm font-semibold mb-3 block">Participants (Optional)</Label>
+              <Label class="text-sm font-semibold mb-3 block">Peserta (Optional)</Label>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label class="text-xs text-gray-500 mb-2 block">Select Division</Label>
@@ -153,7 +153,7 @@ const toggleDivision = (id: any) => {
                         class="flex items-center justify-between cursor-pointer"
                       >
                         <span>{{ div.name }}</span>
-                        <Check v-if="eventForm.division_ids.some((dId: any) => dId == div.id)" class="w-4 h-4 text-indigo-600" />
+                        <Check v-if="eventForm.division_ids.some((dId: any) => dId == div.id)" class="w-4 h-4 text-orange-600" />
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -175,7 +175,7 @@ const toggleDivision = (id: any) => {
                         class="flex items-center justify-between cursor-pointer"
                       >
                         <span>{{ usr.name }}</span>
-                        <Check v-if="eventForm.user_ids.some((uId: any) => uId == usr.id)" class="w-4 h-4 text-indigo-600" />
+                        <Check v-if="eventForm.user_ids.some((uId: any) => uId == usr.id)" class="w-4 h-4 text-orange-600" />
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -186,9 +186,9 @@ const toggleDivision = (id: any) => {
         </ScrollArea>
         
         <div class="flex justify-end gap-3 pt-6 mt-2 border-t border-gray-100 dark:border-zinc-800">
-          <Button type="button" variant="outline" @click="emit('update:open', false)">Cancel</Button>
-          <Button type="submit" :disabled="isSubmitting" class="bg-indigo-600 text-white hover:bg-indigo-700">
-            {{ isSubmitting ? 'Saving...' : 'Save Event' }}
+          <Button type="button" variant="outline" @click="emit('update:open', false)">Batal</Button>
+          <Button type="submit" :disabled="isSubmitting" class="bg-orange-600 text-white hover:bg-orange-700">
+            {{ isSubmitting ? 'Saving...' : 'Simpan Acara' }}
           </Button>
         </div>
       </form>

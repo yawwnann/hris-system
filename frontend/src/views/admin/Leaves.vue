@@ -67,7 +67,11 @@ const sortDir = ref("desc");
 
 // Pagination
 const currentPage = ref(1);
-const itemsPerPage = 10;
+const itemsPerPage = ref("10");
+watch(itemsPerPage, () => {
+  currentPage.value = 1;
+  fetchLeaves();
+});
 const totalPages = ref(1);
 const totalItems = ref(0);
 
@@ -92,7 +96,7 @@ const fetchLeaves = async () => {
       params: { 
         search: searchQuery.value, 
         page: currentPage.value, 
-        per_page: itemsPerPage,
+        per_page: Number(itemsPerPage.value),
         status: filterStatus.value,
         type: filterType.value,
         sort_by: "created_at",
@@ -217,9 +221,9 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
 
 const getTypeLabel = (type: string) => {
   const map: Record<string, string> = {
-    annual: "Annual Leave",
-    sick: "Sick Leave",
-    permission: "Permission"
+    annual: "Cuti Tahunan",
+    sick: "Cuti Sakit",
+    permission: "Izin"
   };
   return map[type] || type;
 };
@@ -238,7 +242,7 @@ const getTypeLabel = (type: string) => {
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
-              Leave Requests
+              Pengajuan Cuti
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
               {{ authStore.user?.role === 'admin' ? 'Manage employee leave requests and approvals.' : 'Submit and track your leave request status.' }}
@@ -251,32 +255,32 @@ const getTypeLabel = (type: string) => {
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="all">Semua Status</SelectItem>
+                <SelectItem value="pending">Menunggu</SelectItem>
+                <SelectItem value="approved">Disetujui</SelectItem>
+                <SelectItem value="rejected">Ditolak</SelectItem>
               </SelectContent>
             </Select>
 
             <Select v-model="filterType">
               <SelectTrigger class="w-[120px] bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
-                <SelectValue placeholder="Type" />
+                <SelectValue placeholder="Tipe" />
               </SelectTrigger>
               <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="all">Semua Tipe</SelectItem>
                 <SelectItem value="annual">Annual</SelectItem>
                 <SelectItem value="sick">Sick</SelectItem>
-                <SelectItem value="permission">Permission</SelectItem>
+                <SelectItem value="permission">Izin</SelectItem>
               </SelectContent>
             </Select>
 
             <Select v-model="sortDir">
               <SelectTrigger class="w-[110px] bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
-                <SelectValue placeholder="Sort" />
+                <SelectValue placeholder="Urutkan" />
               </SelectTrigger>
               <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                <SelectItem value="desc">Newest</SelectItem>
-                <SelectItem value="asc">Oldest</SelectItem>
+                <SelectItem value="desc">Terbaru</SelectItem>
+                <SelectItem value="asc">Terlama</SelectItem>
               </SelectContent>
             </Select>
 
@@ -288,8 +292,8 @@ const getTypeLabel = (type: string) => {
                 class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100"
               />
             </div>
-            <Button v-if="authStore.user?.role !== 'admin'" @click="openAddDialog" class="bg-indigo-600 hover:bg-indigo-700 text-white dark:text-white">
-              <Plus class="w-4 h-4 mr-2" /> Request Leave
+            <Button v-if="authStore.user?.role !== 'admin'" @click="openAddDialog" class="bg-orange-600 hover:bg-orange-700 text-white dark:text-white">
+              <Plus class="w-4 h-4 mr-2" /> Ajukan Cuti
             </Button>
           </div>
         </div>
@@ -302,11 +306,11 @@ const getTypeLabel = (type: string) => {
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
                   <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
                   <TableHead v-if="authStore.user?.role === 'admin'" class="font-semibold text-gray-600 dark:text-zinc-300">Employee</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Type</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Date Range</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Reason</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Tipe</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Rentang Tanggal</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Alasan</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Status</TableHead>
-                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300 pr-4">Action</TableHead>
+                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300 pr-4">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -335,7 +339,7 @@ const getTypeLabel = (type: string) => {
                   
                   <TableCell class="py-4">
                     <div class="inline-flex items-center text-gray-700 dark:text-zinc-300 font-medium">
-                      <Calendar class="w-3.5 h-3.5 mr-1.5 text-indigo-500" />
+                      <Calendar class="w-3.5 h-3.5 mr-1.5 text-orange-500" />
                       {{ getTypeLabel(leave.type) }}
                     </div>
                   </TableCell>
@@ -354,13 +358,13 @@ const getTypeLabel = (type: string) => {
                   
                   <TableCell class="py-4">
                     <Badge v-if="leave.status === 'approved'" variant="outline" class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/30">
-                      Approved
+                      Disetujui
                     </Badge>
                     <Badge v-else-if="leave.status === 'rejected'" variant="outline" class="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/30">
-                      Rejected
+                      Ditolak
                     </Badge>
                     <Badge v-else variant="outline" class="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800/30">
-                      Pending
+                      Menunggu
                     </Badge>
                   </TableCell>
                   
@@ -385,10 +389,26 @@ const getTypeLabel = (type: string) => {
           </div>
           <!-- Pagination -->
           <div class="border-t border-gray-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-zinc-950/50">
-            <div class="text-sm text-gray-500 dark:text-zinc-400">
-              Showing <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedLeaves.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> of 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> requests
+            <div class="flex items-center">
+            <div class="flex items-center space-x-2 mr-4">
+              <span class="text-sm text-gray-500 dark:text-zinc-400">Tampilkan</span>
+              <Select v-model="itemsPerPage">
+                <SelectTrigger class="w-[70px] h-8 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-xs">
+                  <SelectValue placeholder="10" />
+                </SelectTrigger>
+                <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+<div class="text-sm text-gray-500 dark:text-zinc-400">
+              Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedLeaves.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> dari 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> pengajuan
+            </div>
             </div>
             <div class="flex items-center space-x-2">
               <Button 
@@ -434,9 +454,9 @@ const getTypeLabel = (type: string) => {
               </SelectTrigger>
               <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                 <SelectGroup>
-                  <SelectItem value="annual">Annual Leave</SelectItem>
-                  <SelectItem value="sick">Sick Leave</SelectItem>
-                  <SelectItem value="permission">Permission</SelectItem>
+                  <SelectItem value="annual">Cuti Tahunan</SelectItem>
+                  <SelectItem value="sick">Cuti Sakit</SelectItem>
+                  <SelectItem value="permission">Izin</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -444,7 +464,7 @@ const getTypeLabel = (type: string) => {
 
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-2">
-              <Label for="start_date" class="text-gray-700 dark:text-gray-300">Start Date</Label>
+              <Label for="start_date" class="text-gray-700 dark:text-gray-300">Tanggal Mulai</Label>
               <Input 
                 id="start_date" 
                 type="date"
@@ -454,7 +474,7 @@ const getTypeLabel = (type: string) => {
               />
             </div>
             <div class="space-y-2">
-              <Label for="end_date" class="text-gray-700 dark:text-gray-300">End Date</Label>
+              <Label for="end_date" class="text-gray-700 dark:text-gray-300">Tanggal Selesai</Label>
               <Input 
                 id="end_date" 
                 type="date"
@@ -466,7 +486,7 @@ const getTypeLabel = (type: string) => {
           </div>
           
           <div class="space-y-2">
-            <Label for="reason" class="text-gray-700 dark:text-gray-300">Reason</Label>
+            <Label for="reason" class="text-gray-700 dark:text-gray-300">Alasan</Label>
             <Input 
               id="reason" 
               v-model="formData.reason" 
@@ -480,7 +500,7 @@ const getTypeLabel = (type: string) => {
             <Button type="button" variant="outline" @click="isAddDialogOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
               Cancel
             </Button>
-            <Button type="submit" :disabled="isSubmitting" class="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Button type="submit" :disabled="isSubmitting" class="bg-orange-600 hover:bg-orange-700 text-white">
               {{ isSubmitting ? 'Submitting...' : 'Submit Request' }}
             </Button>
           </DialogFooter>
@@ -510,36 +530,36 @@ const getTypeLabel = (type: string) => {
     <Dialog v-model:open="isDetailDialogOpen">
       <DialogContent class="sm:max-w-[500px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
         <DialogHeader>
-          <DialogTitle class="text-gray-900 dark:text-zinc-100">Leave Request Details</DialogTitle>
+          <DialogTitle class="text-gray-900 dark:text-zinc-100">Detail Pengajuan Cuti</DialogTitle>
           <DialogDescription class="text-gray-500 dark:text-zinc-400">
-            View detailed information about this leave request.
+            Lihat informasi detail tentang pengajuan cuti ini.
           </DialogDescription>
         </DialogHeader>
         
         <div v-if="selectedLeave" class="space-y-4 py-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <Label class="text-xs text-gray-500">Employee Name</Label>
+              <Label class="text-xs text-gray-500">Nama Karyawan</Label>
               <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ selectedLeave.user?.name }}</div>
             </div>
             <div>
-              <Label class="text-xs text-gray-500">Leave Type</Label>
+              <Label class="text-xs text-gray-500">Tipe Cuti</Label>
               <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ getTypeLabel(selectedLeave.type) }}</div>
             </div>
             <div>
-              <Label class="text-xs text-gray-500">Start Date</Label>
+              <Label class="text-xs text-gray-500">Tanggal Mulai</Label>
               <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ formatDate(selectedLeave.start_date) }}</div>
             </div>
             <div>
-              <Label class="text-xs text-gray-500">End Date</Label>
+              <Label class="text-xs text-gray-500">Tanggal Selesai</Label>
               <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ formatDate(selectedLeave.end_date) }}</div>
             </div>
             <div>
               <Label class="text-xs text-gray-500">Status</Label>
               <div class="mt-1">
-                <Badge v-if="selectedLeave.status === 'approved'" variant="outline" class="bg-green-50 text-green-700 border-green-200 px-2 py-0.5 text-xs rounded-full">Approved</Badge>
-                <Badge v-else-if="selectedLeave.status === 'rejected'" variant="outline" class="bg-red-50 text-red-700 border-red-200 px-2 py-0.5 text-xs rounded-full">Rejected</Badge>
-                <Badge v-else variant="outline" class="bg-yellow-50 text-yellow-700 border-yellow-200 px-2 py-0.5 text-xs rounded-full">Pending</Badge>
+                <Badge v-if="selectedLeave.status === 'approved'" variant="outline" class="bg-green-50 text-green-700 border-green-200 px-2 py-0.5 text-xs rounded-full">Disetujui</Badge>
+                <Badge v-else-if="selectedLeave.status === 'rejected'" variant="outline" class="bg-red-50 text-red-700 border-red-200 px-2 py-0.5 text-xs rounded-full">Ditolak</Badge>
+                <Badge v-else variant="outline" class="bg-yellow-50 text-yellow-700 border-yellow-200 px-2 py-0.5 text-xs rounded-full">Menunggu</Badge>
               </div>
             </div>
           </div>
@@ -547,7 +567,7 @@ const getTypeLabel = (type: string) => {
           <div class="border-t border-gray-100 dark:border-zinc-800 my-4"></div>
           
           <div>
-            <Label class="text-xs text-gray-500">Reason</Label>
+            <Label class="text-xs text-gray-500">Alasan</Label>
             <div class="text-sm mt-1.5 bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
               {{ selectedLeave.reason }}
             </div>
@@ -556,7 +576,7 @@ const getTypeLabel = (type: string) => {
           <div v-if="selectedLeave.attachment">
             <Label class="text-xs text-gray-500">Attachment / Proof</Label>
             <div class="mt-1.5">
-              <a :href="getAttachmentUrl(selectedLeave.attachment)" target="_blank" class="inline-flex items-center text-sm px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-800/30">
+              <a :href="getAttachmentUrl(selectedLeave.attachment)" target="_blank" class="inline-flex items-center text-sm px-4 py-2 bg-orange-50 text-orange-700 hover:bg-orange-100 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50 rounded-lg transition-colors border border-orange-100 dark:border-orange-800/30">
                 <Paperclip class="w-4 h-4 mr-2" /> View Document
               </a>
             </div>

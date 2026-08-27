@@ -113,13 +113,13 @@ onMounted(() => {
                 >Email</TableHead
               >
               <TableHead class="text-xs font-semibold text-gray-500 dark:text-zinc-400"
-                >Role</TableHead
+                >Peran</TableHead
               >
               <TableHead class="text-xs font-semibold text-gray-500 dark:text-zinc-400"
                 >Status</TableHead
               >
               <TableHead class="text-right text-xs font-semibold text-gray-500 dark:text-zinc-400"
-                >Action</TableHead
+                >Aksi</TableHead
               >
             </TableRow>
           </TableHeader>
@@ -194,7 +194,7 @@ onMounted(() => {
                       <DropdownMenuItem @click="router.push(`/employees/${emp.id}`)" class="cursor-pointer text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800/50">
                         <Eye class="mr-2 h-4 w-4" /> View Details
                       </DropdownMenuItem>
-                      <DropdownMenuItem @click="router.push('/employees')" class="cursor-pointer text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
+                      <DropdownMenuItem @click="router.push('/employees')" class="cursor-pointer text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:hover:bg-orange-900/20">
                         Manage
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -218,7 +218,7 @@ onMounted(() => {
         <div class="flex space-x-2">
           <router-link to="/employees">
             <Button variant="outline" size="sm" class="h-8 text-xs font-medium"
-              >View All Employees</Button
+              >Lihat Semua Karyawan</Button
             >
           </router-link>
         </div>

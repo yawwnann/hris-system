@@ -104,14 +104,14 @@ const getStatusBadgeVariant = (status: string) => {
           </Button>
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100">
-              Employee Detail
+              Detail Karyawan
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">Detailed statistics and profile information.</p>
           </div>
         </div>
 
         <div v-if="loading" class="flex justify-center items-center py-20">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
         </div>
 
         <div v-else-if="employee" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -119,7 +119,7 @@ const getStatusBadgeVariant = (status: string) => {
           <!-- Left Column: Profile Card -->
           <div class="lg:col-span-1 space-y-6">
             <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm p-6 text-center">
-              <div class="w-24 h-24 rounded-full bg-indigo-100 dark:bg-indigo-900/30 border-4 border-white dark:border-zinc-800 mx-auto mb-4 flex items-center justify-center text-indigo-700 dark:text-indigo-400 text-3xl font-bold">
+              <div class="w-24 h-24 rounded-full bg-orange-100 dark:bg-orange-900/30 border-4 border-white dark:border-zinc-800 mx-auto mb-4 flex items-center justify-center text-orange-700 dark:text-orange-400 text-3xl font-bold">
                 {{ employee.name.charAt(0) }}
               </div>
               <h2 class="text-xl font-bold text-gray-900 dark:text-zinc-100">{{ employee.name }}</h2>
@@ -156,17 +156,17 @@ const getStatusBadgeVariant = (status: string) => {
             </div>
           </div>
 
-          <!-- Right Column: Stats & Recent Attendance -->
+          <!-- Right Column: Stats & Recent Absensi -->
           <div class="lg:col-span-2 space-y-8">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h2 class="text-lg font-bold text-gray-900 dark:text-zinc-100">
-                Attendance Statistics for {{ monthsList[selectedMonth - 1] }} {{ selectedYear }}
+                Absensi Statistics for {{ monthsList[selectedMonth - 1] }} {{ selectedYear }}
               </h2>
               <div class="flex items-center space-x-2">
-                <select v-model="selectedMonth" class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-md text-sm px-3 py-1.5 text-gray-700 dark:text-gray-300 focus:outline-none focus:border-indigo-500">
+                <select v-model="selectedMonth" class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-md text-sm px-3 py-1.5 text-gray-700 dark:text-gray-300 focus:outline-none focus:border-orange-500">
                   <option v-for="(m, index) in monthsList" :key="index" :value="index + 1">{{ m }}</option>
                 </select>
-                <select v-model="selectedYear" class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-md text-sm px-3 py-1.5 text-gray-700 dark:text-gray-300 focus:outline-none focus:border-indigo-500">
+                <select v-model="selectedYear" class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-md text-sm px-3 py-1.5 text-gray-700 dark:text-gray-300 focus:outline-none focus:border-orange-500">
                   <option v-for="y in yearsList" :key="y" :value="y">{{ y }}</option>
                 </select>
               </div>
@@ -179,7 +179,7 @@ const getStatusBadgeVariant = (status: string) => {
                   <div class="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg">
                     <CheckCircle2 class="w-5 h-5" />
                   </div>
-                  <h3 class="font-medium text-gray-600 dark:text-zinc-400">Present</h3>
+                  <h3 class="font-medium text-gray-600 dark:text-zinc-400">Hadir</h3>
                 </div>
                 <div class="text-2xl font-bold text-gray-900 dark:text-zinc-100">{{ stats?.present || 0 }}</div>
               </div>
@@ -189,7 +189,7 @@ const getStatusBadgeVariant = (status: string) => {
                   <div class="p-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 rounded-lg">
                     <Clock class="w-5 h-5" />
                   </div>
-                  <h3 class="font-medium text-gray-600 dark:text-zinc-400">Late</h3>
+                  <h3 class="font-medium text-gray-600 dark:text-zinc-400">Terlambat</h3>
                 </div>
                 <div class="text-2xl font-bold text-gray-900 dark:text-zinc-100">{{ stats?.late || 0 }}</div>
               </div>
@@ -199,7 +199,7 @@ const getStatusBadgeVariant = (status: string) => {
                   <div class="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg">
                     <XCircle class="w-5 h-5" />
                   </div>
-                  <h3 class="font-medium text-gray-600 dark:text-zinc-400">Absent</h3>
+                  <h3 class="font-medium text-gray-600 dark:text-zinc-400">Absen</h3>
                 </div>
                 <div class="text-2xl font-bold text-gray-900 dark:text-zinc-100">{{ stats?.absent || 0 }}</div>
               </div>
@@ -209,13 +209,13 @@ const getStatusBadgeVariant = (status: string) => {
                   <div class="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">
                     <AlertCircle class="w-5 h-5" />
                   </div>
-                  <h3 class="font-medium text-gray-600 dark:text-zinc-400">Leaves</h3>
+                  <h3 class="font-medium text-gray-600 dark:text-zinc-400">Cuti</h3>
                 </div>
                 <div class="text-2xl font-bold text-gray-900 dark:text-zinc-100">{{ (stats?.leave || 0) + (stats?.sick || 0) }}</div>
               </div>
             </div>
 
-            <!-- Recent Attendance Table -->
+            <!-- Recent Absensi Table -->
             <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl overflow-hidden">
               <div class="px-6 py-5 border-b border-gray-200 dark:border-zinc-800">
                 <h3 class="text-base font-semibold text-gray-900 dark:text-zinc-100">Recent Attendances</h3>
@@ -225,7 +225,7 @@ const getStatusBadgeVariant = (status: string) => {
                   <TableHeader class="bg-gray-50 dark:bg-zinc-950/50">
                     <TableRow class="border-b border-gray-200 dark:border-zinc-800">
                       <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
-                      <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Date</TableHead>
+                      <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Tanggal</TableHead>
                       <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Time In</TableHead>
                       <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Time Out</TableHead>
                       <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Status</TableHead>

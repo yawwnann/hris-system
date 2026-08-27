@@ -76,13 +76,53 @@ const routes = [
   },
 ];
 
+
+if (import.meta.env.VITE_INTEGRATION_MODE === 'false') {
+  const originalRoutes = [...routes];
+  routes.length = 0; // clear existing routes
+  
+  const loginRoute = originalRoutes.find(r => r.path === '/login');
+  if (loginRoute) routes.push(loginRoute);
+
+  const addPrefixedRoutes = (prefix: string, role: string) => {
+    originalRoutes.forEach((r: any) => {
+      if (r.path === '/login') return;
+      const newPath = r.path === '/' ? `${prefix}/dashboard` : `${prefix}${r.path}`;
+      const newRoute: any = {
+        ...r,
+        path: newPath,
+        name: r.name ? `${role}-${String(r.name)}` : undefined
+      };
+      (routes as any[]).push(newRoute);
+    });
+  };
+
+  addPrefixedRoutes('/admin', 'admin');
+  addPrefixedRoutes('/employee', 'employee');
+
+  // Redirect root to admin dashboard so it doesn't show a blank page
+  (routes as any[]).push({ path: '/', redirect: '/admin/dashboard' });
+}
+
 const router = createRouter({
+
   history: createWebHistory(),
   routes,
 });
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore();
+  
+  if (import.meta.env.VITE_INTEGRATION_MODE === 'false') {
+    if (to.path.startsWith('/admin')) {
+      authStore.user = { id: 1, name: 'Mock Admin', email: 'admin@mock.com', role: 'admin' };
+      authStore.token = 'mock-token';
+    } else if (to.path.startsWith('/employee')) {
+      authStore.user = { id: 2, name: 'Mock Employee', email: 'employee@mock.com', role: 'employee' };
+      authStore.token = 'mock-token';
+    }
+  }
+
   if (!authStore.user && authStore.token) {
     await authStore.fetchUser();
   }

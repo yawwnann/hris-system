@@ -85,7 +85,7 @@ const saveSettings = async () => {
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
-              <SettingsIcon class="w-6 h-6 mr-3 text-indigo-600 dark:text-indigo-400" />
+              <SettingsIcon class="w-6 h-6 mr-3 text-orange-600 dark:text-orange-400" />
               System Settings
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
@@ -142,12 +142,12 @@ const saveSettings = async () => {
                     <Input v-model="formData.office_long" placeholder="106.8456" class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
                   </div>
                   <div class="space-y-2">
-                    <Label class="text-gray-700 dark:text-gray-300">Attendance Radius (Meters)</Label>
+                    <Label class="text-gray-700 dark:text-gray-300">Absensi Radius (Meters)</Label>
                     <Input type="number" v-model="formData.attendance_radius" class="bg-gray-50 dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" />
                   </div>
                 </div>
                 <p class="text-xs text-gray-500 dark:text-zinc-400 mt-2">
-                  * Employees can only clock in/out if they are within this radius from the office coordinates.
+                  * Karyawan can only clock in/out if they are within this radius from the office coordinates.
                 </p>
               </div>
             </div>
@@ -156,7 +156,7 @@ const saveSettings = async () => {
             <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm mb-6 overflow-hidden">
               <div class="border-b border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-950/50 px-6 py-4 flex items-center">
                 <Clock class="w-5 h-5 mr-2 text-gray-400 dark:text-zinc-500" />
-                <h2 class="text-base font-semibold text-gray-800 dark:text-zinc-200">Default Working Hours</h2>
+                <h2 class="text-base font-semibold text-gray-800 dark:text-zinc-200">Default Working Jam</h2>
               </div>
               <div class="p-6 space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -177,7 +177,7 @@ const saveSettings = async () => {
 
             <!-- Submit -->
             <div class="flex justify-end pt-4">
-              <Button type="submit" :disabled="isSubmitting" class="bg-indigo-600 hover:bg-indigo-700 text-white">
+              <Button type="submit" :disabled="isSubmitting" class="bg-orange-600 hover:bg-orange-700 text-white">
                 <Save class="w-4 h-4 mr-2" /> {{ isSubmitting ? 'Saving...' : 'Save Settings' }}
               </Button>
             </div>

@@ -5,13 +5,13 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { computed } from "vue";
 
 const props = defineProps<{ stats: any }>();
-const nextEvent = computed(() => {
+const nextAcara = computed(() => {
   return props.stats?.upcoming_events && props.stats.upcoming_events.length > 0
     ? props.stats.upcoming_events[0]
     : null;
 });
 
-const totalEmp = computed(() => nextEvent.value?.total_participants || 0);
+const totalEmp = computed(() => nextAcara.value?.total_participants || 0);
 
 const getInitials = (name: string) => {
   if (!name) return 'A';
@@ -23,24 +23,24 @@ const getInitials = (name: string) => {
   <Card class="border-gray-200 dark:border-zinc-800 border-2">
     <CardHeader class="pb-2">
       <CardTitle class="text-sm font-semibold text-gray-800 dark:text-zinc-200"
-        >Your Next Agenda</CardTitle
+        >Agenda Anda Berikutnya</CardTitle
       >
     </CardHeader>
     <CardContent>
-      <div v-if="nextEvent">
+      <div v-if="nextAcara">
         <div class="text-sm font-bold text-gray-900 dark:text-zinc-100">
-          {{ nextEvent.description || nextEvent.type }}
+          {{ nextAcara.description || nextAcara.type }}
         </div>
         <div class="text-xs text-gray-500 dark:text-zinc-400 mt-1 mb-4">
-          Date: {{ nextEvent.date }}
+          Date: {{ nextAcara.date }}
         </div>
 
         <div v-if="totalEmp > 0" class="flex items-center space-x-3 mb-6">
           <div class="flex -space-x-2">
-            <Avatar v-for="(div, idx) in (nextEvent.divisions || []).slice(0, 3)" :key="'d'+idx" class="w-7 h-7 border-2 border-white dark:border-zinc-950 bg-green-100 dark:bg-green-900/40 text-green-700">
+            <Avatar v-for="(div, idx) in (nextAcara.divisions || []).slice(0, 3)" :key="'d'+idx" class="w-7 h-7 border-2 border-white dark:border-zinc-950 bg-green-100 dark:bg-green-900/40 text-green-700">
               <AvatarFallback class="text-[10px] font-bold">{{ getInitials(div.name) }}</AvatarFallback>
             </Avatar>
-            <Avatar v-for="(user, idx) in (nextEvent.users || []).slice(0, Math.max(0, 3 - (nextEvent.divisions?.length || 0)))" :key="'u'+idx" class="w-7 h-7 border-2 border-white dark:border-zinc-950 bg-blue-100 dark:bg-blue-900/40 text-blue-700">
+            <Avatar v-for="(user, idx) in (nextAcara.users || []).slice(0, Math.max(0, 3 - (nextAcara.divisions?.length || 0)))" :key="'u'+idx" class="w-7 h-7 border-2 border-white dark:border-zinc-950 bg-blue-100 dark:bg-blue-900/40 text-blue-700">
               <AvatarFallback class="text-[10px] font-bold">{{ getInitials(user.name) }}</AvatarFallback>
             </Avatar>
             <div
@@ -55,7 +55,7 @@ const getInitials = (name: string) => {
 
         <Button
           class="w-full bg-black text-white hover:bg-gray-800 text-xs h-10"
-          >See Details</Button
+          >Lihat Detail</Button
         >
       </div>
       <div

@@ -15,12 +15,15 @@ const route = useRoute();
 
 const breadcrumbs = computed(() => {
 const routeNameMap: Record<string, string> = {
-  'Dashboard': 'Dashboard',
-  'Employees': 'Employee Management',
-  'Departments': 'Department Management',
-  'Attendance': 'Attendance',
-  'Leaves': 'Leave Requests',
-  'Overtime': 'Overtime Requests',
+  'Dashboard': 'Dasbor',
+  'Announcements': 'Pengumuman',
+  'Reports': 'Laporan & Ekspor',
+  'Settings': 'Pengaturan',
+  'Employees': 'Manajemen Karyawan',
+  'Departments': 'Manajemen Departemen',
+  'Attendance': 'Absensi',
+  'Leaves': 'Pengajuan Cuti',
+  'Overtime': 'Pengajuan Lembur',
 };
 
   const currentName = route.name as string;
@@ -39,7 +42,7 @@ const routeNameMap: Record<string, string> = {
     <BreadcrumbList>
       <!-- Home Link -->
       <BreadcrumbItem>
-        <BreadcrumbLink href="/" class="flex items-center text-gray-500 hover:text-indigo-600 transition-colors">
+        <BreadcrumbLink href="/" class="flex items-center text-gray-500 hover:text-orange-600 transition-colors">
           <Home class="w-4 h-4 mr-1" />
           <span class="sr-only">Beranda</span>
         </BreadcrumbLink>

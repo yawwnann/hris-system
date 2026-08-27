@@ -29,8 +29,8 @@ const getCategoryLabel = (catValue: string) => {
     { value: 'COLLECTIVE_LEAVE', label: 'Collective Leave', color: '#f59e0b' },
     { value: 'SHIFT', label: 'Special Shift', color: '#8b5cf6' },
     { value: 'TRAINING', label: 'Training', color: '#0ea5e9' },
-    { value: 'MEETING', label: 'Meeting', color: '#3b82f6' },
-    { value: 'COMPANY_EVENT', label: 'Company Event', color: '#ec4899' },
+    { value: 'MEETING', label: 'Rapat', color: '#3b82f6' },
+    { value: 'COMPANY_EVENT', label: 'Acara Perusahaan', color: '#ec4899' },
     { value: 'MAINTENANCE', label: 'Maintenance', color: '#64748b' },
     { value: 'OTHER', label: 'Other', color: '#94a3b8' },
   ];
@@ -48,8 +48,8 @@ const getCategoryColor = (catValue: string, customColor: string | null) => {
     { value: 'COLLECTIVE_LEAVE', label: 'Collective Leave', color: '#f59e0b' },
     { value: 'SHIFT', label: 'Special Shift', color: '#8b5cf6' },
     { value: 'TRAINING', label: 'Training', color: '#0ea5e9' },
-    { value: 'MEETING', label: 'Meeting', color: '#3b82f6' },
-    { value: 'COMPANY_EVENT', label: 'Company Event', color: '#ec4899' },
+    { value: 'MEETING', label: 'Rapat', color: '#3b82f6' },
+    { value: 'COMPANY_EVENT', label: 'Acara Perusahaan', color: '#ec4899' },
     { value: 'MAINTENANCE', label: 'Maintenance', color: '#64748b' },
     { value: 'OTHER', label: 'Other', color: '#94a3b8' },
   ];
@@ -82,7 +82,7 @@ const getInitials = (name: string) => {
               {{ moment(selectedEvent?.start_datetime).format('dddd, DD MMMM YYYY') }}
             </div>
             <div class="text-gray-500">
-              <span v-if="selectedEvent?.is_all_day">All Day</span>
+              <span v-if="selectedEvent?.is_all_day">Sepanjang Hari</span>
               <span v-else>{{ moment(selectedEvent?.start_datetime).format('HH:mm') }} - {{ moment(selectedEvent?.end_datetime).format('HH:mm') }}</span>
             </div>
           </div>
@@ -97,16 +97,16 @@ const getInitials = (name: string) => {
           {{ selectedEvent?.description }}
         </div>
 
-        <!-- Participants -->
+        <!-- Peserta -->
         <div v-if="(selectedEvent?.users?.length || 0) + (selectedEvent?.divisions?.length || 0) > 0" class="pt-2">
-          <h4 class="text-xs font-semibold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-3">Participants / Involved Divisions</h4>
+          <h4 class="text-xs font-semibold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-3">Peserta / Divisi Terlibat</h4>
           
           <div class="space-y-4">
             <!-- Divisions -->
             <div v-if="selectedEvent?.divisions?.length > 0">
               <div class="text-[11px] font-medium text-gray-500 mb-2 flex items-center">
                 <Building2 class="w-3.5 h-3.5 mr-1.5" /> 
-                Divisions ({{ selectedEvent.divisions.length }})
+                Divisi ({{ selectedEvent.divisions.length }})
               </div>
               <div class="flex flex-wrap gap-2">
                 <Badge variant="outline" v-for="div in selectedEvent.divisions" :key="div.id" class="bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900 font-normal">
@@ -119,7 +119,7 @@ const getInitials = (name: string) => {
             <div v-if="selectedEvent?.users?.length > 0">
               <div class="text-[11px] font-medium text-gray-500 mb-2 flex items-center">
                 <Users class="w-3.5 h-3.5 mr-1.5" /> 
-                Employees ({{ selectedEvent.users.length }})
+                Karyawan ({{ selectedEvent.users.length }})
               </div>
               <div class="flex flex-wrap gap-2">
                 <Badge variant="outline" v-for="user in selectedEvent.users" :key="user.id" class="bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900 font-normal">
@@ -135,8 +135,8 @@ const getInitials = (name: string) => {
         <Button variant="outline" @click="emit('delete', selectedEvent?.id)" class="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200">
           Delete
         </Button>
-        <Button @click="emit('edit', selectedEvent)" class="bg-indigo-600 hover:bg-indigo-700 text-white">
-          Edit Event
+        <Button @click="emit('edit', selectedEvent)" class="bg-orange-600 hover:bg-orange-700 text-white">
+          Ubah Acara
         </Button>
       </DialogFooter>
     </DialogContent>

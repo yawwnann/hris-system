@@ -33,7 +33,7 @@ const getThreshold = (item: any) => {
   <Card class="border-gray-200 dark:border-zinc-800 border-2 bg-gray-50 dark:bg-zinc-900/50 border-none">
     <CardHeader class="pb-2 flex flex-row items-center justify-between">
       <CardTitle class="text-sm font-semibold text-gray-800 dark:text-zinc-200"
-        >Attendance Report</CardTitle
+        >Laporan Kehadiran</CardTitle
       >
       <MoreVertical class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
     </CardHeader>

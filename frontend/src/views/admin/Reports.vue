@@ -60,8 +60,8 @@ const exportReport = async () => {
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
-              <FileBarChart class="w-6 h-6 mr-3 text-indigo-600 dark:text-indigo-400" />
-              Reports & Export
+              <FileBarChart class="w-6 h-6 mr-3 text-orange-600 dark:text-orange-400" />
+              Laporan & Ekspor
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
               Download recap of employee attendance, leave, and overtime data.
@@ -85,8 +85,8 @@ const exportReport = async () => {
                   </SelectTrigger>
                   <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                     <SelectGroup>
-                      <SelectItem value="attendance">Attendance Report</SelectItem>
-                      <SelectItem value="leaves">Leave & Permission Report</SelectItem>
+                      <SelectItem value="attendance">Absensi Report</SelectItem>
+                      <SelectItem value="leaves">Leave & Izin Report</SelectItem>
                       <SelectItem value="overtime">Overtime Report</SelectItem>
                     </SelectGroup>
                   </SelectContent>
@@ -105,7 +105,7 @@ const exportReport = async () => {
               </div>
 
               <div class="pt-4 border-t border-gray-100 dark:border-zinc-800 flex justify-end">
-                <Button type="submit" :disabled="isExporting" class="bg-indigo-600 hover:bg-indigo-700 text-white w-full md:w-auto">
+                <Button type="submit" :disabled="isExporting" class="bg-orange-600 hover:bg-orange-700 text-white w-full md:w-auto">
                   <Download class="w-4 h-4 mr-2" /> {{ isExporting ? 'Processing...' : 'Download CSV' }}
                 </Button>
               </div>

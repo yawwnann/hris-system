@@ -84,7 +84,7 @@ const fetchAnnouncements = async () => {
   loading.value = true;
   try {
     const { data } = await api.get("/announcements", {
-      params: { search: searchQuery.value, page: currentPage.value, per_page: itemsPerPage }
+      params: { search: searchQuery.value, page: currentPage.value, per_page: Number(itemsPerPage.value) }
     });
     announcements.value = data.data;
     totalPages.value = data.last_page;
@@ -195,8 +195,8 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
-              <Megaphone class="w-6 h-6 mr-3 text-indigo-600 dark:text-indigo-400" />
-              Announcements
+              <Megaphone class="w-6 h-6 mr-3 text-orange-600 dark:text-orange-400" />
+              Pengumuman
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
               {{ authStore.user?.role === 'admin' ? 'Manage information and announcements for all employees.' : 'Latest information and announcements from the company.' }}
@@ -212,7 +212,7 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
                 class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100"
               />
             </div>
-            <Button v-if="authStore.user?.role === 'admin'" @click="openAddDialog" class="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Button v-if="authStore.user?.role === 'admin'" @click="openAddDialog" class="bg-orange-600 hover:bg-orange-700 text-white">
               <Plus class="w-4 h-4 mr-2" /> Create Announcement
             </Button>
           </div>
@@ -236,7 +236,7 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
           >
             <div class="p-6 flex-1 flex flex-col">
               <div class="flex justify-between items-start mb-4">
-                <Badge :variant="item.status === 'published' ? 'default' : 'secondary'" :class="item.status === 'published' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100' : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400'">
+                <Badge :variant="item.status === 'published' ? 'default' : 'secondary'" :class="item.status === 'published' ? 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 hover:bg-orange-100' : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400'">
                   {{ item.status === 'published' ? 'Published' : 'Draft' }}
                 </Badge>
                 
@@ -247,7 +247,7 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" class="w-36 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                    <DropdownMenuItem @click="openEditDialog(item)" class="cursor-pointer text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
+                    <DropdownMenuItem @click="openEditDialog(item)" class="cursor-pointer text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:hover:bg-orange-900/20">
                       <Edit class="mr-2 h-4 w-4" /> Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem @click="confirmDelete(item.id)" class="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
@@ -278,7 +278,7 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="mt-8 flex items-center justify-between bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 px-6 py-4 rounded-xl shadow-sm">
           <div class="text-sm text-gray-500 dark:text-zinc-400">
-            Page <span class="font-medium text-gray-900 dark:text-zinc-100">{{ currentPage }}</span> of <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalPages }}</span>
+            Page <span class="font-medium text-gray-900 dark:text-zinc-100">{{ currentPage }}</span> dari <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalPages }}</span>
           </div>
           <div class="flex items-center space-x-2">
             <Button 
@@ -321,7 +321,7 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
             <Input 
               id="title" 
               v-model="formData.title" 
-              placeholder="E.g., Change in Working Hours..." 
+              placeholder="E.g., Change in Working Jam..." 
               class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
               required
             />
@@ -348,7 +348,7 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
                 <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                   <SelectGroup>
                     <SelectItem value="published">Publish Now</SelectItem>
-                    <SelectItem value="draft">Save as Draft</SelectItem>
+                    <SelectItem value="draft">Save as Draf</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -368,7 +368,7 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
             <Button type="button" variant="outline" @click="isAddDialogOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
               Cancel
             </Button>
-            <Button type="submit" :disabled="isSubmitting" class="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Button type="submit" :disabled="isSubmitting" class="bg-orange-600 hover:bg-orange-700 text-white">
               {{ isSubmitting ? 'Saving...' : 'Save Announcement' }}
             </Button>
           </DialogFooter>
@@ -386,7 +386,7 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Cancel</AlertDialogCancel>
+          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Batal</AlertDialogCancel>
           <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Delete Announcement</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -50,7 +50,7 @@ const absentPct = computed(() =>
             <Badge
               variant="outline"
               class="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border-none text-[10px] px-1.5 py-0.5 flex items-center gap-0.5"
-              >Active</Badge
+              >Aktif</Badge
             >
           </div>
           <span class="text-sm text-green-800 dark:text-green-400 font-medium"
@@ -66,11 +66,11 @@ const absentPct = computed(() =>
             <Badge
               variant="outline"
               class="bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400 border-none text-[10px] px-1.5 py-0.5 flex items-center gap-0.5"
-              >Today</Badge
+              >Hari Ini</Badge
             >
           </div>
           <span class="text-sm text-orange-800 dark:text-orange-400 font-medium"
-            >Absent Employee</span
+            >Absen Employee</span
           >
         </div>
       </CardContent>
@@ -80,7 +80,7 @@ const absentPct = computed(() =>
     <Card class="border-gray-200 dark:border-zinc-800 border-2">
       <CardHeader class="pb-2 flex flex-row items-center justify-between">
         <CardTitle class="text-sm font-semibold text-gray-800 dark:text-zinc-200"
-          >Today's Attendance Status</CardTitle
+          >Status Kehadiran Hari Ini</CardTitle
         >
         <MoreVertical class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
       </CardHeader>
@@ -91,7 +91,7 @@ const absentPct = computed(() =>
           >
           <span
             class="text-sm text-green-600 dark:text-green-400 font-medium pb-1 flex items-center gap-1"
-            >Present Today</span
+            >Hadir Hari Ini</span
           >
         </div>
 
@@ -100,7 +100,7 @@ const absentPct = computed(() =>
         >
           <div class="bg-yellow-400" :style="{ width: `${leavePct}%` }"></div>
           <div class="bg-blue-400" :style="{ width: `${latePct}%` }"></div>
-          <div class="bg-indigo-400" :style="{ width: `${onTimePct}%` }"></div>
+          <div class="bg-orange-400" :style="{ width: `${onTimePct}%` }"></div>
           <div class="bg-red-400" :style="{ width: `${absentPct}%` }"></div>
         </div>
 
@@ -108,11 +108,11 @@ const absentPct = computed(() =>
           class="flex items-center space-x-4 text-xs text-gray-500 dark:text-zinc-400 flex-wrap gap-y-2"
         >
           <div class="flex items-center">
-            <span class="w-2 h-2 rounded-full bg-indigo-400 mr-2"></span> On
+            <span class="w-2 h-2 rounded-full bg-orange-400 mr-2"></span> On
             time ({{ present - late }})
           </div>
           <div class="flex items-center">
-            <span class="w-2 h-2 rounded-full bg-blue-400 mr-2"></span> Late ({{
+            <span class="w-2 h-2 rounded-full bg-blue-400 mr-2"></span> Terlambat ({{
               late
             }})
           </div>
@@ -121,7 +121,7 @@ const absentPct = computed(() =>
             ({{ onLeave }})
           </div>
           <div class="flex items-center">
-            <span class="w-2 h-2 rounded-full bg-red-400 mr-2"></span> Absent
+            <span class="w-2 h-2 rounded-full bg-red-400 mr-2"></span> Absen
             ({{ absent }})
           </div>
         </div>

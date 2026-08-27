@@ -1,4 +1,5 @@
 import axios from "axios";
+import { setupMockAdapter } from "@/mock";
 
 const api = axios.create({
   baseURL: "http://localhost:8000/api",
@@ -7,6 +8,8 @@ const api = axios.create({
     Accept: "application/json",
   },
 });
+
+setupMockAdapter(api);
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("access_token");

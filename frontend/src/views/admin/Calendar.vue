@@ -83,8 +83,8 @@ const categoriesList = [
   { value: 'COLLECTIVE_LEAVE', label: 'Collective Leave', color: '#f59e0b' },
   { value: 'SHIFT', label: 'Special Shift', color: '#8b5cf6' },
   { value: 'TRAINING', label: 'Training', color: '#0ea5e9' },
-  { value: 'MEETING', label: 'Meeting', color: '#3b82f6' },
-  { value: 'COMPANY_EVENT', label: 'Company Event', color: '#ec4899' },
+  { value: 'MEETING', label: 'Rapat', color: '#3b82f6' },
+  { value: 'COMPANY_EVENT', label: 'Acara Perusahaan', color: '#ec4899' },
   { value: 'MAINTENANCE', label: 'Maintenance', color: '#64748b' },
   { value: 'OTHER', label: 'Other', color: '#94a3b8' },
 ];
@@ -319,10 +319,10 @@ const saveEvent = async () => {
 
     if (editId.value) {
       await api.put(`/calendar-events/${editId.value}`, payload);
-      toast.success("Event successfully updated");
+      toast.success("Acara berhasil diperbarui");
     } else {
       await api.post("/calendar-events", payload);
-      toast.success("Event successfully added");
+      toast.success("Acara berhasil ditambahkan");
     }
     isDialogOpen.value = false;
     fetchEvents();
@@ -342,7 +342,7 @@ const executeDelete = async () => {
   if (!itemToDelete.value) return;
   try {
     await api.delete(`/calendar-events/${itemToDelete.value}`);
-    toast.success("Event successfully deleted");
+    toast.success("Acara berhasil dihapus");
     isViewDialogOpen.value = false;
     fetchEvents();
   } catch (error) {
@@ -368,14 +368,14 @@ const executeDelete = async () => {
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
-              Calendar Management
+              Manajemen Kalender
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
               Manage work schedules, holidays, company agendas, and other events.
             </p>
           </div>
-          <Button v-if="authStore.user?.role === 'admin'" @click="openAddForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white">
-            <Plus class="w-4 h-4 mr-2" /> Add Event
+          <Button v-if="authStore.user?.role === 'admin'" @click="openAddForm()" class="bg-orange-600 hover:bg-orange-700 text-white">
+            <Plus class="w-4 h-4 mr-2" /> Tambah Acara
           </Button>
         </div>
 
@@ -419,7 +419,7 @@ const executeDelete = async () => {
                 <Button variant="outline" size="icon" @click="nextMonth" class="h-8 w-8">
                   <ChevronRight class="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm" @click="currentDate = moment()" class="ml-2 text-indigo-600 dark:text-indigo-400">
+                <Button variant="ghost" size="sm" @click="currentDate = moment()" class="ml-2 text-orange-600 dark:text-orange-400">
                   Today
                 </Button>
               </div>
@@ -442,7 +442,7 @@ const executeDelete = async () => {
                     class="border-b border-r border-gray-100 dark:border-zinc-800 p-1 flex flex-col min-h-[120px] transition-colors relative group"
                     :class="[
                       day.isCurrentMonth ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50 dark:bg-zinc-950/50',
-                      { 'ring-2 ring-indigo-500 ring-inset z-10': day.isToday },
+                      { 'ring-2 ring-orange-500 ring-inset z-10': day.isToday },
                       { 'past-day bg-gray-100/50 dark:bg-zinc-900/40 opacity-50': day.isPast }
                     ]"
                   >
@@ -451,7 +451,7 @@ const executeDelete = async () => {
                       <span 
                         class="text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full"
                         :class="[
-                          day.isToday ? 'bg-indigo-600 text-white' : (day.isCurrentMonth ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-zinc-600'),
+                          day.isToday ? 'bg-orange-600 text-white' : (day.isCurrentMonth ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-zinc-600'),
                           day.date.day() === 0 ? 'text-red-500 dark:text-red-400' : ''
                         ]"
                       >
@@ -519,7 +519,7 @@ const executeDelete = async () => {
       </div>
     </main>
 
-    <!-- Dialog View Event -->
+    <!-- Dialog Lihat Acara -->
     <CalendarEventViewDialog
       v-model:open="isViewDialogOpen"
       :selectedEvent="selectedEvent"
@@ -528,7 +528,7 @@ const executeDelete = async () => {
       @delete="confirmDelete"
     />
 
-    <!-- Dialog Add/Edit Event -->
+    <!-- Dialog Add/Ubah Acara -->
     <CalendarEventFormDialog
       v-model:open="isDialogOpen"
       :editId="editId"
@@ -544,13 +544,13 @@ const executeDelete = async () => {
     <AlertDialog v-model:open="isDeleteDialogOpen">
       <AlertDialogContent class="bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800">
         <AlertDialogHeader>
-          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Delete Event?</AlertDialogTitle>
+          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Hapus Acara?</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
             Are you sure you want to delete this event from the calendar?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Cancel</AlertDialogCancel>
+          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Batal</AlertDialogCancel>
           <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Yes, Delete</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

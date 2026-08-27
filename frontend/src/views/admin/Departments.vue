@@ -8,6 +8,13 @@ import {
   Trash2,
 } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -56,7 +63,11 @@ const searchQuery = ref("");
 
 // Pagination
 const currentPage = ref(1);
-const itemsPerPage = 10;
+const itemsPerPage = ref("10");
+watch(itemsPerPage, () => {
+  currentPage.value = 1;
+  fetchDepartments();
+});
 const totalPages = ref(1);
 const totalItems = ref(0);
 
@@ -79,7 +90,7 @@ const fetchDepartments = async () => {
   loading.value = true;
   try {
     const { data } = await api.get("/divisions", {
-      params: { search: searchQuery.value, page: currentPage.value, per_page: itemsPerPage }
+      params: { search: searchQuery.value, page: currentPage.value, per_page: Number(itemsPerPage.value) }
     });
     departments.value = data.data;
     totalPages.value = data.last_page;
@@ -188,9 +199,9 @@ const executeDelete = async () => {
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
-              Departments & Divisions
+              Departemen & Divisi
             </h1>
-            <p class="text-gray-500 dark:text-zinc-400 mt-1">Manage the list of divisions and their number of employees.</p>
+            <p class="text-gray-500 dark:text-zinc-400 mt-1">Kelola daftar divisi beserta jumlah karyawannya.</p>
           </div>
           
           <div class="flex items-center space-x-3">
@@ -198,11 +209,11 @@ const executeDelete = async () => {
               <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
               <Input 
                 v-model="searchQuery"
-                placeholder="Search departments..." 
+                placeholder="Cari departemen..." 
                 class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100"
               />
             </div>
-            <Button @click="openAddDialog" class="bg-indigo-600 hover:bg-indigo-700 text-white dark:text-white">
+            <Button @click="openAddDialog" class="bg-orange-600 hover:bg-orange-700 text-white dark:text-white">
               <Plus class="w-4 h-4 mr-2" /> Add Department
             </Button>
           </div>
@@ -215,9 +226,9 @@ const executeDelete = async () => {
               <TableHeader class="bg-gray-50 dark:bg-zinc-950/50">
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
                   <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Department Name</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Total Employees</TableHead>
-                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300">Action</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Nama Departemen</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Total Karyawan</TableHead>
+                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -248,27 +259,20 @@ const executeDelete = async () => {
                   </TableCell>
                   
                   <TableCell class="py-4">
-                    <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-400">
-                      {{ dept.users_count || 0 }} Employees
+                    <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400">
+                      {{ dept.users_count || 0 }} Karyawan
                     </div>
                   </TableCell>
                   
                   <TableCell class="text-right py-4">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" class="h-8 w-8 text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100">
-                          <MoreHorizontal class="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" class="w-40 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                        <DropdownMenuItem @click="openEditDialog(dept)" class="cursor-pointer text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
-                          <Edit class="mr-2 h-4 w-4" /> Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem @click="confirmDelete(dept.id)" class="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
-                          <Trash2 class="mr-2 h-4 w-4" /> Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div class="flex items-center justify-end space-x-2">
+                      <Button variant="outline" size="sm" @click="openEditDialog(dept)" class="h-8 border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20">
+                        <Edit class="h-4 w-4 mr-1" /> Edit
+                      </Button>
+                      <Button variant="outline" size="sm" @click="confirmDelete(dept.id)" class="h-8 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
+                        <Trash2 class="h-4 w-4 mr-1" /> Delete
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -277,10 +281,26 @@ const executeDelete = async () => {
           
           <!-- Pagination -->
           <div class="border-t border-gray-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-zinc-950/50">
-            <div class="text-sm text-gray-500 dark:text-zinc-400">
-              Showing <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedDepartments.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> of 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> departments
+            <div class="flex items-center">
+            <div class="flex items-center space-x-2 mr-4">
+              <span class="text-sm text-gray-500 dark:text-zinc-400">Tampilkan</span>
+              <Select v-model="itemsPerPage">
+                <SelectTrigger class="w-[70px] h-8 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-xs">
+                  <SelectValue placeholder="10" />
+                </SelectTrigger>
+                <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+<div class="text-sm text-gray-500 dark:text-zinc-400">
+              Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedDepartments.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> dari 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> departemen
+            </div>
             </div>
             <div class="flex items-center space-x-2">
               <Button 
@@ -319,7 +339,7 @@ const executeDelete = async () => {
         
         <form @submit.prevent="saveDepartment" class="space-y-4 py-4">
           <div class="space-y-2">
-            <Label for="name" class="text-gray-700 dark:text-gray-300">Department Name</Label>
+            <Label for="name" class="text-gray-700 dark:text-gray-300">Nama Departemen</Label>
             <Input 
               id="name" 
               v-model="formData.name" 
@@ -333,7 +353,7 @@ const executeDelete = async () => {
             <Button type="button" variant="outline" @click="isDialogOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
               Cancel
             </Button>
-            <Button type="submit" :disabled="isSubmitting" class="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Button type="submit" :disabled="isSubmitting" class="bg-orange-600 hover:bg-orange-700 text-white">
               {{ isSubmitting ? 'Saving...' : 'Save' }}
             </Button>
           </DialogFooter>
@@ -347,11 +367,11 @@ const executeDelete = async () => {
         <AlertDialogHeader>
           <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Delete Department?</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
-            This department will be deleted. This action cannot be undone.
+            This department will be deleted. Tindakan ini tidak dapat dibatalkan.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Cancel</AlertDialogCancel>
+          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Batal</AlertDialogCancel>
           <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Yes, Delete</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

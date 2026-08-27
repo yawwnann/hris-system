@@ -52,7 +52,7 @@ const donutStyle = computed(() => {
             <span class="w-1 h-4 bg-purple-500 rounded mr-2"></span
             ><span class="font-bold text-sm">{{ late }}</span>
           </div>
-          <span class="text-xs text-gray-500 dark:text-zinc-400">Late</span>
+          <span class="text-xs text-gray-500 dark:text-zinc-400">Terlambat</span>
         </div>
         <div class="flex items-center justify-between space-x-4">
           <div class="flex items-center">
@@ -66,7 +66,7 @@ const donutStyle = computed(() => {
             <span class="w-1 h-4 bg-red-400 rounded mr-2"></span
             ><span class="font-bold text-sm">{{ absent }}</span>
           </div>
-          <span class="text-xs text-gray-500 dark:text-zinc-400">Absent</span>
+          <span class="text-xs text-gray-500 dark:text-zinc-400">Absen</span>
         </div>
       </div>
     </CardContent>

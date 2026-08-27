@@ -48,7 +48,7 @@ onMounted(() => {
       <div class="flex items-center space-x-2">
         <CalendarIcon class="w-4 h-4 text-gray-600 dark:text-zinc-300" />
         <CardTitle class="text-sm font-semibold text-gray-800 dark:text-zinc-200"
-          >Work Calendar</CardTitle
+          >Kalender Kerja</CardTitle
         >
       </div>
     </CardHeader>
@@ -107,7 +107,7 @@ onMounted(() => {
           v-if="events.length === 0"
           class="text-center text-xs text-gray-400 dark:text-zinc-500 py-4 border border-dashed border-gray-200 dark:border-zinc-800 rounded-lg"
         >
-          No upcoming events
+          Tidak ada acara mendatang
         </div>
       </div>
     </CardContent>

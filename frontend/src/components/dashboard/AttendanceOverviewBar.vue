@@ -36,7 +36,7 @@ const attendanceRate = computed(() => {
     <CardHeader class="pb-6 flex flex-row items-center justify-between">
       <div>
         <CardTitle class="text-sm font-semibold text-gray-800 dark:text-zinc-200"
-          >Attendance Overview</CardTitle
+          >Ringkasan Absensi</CardTitle
         >
         <div class="flex items-center space-x-6 mt-2">
           <div>
@@ -50,7 +50,7 @@ const attendanceRate = computed(() => {
                 >/{{ stats?.total_employees || 0 }}</span
               ></span
             >
-            <p class="text-xs text-gray-400 dark:text-zinc-500 mt-1">Today's Attendance</p>
+            <p class="text-xs text-gray-400 dark:text-zinc-500 mt-1">Kehadiran Hari Ini</p>
           </div>
         </div>
       </div>
@@ -65,16 +65,16 @@ const attendanceRate = computed(() => {
           class="flex items-center space-x-4 mt-4 text-xs font-medium text-gray-500 dark:text-zinc-400"
         >
           <div class="text-center">
-            <div class="w-6 h-1 bg-indigo-500 rounded mb-1 mx-auto"></div>
+            <div class="w-6 h-1 bg-orange-500 rounded mb-1 mx-auto"></div>
             On-Time
           </div>
           <div class="text-center">
             <div class="w-6 h-1 bg-blue-400 rounded mb-1 mx-auto"></div>
-            Late
+            Terlambat
           </div>
           <div class="text-center">
             <div class="w-6 h-1 bg-red-400 rounded mb-1 mx-auto"></div>
-            Absent
+            Absen
           </div>
         </div>
       </div>
@@ -98,7 +98,7 @@ const attendanceRate = computed(() => {
               :style="{ height: item.lateHeight }"
             ></div>
             <div
-              class="bg-indigo-500 w-full transition-all duration-500"
+              class="bg-orange-500 w-full transition-all duration-500"
               :style="{ height: item.presentHeight }"
             ></div>
           </div>

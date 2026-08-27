@@ -10,6 +10,13 @@ import {
   AlertCircle
 } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -39,7 +46,11 @@ const searchQuery = ref("");
 
 // Pagination
 const currentPage = ref(1);
-const itemsPerPage = 10;
+const itemsPerPage = ref("10");
+watch(itemsPerPage, () => {
+  currentPage.value = 1;
+  fetchHistory();
+});
 const totalPages = ref(1);
 const totalItems = ref(0);
 
@@ -48,7 +59,7 @@ const fetchData = async () => {
   loading.value = true;
   try {
     const [historyRes, todayRes] = await Promise.all([
-      api.get("/attendance", { params: { search: searchQuery.value, page: currentPage.value, per_page: itemsPerPage } }),
+      api.get("/attendance", { params: { search: searchQuery.value, page: currentPage.value, per_page: Number(itemsPerPage.value) } }),
       api.get("/attendance/today")
     ]);
     history.value = historyRes.data.data;
@@ -145,7 +156,7 @@ const handleClockAction = (type: 'in' | 'out') => {
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
-              Attendance
+              Absensi
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
               {{ authStore.user?.role === 'admin' ? 'Monitor attendance history of all employees.' : 'Record your attendance today and view history.' }}
@@ -154,9 +165,9 @@ const handleClockAction = (type: 'in' | 'out') => {
         </div>
 
         <!-- Clock In / Out Action Card -->
-        <Card v-if="authStore.user?.role !== 'admin'" class="mb-8 border-indigo-100 dark:border-indigo-900/30 bg-gradient-to-r from-indigo-50 to-white dark:from-indigo-950/20 dark:to-zinc-900 overflow-hidden relative">
+        <Card v-if="authStore.user?.role !== 'admin'" class="mb-8 border-orange-100 dark:border-orange-900/30 bg-gradient-to-r from-orange-50 to-white dark:from-orange-950/20 dark:to-zinc-900 overflow-hidden relative">
           <div class="absolute right-0 top-0 opacity-10 pointer-events-none -mt-10 -mr-10">
-            <Clock class="w-48 h-48 text-indigo-600" />
+            <Clock class="w-48 h-48 text-orange-600" />
           </div>
           <CardContent class="p-8">
             <div class="flex flex-col md:flex-row items-center justify-between z-10 relative">
@@ -184,7 +195,7 @@ const handleClockAction = (type: 'in' | 'out') => {
                   v-if="!todayRecord"
                   @click="handleClockAction('in')" 
                   :disabled="locationLoading"
-                  class="h-14 px-8 text-base font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
+                  class="h-14 px-8 text-base font-bold bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
                 >
                   <MapPin class="w-5 h-5 mr-2" /> 
                   {{ locationLoading ? 'Getting Location...' : 'Clock In Now' }}
@@ -213,7 +224,7 @@ const handleClockAction = (type: 'in' | 'out') => {
         <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden">
           <div class="p-4 border-b border-gray-200 dark:border-zinc-800 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50/50 dark:bg-zinc-950/30">
             <h3 class="font-semibold text-gray-800 dark:text-zinc-200 flex items-center">
-              <Calendar class="w-4 h-4 mr-2" /> Attendance History
+              <Calendar class="w-4 h-4 mr-2" /> Absensi History
             </h3>
             
             <div class="relative w-full md:w-72">
@@ -232,10 +243,10 @@ const handleClockAction = (type: 'in' | 'out') => {
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
                   <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
                   <TableHead v-if="authStore.user?.role === 'admin'" class="font-semibold text-gray-600 dark:text-zinc-300">Employee</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Date</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Clock In</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Clock Out</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Total Hours</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Tanggal</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Jam Masuk</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Jam Keluar</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Total Jam</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -290,7 +301,7 @@ const handleClockAction = (type: 'in' | 'out') => {
                       On Time
                     </Badge>
                     <Badge v-else-if="record.status === 'late'" variant="outline" class="bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800/30">
-                      Late
+                      Terlambat
                     </Badge>
                     <Badge v-else variant="outline" class="bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 border-gray-200 dark:border-zinc-700">
                       {{ record.status }}
@@ -303,10 +314,26 @@ const handleClockAction = (type: 'in' | 'out') => {
           
           <!-- Pagination -->
           <div class="border-t border-gray-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-zinc-950/50">
-            <div class="text-sm text-gray-500 dark:text-zinc-400">
-              Showing <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedHistory.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> of 
+            <div class="flex items-center">
+            <div class="flex items-center space-x-2 mr-4">
+              <span class="text-sm text-gray-500 dark:text-zinc-400">Tampilkan</span>
+              <Select v-model="itemsPerPage">
+                <SelectTrigger class="w-[70px] h-8 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-xs">
+                  <SelectValue placeholder="10" />
+                </SelectTrigger>
+                <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+<div class="text-sm text-gray-500 dark:text-zinc-400">
+              Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedHistory.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> dari 
               <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> attendance records
+            </div>
             </div>
             <div class="flex items-center space-x-2">
               <Button 

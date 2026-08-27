@@ -93,7 +93,7 @@ onMounted(() => {
 
       <ScrollArea class="flex-1 p-8">
         <div class="flex items-center justify-between mb-8">
-          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">HR Dashboard</h1>
+          <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Dasbor HR</h1>
           <div class="flex items-center space-x-2">
             <Button
               variant="outline"
@@ -151,7 +151,7 @@ onMounted(() => {
                 <p class="text-gray-500 dark:text-gray-400 mt-1.5">{{ currentDateDisplay }} | {{ authStore.user?.position?.name || 'Employee' }}</p>
               </div>
               <div class="flex items-center space-x-3 mt-5 md:mt-0">
-                <Button class="bg-black hover:bg-gray-800 text-white dark:bg-white dark:text-black dark:hover:bg-gray-200 h-10 px-6 font-medium">Clock In</Button>
+                <Button class="bg-black hover:bg-gray-800 text-white dark:bg-white dark:text-black dark:hover:bg-gray-200 h-10 px-6 font-medium">Jam Masuk</Button>
                 <Button variant="outline" class="border-gray-300 dark:border-zinc-700 bg-white text-gray-900 hover:bg-gray-50 dark:bg-zinc-900 dark:text-gray-100 h-10 px-6 font-medium">Ajukan Cuti</Button>
               </div>
             </div>
@@ -167,11 +167,11 @@ onMounted(() => {
                    <div class="flex justify-between items-center mb-6">
                       <div>
                         <div class="text-[32px] leading-none font-bold text-gray-900 dark:text-gray-100">{{ stats.today_attendance?.clock_in_time ? formatTime(stats.today_attendance.clock_in_time) : '--:--' }}</div>
-                        <div class="text-xs text-gray-500 mt-1.5">Clock In</div>
+                        <div class="text-xs text-gray-500 mt-1.5">Jam Masuk</div>
                       </div>
                       <div class="text-right">
                         <div class="text-[32px] leading-none font-bold text-gray-400 dark:text-gray-500">{{ stats.today_attendance?.clock_out_time ? formatTime(stats.today_attendance.clock_out_time) : '--:--' }}</div>
-                        <div class="text-xs text-gray-500 mt-1.5">Clock Out</div>
+                        <div class="text-xs text-gray-500 mt-1.5">Jam Keluar</div>
                       </div>
                    </div>
                 </div>
@@ -255,7 +255,7 @@ onMounted(() => {
                 <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm">
                   <div class="px-5 py-4 flex justify-between items-center border-b border-gray-100 dark:border-zinc-800">
                     <span class="tracking-wider uppercase text-[11px] font-semibold text-gray-500 dark:text-gray-400">Pengumuman Terbaru</span>
-                    <a href="#" class="text-[11px] font-semibold text-gray-900 dark:text-gray-100 underline decoration-gray-300 underline-offset-4 hover:text-indigo-600 transition-colors">Lihat Semua</a>
+                    <a href="#" class="text-[11px] font-semibold text-gray-900 dark:text-gray-100 underline decoration-gray-300 underline-offset-4 hover:text-orange-600 transition-colors">Lihat Semua</a>
                   </div>
                   <div class="p-5 space-y-4">
                     <div v-if="stats.announcements?.length === 0" class="text-center text-xs text-gray-500">
@@ -272,12 +272,12 @@ onMounted(() => {
 
               </div>
 
-              <!-- Right Column: Attendance History -->
+              <!-- Right Column: Absensi History -->
               <div class="lg:col-span-2">
                 <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm h-full flex flex-col">
                   <div class="px-5 py-4 flex justify-between items-center border-b border-gray-100 dark:border-zinc-800">
                     <span class="tracking-wider uppercase text-[11px] font-semibold text-gray-500 dark:text-gray-400">Riwayat Kehadiran Singkat</span>
-                    <Button variant="outline" size="sm" class="h-7 px-3 text-[11px] font-semibold border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-300">Export</Button>
+                    <Button variant="outline" size="sm" class="h-7 px-3 text-[11px] font-semibold border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-300">Ekspor</Button>
                   </div>
                   <div class="overflow-x-auto p-5">
                     <table class="w-full text-left border-collapse">
@@ -285,8 +285,8 @@ onMounted(() => {
                         <tr class="text-[11px] text-gray-500 dark:text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-zinc-800">
                           <th class="pb-3 font-semibold">Tanggal</th>
                           <th class="pb-3 font-semibold">Shift</th>
-                          <th class="pb-3 font-semibold">Clock In</th>
-                          <th class="pb-3 font-semibold">Clock Out</th>
+                          <th class="pb-3 font-semibold">Jam Masuk</th>
+                          <th class="pb-3 font-semibold">Jam Keluar</th>
                           <th class="pb-3 font-semibold text-right">Status</th>
                         </tr>
                       </thead>

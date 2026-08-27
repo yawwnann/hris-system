@@ -27,7 +27,7 @@ const attendanceRate = computed(() => {
       <CardContent class="p-5">
         <div class="flex items-center space-x-2 mb-4 text-gray-500 dark:text-zinc-400">
           <Users class="w-4 h-4" />
-          <span class="font-medium text-sm">Total Employees</span>
+          <span class="font-medium text-sm">Total Karyawan</span>
         </div>
         <div class="text-3xl font-bold mb-2">
           {{ stats?.total_employees || 0 }}
@@ -53,7 +53,7 @@ const attendanceRate = computed(() => {
       <CardContent class="p-5">
         <div class="flex items-center space-x-2 mb-4 text-gray-500 dark:text-zinc-400">
           <FileText class="w-4 h-4" />
-          <span class="font-medium text-sm">Leave Requests</span>
+          <span class="font-medium text-sm">Pengajuan Cuti</span>
         </div>
         <div class="text-3xl font-bold mb-2">
           {{ stats?.pending_requests || 0 }}
@@ -67,7 +67,7 @@ const attendanceRate = computed(() => {
       <CardContent class="p-5">
         <div class="flex items-center space-x-2 mb-4 text-gray-500 dark:text-zinc-400">
           <Target class="w-4 h-4" />
-          <span class="font-medium text-sm">On Leave Today</span>
+          <span class="font-medium text-sm">Cuti Hari Ini</span>
         </div>
         <div class="text-3xl font-bold mb-2">
           {{ stats?.on_leave_today || 0

@@ -134,7 +134,7 @@ const saveEmployee = async () => {
           <h3 class="text-sm font-semibold text-gray-900 dark:text-zinc-300 border-b pb-2 border-gray-100 dark:border-zinc-800">Personal Information</h3>
           
           <div class="space-y-1">
-            <Label class="text-gray-700 dark:text-gray-300">Full Name</Label>
+            <Label class="text-gray-700 dark:text-gray-300">Nama Lengkap</Label>
             <Input v-model="form.name" required placeholder="John Doe" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100" />
           </div>
           
@@ -156,7 +156,7 @@ const saveEmployee = async () => {
               <p v-if="isEditing" class="text-[10px] text-gray-500 mt-1">Leave blank if you do not want to change the password.</p>
             </div>
             <div class="space-y-1">
-              <Label class="text-gray-700 dark:text-gray-300">Phone Number</Label>
+              <Label class="text-gray-700 dark:text-gray-300">Nomor Telepon</Label>
               <Input v-model="form.phone" placeholder="+62 8..." class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100" />
             </div>
           </div>
@@ -178,7 +178,7 @@ const saveEmployee = async () => {
               </Select>
             </div>
             <div class="space-y-1">
-              <Label class="text-gray-700 dark:text-gray-300">Position</Label>
+              <Label class="text-gray-700 dark:text-gray-300">Posisi/Jabatan</Label>
               <Select v-model="form.position_id">
                 <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
                   <SelectValue placeholder="Select Position" />
@@ -232,8 +232,8 @@ const saveEmployee = async () => {
 
         <SheetFooter class="absolute bottom-0 left-0 right-0 p-4 bg-white dark:bg-zinc-950 border-t border-gray-200 dark:border-zinc-800">
           <div class="flex justify-end space-x-2 w-full">
-            <Button type="button" variant="outline" @click="isOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">Cancel</Button>
-            <Button type="submit" :disabled="loading" class="bg-indigo-600 hover:bg-indigo-700 text-white min-w-[120px]">
+            <Button type="button" variant="outline" @click="isOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">Batal</Button>
+            <Button type="submit" :disabled="loading" class="bg-orange-600 hover:bg-orange-700 text-white min-w-[120px]">
               {{ loading ? 'Saving...' : 'Save Employee' }}
             </Button>
           </div>
