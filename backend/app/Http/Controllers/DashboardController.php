@@ -7,6 +7,7 @@ use App\Models\LeaveRequest;
 use App\Models\OvertimeRequest;
 use App\Models\CalendarEvent;
 use App\Models\User;
+use App\Models\Announcement;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -195,22 +196,39 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $today = Carbon::today()->toDateString();
-        $startOfWeek = Carbon::now()->startOfWeek()->toDateString();
-        $endOfWeek = Carbon::now()->endOfWeek()->toDateString();
+        $startOfMonth = Carbon::now()->startOfMonth()->toDateString();
+        $endOfMonth = Carbon::now()->endOfMonth()->toDateString();
 
         $todayAttendance = Attendance::where('user_id', $user->id)
             ->where('date', $today)
             ->first();
 
-        $thisWeekHours = Attendance::where('user_id', $user->id)
-            ->whereBetween('date', [$startOfWeek, $endOfWeek])
-            ->sum('total_hours');
+        // Hitung cuti tahunan terpakai
+        $leavesUsed = LeaveRequest::where('user_id', $user->id)
+            ->where('type', 'annual')
+            ->where('status', 'approved')
+            ->whereYear('start_date', Carbon::now()->year)
+            ->get()
+            ->sum(function($lv) {
+                return Carbon::parse($lv->start_date)->diffInDays(Carbon::parse($lv->end_date)) + 1;
+            });
 
-        $pendingLeaves = LeaveRequest::where('user_id', $user->id)
-            ->where('status', 'pending')->count();
-            
-        $pendingOvertimes = OvertimeRequest::where('user_id', $user->id)
-            ->where('status', 'pending')->count();
+        // Lembur bulan ini
+        $overtimeThisMonth = OvertimeRequest::where('user_id', $user->id)
+            ->where('status', 'approved')
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->sum('total_duration');
+
+        $pendingOvertimeThisMonth = OvertimeRequest::where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->whereBetween('date', [$startOfMonth, $endOfMonth])
+            ->sum('total_duration');
+
+        // Pengumuman terbaru
+        $announcements = Announcement::where('status', 'published')
+            ->orderBy('publish_date', 'desc')
+            ->limit(2)
+            ->get();
 
         // Upcoming Calendar Events
         $upcomingEvents = CalendarEvent::whereDate('start_datetime', '>=', $today)
@@ -279,14 +297,17 @@ class DashboardController extends Controller
         $celebrations = collect(array_merge($upcomingBirthdays, $upcomingAnniversaries))->sortBy('date')->values();
         return response()->json([
             'leave_quota' => $user->leave_quota,
-            'today_status' => $todayAttendance ? $todayAttendance->status : 'Not Checked In',
-            'this_week_hours' => round($thisWeekHours, 2),
-            'pending_requests' => $pendingLeaves + $pendingOvertimes,
+            'leaves_used' => $leavesUsed,
+            'total_leave_quota' => $user->leave_quota + $leavesUsed,
+            'today_attendance' => $todayAttendance,
+            'overtime_this_month' => round($overtimeThisMonth, 1),
+            'pending_overtime_this_month' => round($pendingOvertimeThisMonth, 1),
             'recent_attendances' => Attendance::where('user_id', $user->id)
                 ->orderBy('date', 'desc')
                 ->limit(5)
                 ->get(),
             'upcoming_events' => $upcomingEvents,
+            'announcements' => $announcements,
             'away_today' => $awayToday,
             'celebrations' => $celebrations,
         ]);

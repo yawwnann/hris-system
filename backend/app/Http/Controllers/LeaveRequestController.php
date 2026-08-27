@@ -23,9 +23,16 @@ class LeaveRequestController extends Controller
             $query->where(function($q) use ($search) {
                 $q->whereHas('user', function ($q2) use ($search) {
                     $q2->where('name', 'like', "%{$search}%");
-                })->orWhere('type', 'like', "%{$search}%")
-                  ->orWhere('status', 'like', "%{$search}%");
+                })->orWhere('reason', 'like', "%{$search}%");
             });
+        }
+
+        if ($request->has('status') && $request->input('status') !== 'all') {
+            $query->where('status', $request->input('status'));
+        }
+
+        if ($request->has('type') && $request->input('type') !== 'all') {
+            $query->where('type', $request->input('type'));
         }
 
         $sortBy = $request->input('sort_by', 'created_at');

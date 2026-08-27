@@ -21,8 +21,16 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useRouter } from "vue-router";
 import api from "@/lib/axios";
 
+const router = useRouter();
 const employees = ref<any[]>([]);
 const loading = ref(true);
 
@@ -94,6 +102,7 @@ onMounted(() => {
           <TableHeader class="bg-gray-50 dark:bg-zinc-900/50">
             <TableRow>
               <TableHead class="w-12 text-center"><Checkbox /></TableHead>
+              <TableHead class="w-12 text-center text-xs font-semibold text-gray-500 dark:text-zinc-400">No.</TableHead>
               <TableHead class="text-xs font-semibold text-gray-500 dark:text-zinc-400"
                 >Employee ID</TableHead
               >
@@ -116,11 +125,12 @@ onMounted(() => {
           </TableHeader>
           <TableBody>
             <TableRow
-              v-for="emp in employees.slice(0, 5)"
+              v-for="(emp, index) in employees.slice(0, 5)"
               :key="emp.id"
               class="hover:bg-gray-50 dark:bg-zinc-900/50"
             >
               <TableCell class="text-center"><Checkbox /></TableCell>
+              <TableCell class="text-center text-xs text-gray-500">{{ index + 1 }}</TableCell>
               <TableCell class="font-medium text-xs">{{
                 emp.nik || emp.id
               }}</TableCell>
@@ -164,22 +174,36 @@ onMounted(() => {
               <TableCell class="text-right">
                 <div class="flex items-center justify-end space-x-2">
                   <Button
+                    @click="router.push(`/employees/${emp.id}`)"
                     variant="ghost"
                     size="icon"
                     class="h-7 w-7 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:text-zinc-300"
                     ><Eye class="w-4 h-4"
                   /></Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    class="h-7 w-7 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:text-zinc-300 border border-gray-200 dark:border-zinc-800"
-                    ><MoreVertical class="w-3 h-3"
-                  /></Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        class="h-7 w-7 text-gray-400 dark:text-zinc-500 hover:text-gray-600 dark:text-zinc-300 border border-gray-200 dark:border-zinc-800"
+                      >
+                        <MoreVertical class="w-3 h-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" class="w-40 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                      <DropdownMenuItem @click="router.push(`/employees/${emp.id}`)" class="cursor-pointer text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800/50">
+                        <Eye class="mr-2 h-4 w-4" /> View Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem @click="router.push('/employees')" class="cursor-pointer text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
+                        Manage
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </TableCell>
             </TableRow>
             <TableRow v-if="!loading && employees.length === 0">
-              <TableCell colspan="7" class="text-center py-10 text-gray-500 dark:text-zinc-400"
+              <TableCell colspan="8" class="text-center py-10 text-gray-500 dark:text-zinc-400"
                 >No employees found.</TableCell
               >
             </TableRow>

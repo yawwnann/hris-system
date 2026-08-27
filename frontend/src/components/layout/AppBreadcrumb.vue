@@ -14,14 +14,14 @@ import {
 const route = useRoute();
 
 const breadcrumbs = computed(() => {
-  const routeNameMap: Record<string, string> = {
-    'Dashboard': 'Beranda',
-    'Employees': 'Manajemen Karyawan',
-    'Departments': 'Manajemen Departemen',
-    'Attendance': 'Kehadiran & Absensi',
-    'Leaves': 'Pengajuan Cuti',
-    'Overtime': 'Pengajuan Lembur',
-  };
+const routeNameMap: Record<string, string> = {
+  'Dashboard': 'Dashboard',
+  'Employees': 'Employee Management',
+  'Departments': 'Department Management',
+  'Attendance': 'Attendance',
+  'Leaves': 'Leave Requests',
+  'Overtime': 'Overtime Requests',
+};
 
   const currentName = route.name as string;
   const displayName = routeNameMap[currentName] || currentName;

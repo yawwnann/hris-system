@@ -4,15 +4,16 @@ import {
   Calendar,
   Plus, 
   Search,
-  MoreHorizontal,
-  CheckCircle,
-  XCircle,
-  Clock
+  Check,
+  X,
+  Eye,
+  Paperclip
 } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
@@ -22,12 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -66,6 +61,9 @@ const authStore = useAuthStore();
 const leaves = ref<any[]>([]);
 const loading = ref(true);
 const searchQuery = ref("");
+const filterStatus = ref("all");
+const filterType = ref("all");
+const sortDir = ref("desc");
 
 // Pagination
 const currentPage = ref(1);
@@ -75,7 +73,6 @@ const totalItems = ref(0);
 
 // Dialogs State
 const isAddDialogOpen = ref(false);
-const isApprovalDialogOpen = ref(false);
 const isSubmitting = ref(false);
 
 const isDeleteDialogOpen = ref(false);
@@ -88,17 +85,19 @@ const formData = ref({
   reason: "",
 });
 
-const approvalData = ref({
-  id: null as number | null,
-  status: "approved",
-  admin_note: "",
-});
-
 const fetchLeaves = async () => {
   loading.value = true;
   try {
     const { data } = await api.get("/leave-requests", {
-      params: { search: searchQuery.value, page: currentPage.value, per_page: itemsPerPage }
+      params: { 
+        search: searchQuery.value, 
+        page: currentPage.value, 
+        per_page: itemsPerPage,
+        status: filterStatus.value,
+        type: filterType.value,
+        sort_by: "created_at",
+        sort_dir: sortDir.value
+      }
     });
     leaves.value = data.data;
     totalPages.value = data.last_page;
@@ -115,10 +114,9 @@ onMounted(() => {
   fetchLeaves();
 });
 
-const filteredLeaves = computed(() => leaves.value);
 const paginatedLeaves = computed(() => leaves.value);
 
-watch(searchQuery, () => {
+watch([searchQuery, filterStatus, filterType, sortDir], () => {
   currentPage.value = 1;
   fetchLeaves();
 });
@@ -133,6 +131,20 @@ const nextPage = () => {
 
 const prevPage = () => {
   if (currentPage.value > 1) currentPage.value--;
+};
+
+const isDetailDialogOpen = ref(false);
+const selectedLeave = ref<any>(null);
+
+const openDetailDialog = (leave: any) => {
+  selectedLeave.value = leave;
+  isDetailDialogOpen.value = true;
+};
+
+const getAttachmentUrl = (path: string) => {
+  if (!path) return '#';
+  if (path.startsWith('http')) return path;
+  return `http://localhost:8000/storage/${path}`;
 };
 
 const openAddDialog = () => {
@@ -164,26 +176,16 @@ const submitLeaveRequest = async () => {
   }
 };
 
-const openApprovalDialog = (leave: any) => {
-  approvalData.value = {
-    id: leave.id,
-    status: "approved",
-    admin_note: "",
-  };
-  isApprovalDialogOpen.value = true;
-};
 
-const submitApproval = async () => {
-  if (!approvalData.value.id) return;
-  
+
+const directAction = async (id: number, status: 'approved' | 'rejected') => {
   isSubmitting.value = true;
   try {
-    await api.put(`/leave-requests/${approvalData.value.id}/status`, {
-      status: approvalData.value.status,
-      admin_note: approvalData.value.admin_note,
+    await api.put(`/leave-requests/${id}/status`, {
+      status,
+      admin_note: "",
     });
-    toast.success(`Request successfully ${approvalData.value.status === 'approved' ? 'approved' : 'rejected'}`);
-    isApprovalDialogOpen.value = false;
+    toast.success(`Request successfully ${status}`);
     fetchLeaves();
   } catch (error: any) {
     toast.error(error.response?.data?.message || "Failed to process approval");
@@ -243,8 +245,42 @@ const getTypeLabel = (type: string) => {
             </p>
           </div>
           
-          <div class="flex items-center space-x-3">
-            <div class="relative w-64 hidden md:block">
+          <div class="flex flex-wrap items-center gap-3">
+            <Select v-model="filterStatus">
+              <SelectTrigger class="w-[120px] bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select v-model="filterType">
+              <SelectTrigger class="w-[120px] bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="annual">Annual</SelectItem>
+                <SelectItem value="sick">Sick</SelectItem>
+                <SelectItem value="permission">Permission</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select v-model="sortDir">
+              <SelectTrigger class="w-[110px] bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
+                <SelectValue placeholder="Sort" />
+              </SelectTrigger>
+              <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                <SelectItem value="desc">Newest</SelectItem>
+                <SelectItem value="asc">Oldest</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <div class="relative w-56 hidden md:block">
               <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
               <Input 
                 v-model="searchQuery"
@@ -264,9 +300,10 @@ const getTypeLabel = (type: string) => {
             <Table>
               <TableHeader class="bg-gray-50 dark:bg-zinc-950/50">
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
+                  <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
                   <TableHead v-if="authStore.user?.role === 'admin'" class="font-semibold text-gray-600 dark:text-zinc-300">Employee</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Type</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Date</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Date Range</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Reason</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Status</TableHead>
                   <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300 pr-4">Action</TableHead>
@@ -274,31 +311,37 @@ const getTypeLabel = (type: string) => {
               </TableHeader>
               <TableBody>
                 <TableRow v-if="loading">
-                  <TableCell :colspan="authStore.user?.role === 'admin' ? 6 : 5" class="h-32 text-center text-gray-500 dark:text-zinc-400">
+                  <TableCell :colspan="authStore.user?.role === 'admin' ? 7 : 6" class="h-32 text-center text-gray-500 dark:text-zinc-400">
                     Loading request data...
                   </TableCell>
                 </TableRow>
                 <TableRow v-else-if="paginatedLeaves.length === 0">
-                  <TableCell :colspan="authStore.user?.role === 'admin' ? 6 : 5" class="h-32 text-center text-gray-500 dark:text-zinc-400">
+                  <TableCell :colspan="authStore.user?.role === 'admin' ? 7 : 6" class="h-32 text-center text-gray-500 dark:text-zinc-400">
                     No request data found.
                   </TableCell>
                 </TableRow>
                 <TableRow 
                   v-else
-                  v-for="leave in paginatedLeaves" 
+                  v-for="(leave, index) in paginatedLeaves" 
                   :key="leave.id"
                   class="border-b border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
                 >
+                  <TableCell class="py-4 text-center text-gray-500 dark:text-zinc-400 font-medium">
+                    {{ (currentPage - 1) * itemsPerPage + index + 1 }}
+                  </TableCell>
                   <TableCell v-if="authStore.user?.role === 'admin'" class="py-4">
                     <div class="font-medium text-gray-900 dark:text-zinc-100">{{ leave.user?.name || '-' }}</div>
                   </TableCell>
                   
                   <TableCell class="py-4">
-                    <div class="font-medium text-gray-900 dark:text-zinc-200">{{ getTypeLabel(leave.type) }}</div>
+                    <div class="inline-flex items-center text-gray-700 dark:text-zinc-300 font-medium">
+                      <Calendar class="w-3.5 h-3.5 mr-1.5 text-indigo-500" />
+                      {{ getTypeLabel(leave.type) }}
+                    </div>
                   </TableCell>
                   
                   <TableCell class="py-4">
-                    <div class="text-gray-700 dark:text-zinc-300">
+                    <div class="text-gray-700 dark:text-zinc-300 whitespace-nowrap">
                       {{ formatDate(leave.start_date) }} - {{ formatDate(leave.end_date) }}
                     </div>
                   </TableCell>
@@ -322,28 +365,24 @@ const getTypeLabel = (type: string) => {
                   </TableCell>
                   
                   <TableCell class="text-right py-4 pr-4">
-                    <DropdownMenu v-if="leave.status === 'pending'">
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" class="h-8 w-8 text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100">
-                          <MoreHorizontal class="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" class="w-40 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                        <DropdownMenuItem v-if="authStore.user?.role === 'admin'" @click="openApprovalDialog(leave)" class="cursor-pointer text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
-                          <CheckCircle class="mr-2 h-4 w-4" /> Process
-                        </DropdownMenuItem>
-                        <DropdownMenuItem @click="confirmDelete(leave.id)" class="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
-                          <XCircle class="mr-2 h-4 w-4" /> Cancel
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    <span v-else class="text-gray-400 dark:text-zinc-600 text-xs">-</span>
+                    <div v-if="leave.status === 'pending'" class="flex items-center justify-end space-x-2">
+                      <Button 
+                        v-if="authStore.user?.role === 'admin'" 
+                        @click="openDetailDialog(leave)" 
+                        size="icon" 
+                        variant="outline" 
+                        class="h-8 w-auto px-2 text-yellow-600 border-yellow-200 hover:bg-yellow-50 hover:border-yellow-300 hover:text-yellow-700 rounded-full transition-colors"
+                        title="View Details"
+                      >
+                        <Eye class="w-4 h-4" />
+                        Need Action
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </div>
-          
           <!-- Pagination -->
           <div class="border-t border-gray-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-zinc-950/50">
             <div class="text-sm text-gray-500 dark:text-zinc-400">
@@ -449,53 +488,7 @@ const getTypeLabel = (type: string) => {
       </DialogContent>
     </Dialog>
 
-    <!-- Dialog Approval -->
-    <Dialog v-model:open="isApprovalDialogOpen">
-      <DialogContent class="sm:max-w-[425px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
-        <DialogHeader>
-          <DialogTitle class="text-gray-900 dark:text-zinc-100">Process Request</DialogTitle>
-          <DialogDescription class="text-gray-500 dark:text-zinc-400">
-            Determine approval for this request.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <form @submit.prevent="submitApproval" class="space-y-4 py-4">
-          <div class="space-y-2">
-            <Label class="text-gray-700 dark:text-gray-300">Approval Status</Label>
-            <Select v-model="approvalData.status">
-              <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                <SelectGroup>
-                  <SelectItem value="approved">Approve</SelectItem>
-                  <SelectItem value="rejected">Reject</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div class="space-y-2">
-            <Label for="admin_note" class="text-gray-700 dark:text-gray-300">Note (Optional)</Label>
-            <Input 
-              id="admin_note" 
-              v-model="approvalData.admin_note" 
-              placeholder="Add a note if necessary..." 
-              class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
-            />
-          </div>
-          
-          <DialogFooter class="pt-4">
-            <Button type="button" variant="outline" @click="isApprovalDialogOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-              Cancel
-            </Button>
-            <Button type="submit" :disabled="isSubmitting" class="bg-indigo-600 hover:bg-indigo-700 text-white">
-              {{ isSubmitting ? 'Processing...' : 'Save' }}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+
 
     <!-- Alert Dialog Konfirmasi Hapus -->
     <AlertDialog v-model:open="isDeleteDialogOpen">
@@ -513,5 +506,79 @@ const getTypeLabel = (type: string) => {
       </AlertDialogContent>
     </AlertDialog>
 
+    <!-- Dialog View Leave Detail -->
+    <Dialog v-model:open="isDetailDialogOpen">
+      <DialogContent class="sm:max-w-[500px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
+        <DialogHeader>
+          <DialogTitle class="text-gray-900 dark:text-zinc-100">Leave Request Details</DialogTitle>
+          <DialogDescription class="text-gray-500 dark:text-zinc-400">
+            View detailed information about this leave request.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div v-if="selectedLeave" class="space-y-4 py-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <Label class="text-xs text-gray-500">Employee Name</Label>
+              <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ selectedLeave.user?.name }}</div>
+            </div>
+            <div>
+              <Label class="text-xs text-gray-500">Leave Type</Label>
+              <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ getTypeLabel(selectedLeave.type) }}</div>
+            </div>
+            <div>
+              <Label class="text-xs text-gray-500">Start Date</Label>
+              <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ formatDate(selectedLeave.start_date) }}</div>
+            </div>
+            <div>
+              <Label class="text-xs text-gray-500">End Date</Label>
+              <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ formatDate(selectedLeave.end_date) }}</div>
+            </div>
+            <div>
+              <Label class="text-xs text-gray-500">Status</Label>
+              <div class="mt-1">
+                <Badge v-if="selectedLeave.status === 'approved'" variant="outline" class="bg-green-50 text-green-700 border-green-200 px-2 py-0.5 text-xs rounded-full">Approved</Badge>
+                <Badge v-else-if="selectedLeave.status === 'rejected'" variant="outline" class="bg-red-50 text-red-700 border-red-200 px-2 py-0.5 text-xs rounded-full">Rejected</Badge>
+                <Badge v-else variant="outline" class="bg-yellow-50 text-yellow-700 border-yellow-200 px-2 py-0.5 text-xs rounded-full">Pending</Badge>
+              </div>
+            </div>
+          </div>
+          
+          <div class="border-t border-gray-100 dark:border-zinc-800 my-4"></div>
+          
+          <div>
+            <Label class="text-xs text-gray-500">Reason</Label>
+            <div class="text-sm mt-1.5 bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
+              {{ selectedLeave.reason }}
+            </div>
+          </div>
+          
+          <div v-if="selectedLeave.attachment">
+            <Label class="text-xs text-gray-500">Attachment / Proof</Label>
+            <div class="mt-1.5">
+              <a :href="getAttachmentUrl(selectedLeave.attachment)" target="_blank" class="inline-flex items-center text-sm px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 rounded-lg transition-colors border border-indigo-100 dark:border-indigo-800/30">
+                <Paperclip class="w-4 h-4 mr-2" /> View Document
+              </a>
+            </div>
+          </div>
+          
+          <div v-if="selectedLeave.admin_note">
+            <Label class="text-xs text-gray-500">Admin Note</Label>
+            <div class="text-sm mt-1.5 text-gray-700 dark:text-gray-300 italic">
+              "{{ selectedLeave.admin_note }}"
+            </div>
+          </div>
+        </div>
+        
+        <DialogFooter v-if="selectedLeave?.status === 'pending' && authStore.user?.role === 'admin'" class="pt-4 border-t border-gray-100 dark:border-zinc-800">
+          <Button variant="outline" @click="directAction(selectedLeave.id, 'rejected'); isDetailDialogOpen = false" class="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
+            Reject
+          </Button>
+          <Button @click="directAction(selectedLeave.id, 'approved'); isDetailDialogOpen = false" class="bg-green-600 hover:bg-green-700 text-white">
+            Approve
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>

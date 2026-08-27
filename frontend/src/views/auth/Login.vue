@@ -12,13 +12,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { LogIn, Loader2 } from "lucide-vue-next";
+import { LogIn, Loader2, Eye, EyeOff } from "lucide-vue-next";
 
 const authStore = useAuthStore();
 const router = useRouter();
 
-const email = ref("admin@hris.com");
-const password = ref("password");
+const email = ref("");
+const password = ref("");
+const showPassword = ref(false);
 const loading = ref(false);
 const error = ref("");
 
@@ -72,7 +73,7 @@ const handleLogin = async () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="name@example.com"
+                placeholder="name@hris.com"
                 required
                 v-model="email"
               />
@@ -82,12 +83,24 @@ const handleLogin = async () => {
               <div class="flex items-center justify-between">
                 <Label for="password">Password</Label>
               </div>
-              <Input
-                id="password"
-                type="password"
-                required
-                v-model="password"
-              />
+              <div class="relative">
+                <Input
+                  id="password"
+                  :type="showPassword ? 'text' : 'password'"
+                  placeholder="Enter your password"
+                  required
+                  v-model="password"
+                  class="pr-10"
+                />
+                <button 
+                  type="button" 
+                  @click="showPassword = !showPassword" 
+                  class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 transition-colors"
+                >
+                  <Eye v-if="!showPassword" class="w-4 h-4" />
+                  <EyeOff v-else class="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             <Button type="submit" class="w-full mt-6" :disabled="loading">

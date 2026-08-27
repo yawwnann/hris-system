@@ -112,7 +112,7 @@ const handleClockAction = (type: 'in' | 'out') => {
         const { data } = await api.post(endpoint, { lat, long });
         
         toast.success(data.message || `Successfully ${type === 'in' ? 'Check In' : 'Check Out'}`);
-        fetchData(); // Refresh data
+        fetchData(); 
       } catch (error: any) {
         toast.error(error.response?.data?.message || `Failed to ${type === 'in' ? 'Check In' : 'Check Out'}`);
         if(error.response?.data?.distance) {
@@ -230,6 +230,7 @@ const handleClockAction = (type: 'in' | 'out') => {
             <Table>
               <TableHeader class="bg-gray-50 dark:bg-zinc-950/50">
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
+                  <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
                   <TableHead v-if="authStore.user?.role === 'admin'" class="font-semibold text-gray-600 dark:text-zinc-300">Employee</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Date</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Clock In</TableHead>
@@ -240,21 +241,24 @@ const handleClockAction = (type: 'in' | 'out') => {
               </TableHeader>
               <TableBody>
                 <TableRow v-if="loading">
-                  <TableCell :colspan="authStore.user?.role === 'admin' ? 6 : 5" class="h-32 text-center text-gray-500 dark:text-zinc-400">
+                  <TableCell :colspan="authStore.user?.role === 'admin' ? 7 : 6" class="h-32 text-center text-gray-500 dark:text-zinc-400">
                     Loading attendance history...
                   </TableCell>
                 </TableRow>
                 <TableRow v-else-if="paginatedHistory.length === 0">
-                  <TableCell :colspan="authStore.user?.role === 'admin' ? 6 : 5" class="h-32 text-center text-gray-500 dark:text-zinc-400">
+                  <TableCell :colspan="authStore.user?.role === 'admin' ? 7 : 6" class="h-32 text-center text-gray-500 dark:text-zinc-400">
                     No attendance history.
                   </TableCell>
                 </TableRow>
                 <TableRow 
                   v-else
-                  v-for="record in paginatedHistory" 
+                  v-for="(record, index) in paginatedHistory" 
                   :key="record.id"
                   class="border-b border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
                 >
+                  <TableCell class="text-center py-4 text-gray-500 dark:text-zinc-400 font-medium">
+                    {{ (currentPage - 1) * itemsPerPage + index + 1 }}
+                  </TableCell>
                   <TableCell v-if="authStore.user?.role === 'admin'" class="py-4">
                     <div class="font-medium text-gray-900 dark:text-zinc-100">{{ record.user?.name || '-' }}</div>
                   </TableCell>

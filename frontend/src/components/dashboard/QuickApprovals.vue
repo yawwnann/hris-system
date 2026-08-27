@@ -43,7 +43,7 @@ const approvals = computed(() => {
             <div class="flex items-start space-x-3">
               <Avatar class="w-10 h-10 border border-gray-200 dark:border-zinc-800">
                 <AvatarFallback class="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 font-medium">
-                  {{ item.user.split(' ').map(n => n[0]).join('') }}
+                  {{ item.user.split(' ').map((n: any[]) => n[0]).join('') }}
                 </AvatarFallback>
               </Avatar>
               <div>

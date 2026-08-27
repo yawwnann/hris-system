@@ -93,7 +93,7 @@ const authStore = useAuthStore();
 
     <!-- USER PROFILE FOOTER -->
     <div class="p-4 border-t-2 border-gray-100 dark:border-zinc-800">
-      <router-link to="/profile" class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-900 cursor-pointer transition-colors">
+      <div class="flex items-center p-2 rounded-lg">
         <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-800 overflow-hidden flex-shrink-0 border border-gray-300 dark:border-zinc-700">
           <img :src="authStore.user?.photo ? 'http://localhost:8000/' + authStore.user.photo : `https://ui-avatars.com/api/?name=${authStore.user?.name}&background=random`" alt="Profile" class="w-full h-full object-cover" />
         </div>
@@ -101,8 +101,7 @@ const authStore = useAuthStore();
           <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{{ authStore.user?.name || 'Administrator' }}</p>
           <p class="text-[11px] text-gray-500 dark:text-gray-400 dark:text-zinc-500 truncate">{{ authStore.user?.role === 'admin' ? 'Super Admin' : 'Employee' }}</p>
         </div>
-        <ChevronRight class="w-4 h-4 text-gray-400 dark:text-gray-500 dark:text-zinc-400" />
-      </router-link>
+      </div>
     </div>
   </aside>
 </template>

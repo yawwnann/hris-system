@@ -51,37 +51,4 @@ class AuthController extends Controller
         $user = $request->user()->load(['division', 'position', 'shift']);
         return response()->json($user);
     }
-
-    public function updateProfile(Request $request)
-    {
-        $user = $request->user();
-
-        $validated = $request->validate([
-            'phone' => 'nullable|string',
-            'address' => 'nullable|string',
-            'password' => 'nullable|string|min:6',
-            'photo' => 'nullable|image|max:2048',
-        ]);
-
-        if (isset($validated['password']) && !empty($validated['password'])) {
-            $user->password = \Illuminate\Support\Facades\Hash::make($validated['password']);
-        }
-
-        if ($request->has('phone')) {
-            $user->phone = $validated['phone'];
-        }
-
-        if ($request->has('address')) {
-            $user->address = $validated['address'];
-        }
-
-        if ($request->hasFile('photo')) {
-            $path = $request->file('photo')->store('public/avatars');
-            $user->photo = str_replace('public/', 'storage/', $path);
-        }
-
-        $user->save();
-
-        return response()->json($user->load(['division', 'position', 'shift']));
-    }
 }

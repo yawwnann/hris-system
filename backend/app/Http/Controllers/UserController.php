@@ -62,7 +62,32 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        return response()->json($user->load(['division', 'position', 'shift']));
+        $user->load(['division', 'position', 'shift']);
+        
+        $month = request('month', now()->month);
+        $year = request('year', now()->year);
+
+        $attendanceQuery = $user->attendances()->whereMonth('date', $month)->whereYear('date', $year);
+
+        $stats = [
+            'present' => (clone $attendanceQuery)->where('status', 'present')->count(),
+            'late' => (clone $attendanceQuery)->where('status', 'late')->count(),
+            'absent' => (clone $attendanceQuery)->where('status', 'absent')->count(),
+            'leave' => (clone $attendanceQuery)->where('status', 'leave')->count(),
+            'sick' => (clone $attendanceQuery)->where('status', 'sick')->count(),
+        ];
+
+        $recentAttendances = (clone $attendanceQuery)->orderBy('date', 'desc')->get();
+
+        return response()->json([
+            'user' => $user,
+            'stats' => $stats,
+            'recent_attendances' => $recentAttendances,
+            'filter' => [
+                'month' => $month,
+                'year' => $year
+            ]
+        ]);
     }
 
     public function update(Request $request, User $user)

@@ -3,9 +3,20 @@ import { Bell, Moon, Sun, Search, LogOut } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useAuthStore } from "@/stores/auth";
 import { useRouter } from "vue-router";
 import { useDark, useToggle } from "@vueuse/core";
+import { ref } from "vue";
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -13,7 +24,9 @@ const router = useRouter();
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
 
-const handleLogout = () => {
+const isLogoutDialogOpen = ref(false);
+
+const executeLogout = () => {
   authStore.logout();
   router.push("/login");
 };
@@ -47,9 +60,24 @@ const handleLogout = () => {
       
       <div class="w-px h-6 bg-gray-200 dark:bg-zinc-800 mx-2"></div>
       
-      <Button @click="handleLogout" variant="ghost" size="icon" class="text-red-500 hover:text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-full h-9 w-9" title="Logout">
+      <Button @click="isLogoutDialogOpen = true" variant="ghost" size="icon" class="text-red-500 hover:text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-full h-9 w-9" title="Logout">
         <LogOut class="w-4 h-4" />
       </Button>
     </div>
+
+    <AlertDialog v-model:open="isLogoutDialogOpen">
+      <AlertDialogContent class="bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
+        <AlertDialogHeader>
+          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Konfirmasi Logout</AlertDialogTitle>
+          <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
+            Apakah Anda yakin ingin keluar dari sesi ini? Anda harus login kembali untuk mengakses aplikasi.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter class="mt-6">
+          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Batal</AlertDialogCancel>
+          <AlertDialogAction @click="executeLogout" class="bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700 border-none">Keluar</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </header>
 </template>

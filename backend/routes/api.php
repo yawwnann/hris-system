@@ -19,7 +19,6 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [App\Http\Controllers\AuthController::class, 'logout']);
     Route::get('me', [App\Http\Controllers\AuthController::class, 'me']);
-    Route::post('me/profile', [App\Http\Controllers\AuthController::class, 'updateProfile']);
     
     // Dashboard
     Route::get('dashboard/admin', [App\Http\Controllers\DashboardController::class, 'adminSummary']);

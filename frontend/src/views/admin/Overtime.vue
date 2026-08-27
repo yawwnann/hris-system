@@ -3,14 +3,16 @@ import { ref, onMounted, computed, watch } from "vue";
 import { 
   Plus, 
   Search,
-  MoreHorizontal,
-  CheckCircle,
-  XCircle,
+  Check,
+  X,
+  Eye,
+  Clock
 } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
@@ -20,12 +22,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -113,8 +109,15 @@ onMounted(() => {
   fetchOvertimes();
 });
 
-const filteredOvertimes = computed(() => overtimes.value);
 const paginatedOvertimes = computed(() => overtimes.value);
+
+const isDetailDialogOpen = ref(false);
+const selectedOt = ref<any>(null);
+
+const openDetailDialog = (ot: any) => {
+  selectedOt.value = ot;
+  isDetailDialogOpen.value = true;
+};
 
 watch(searchQuery, () => {
   currentPage.value = 1;
@@ -162,26 +165,14 @@ const submitOvertimeRequest = async () => {
   }
 };
 
-const openApprovalDialog = (ot: any) => {
-  approvalData.value = {
-    id: ot.id,
-    status: "approved",
-    admin_note: "",
-  };
-  isApprovalDialogOpen.value = true;
-};
-
-const submitApproval = async () => {
-  if (!approvalData.value.id) return;
-  
+const directAction = async (id: number, status: 'approved' | 'rejected') => {
   isSubmitting.value = true;
   try {
-    await api.put(`/overtime-requests/${approvalData.value.id}/status`, {
-      status: approvalData.value.status,
-      admin_note: approvalData.value.admin_note,
+    await api.put(`/overtime-requests/${id}/status`, {
+      status,
+      admin_note: "",
     });
-    toast.success(`Request successfully ${approvalData.value.status === 'approved' ? 'approved' : 'rejected'}`);
-    isApprovalDialogOpen.value = false;
+    toast.success(`Request successfully ${status}`);
     fetchOvertimes();
   } catch (error: any) {
     toast.error(error.response?.data?.message || "Failed to process approval");
@@ -255,6 +246,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
             <Table>
               <TableHeader class="bg-gray-50 dark:bg-zinc-950/50">
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
+                  <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
                   <TableHead v-if="authStore.user?.role === 'admin'" class="font-semibold text-gray-600 dark:text-zinc-300">Employee</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Date</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Time</TableHead>
@@ -266,21 +258,24 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
               </TableHeader>
               <TableBody>
                 <TableRow v-if="loading">
-                  <TableCell :colspan="authStore.user?.role === 'admin' ? 7 : 6" class="h-32 text-center text-gray-500 dark:text-zinc-400">
+                  <TableCell :colspan="authStore.user?.role === 'admin' ? 8 : 7" class="h-32 text-center text-gray-500 dark:text-zinc-400">
                     Loading request data...
                   </TableCell>
                 </TableRow>
                 <TableRow v-else-if="paginatedOvertimes.length === 0">
-                  <TableCell :colspan="authStore.user?.role === 'admin' ? 7 : 6" class="h-32 text-center text-gray-500 dark:text-zinc-400">
+                  <TableCell :colspan="authStore.user?.role === 'admin' ? 8 : 7" class="h-32 text-center text-gray-500 dark:text-zinc-400">
                     No request data found.
                   </TableCell>
                 </TableRow>
                 <TableRow 
                   v-else
-                  v-for="ot in paginatedOvertimes" 
+                  v-for="(ot, index) in paginatedOvertimes" 
                   :key="ot.id"
                   class="border-b border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
                 >
+                  <TableCell class="py-4 text-center text-gray-500 dark:text-zinc-400 font-medium">
+                    {{ (currentPage - 1) * itemsPerPage + index + 1 }}
+                  </TableCell>
                   <TableCell v-if="authStore.user?.role === 'admin'" class="py-4">
                     <div class="font-medium text-gray-900 dark:text-zinc-100">{{ ot.user?.name || '-' }}</div>
                   </TableCell>
@@ -322,22 +317,41 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                   </TableCell>
                   
                   <TableCell class="text-right py-4 pr-4">
-                    <DropdownMenu v-if="ot.status === 'pending'">
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" class="h-8 w-8 text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100">
-                          <MoreHorizontal class="h-4 w-4" />
+                    <div class="flex items-center justify-end space-x-2">
+                    
+                      <template v-if="ot.status === 'pending'">
+                        <Button 
+                          v-if="authStore.user?.role === 'admin'" 
+                          @click="directAction(ot.id, 'approved')" 
+                          size="icon" 
+                          variant="outline" 
+                          class="h-8 w-8 text-green-600 border-green-200 hover:bg-green-50 hover:border-green-300 hover:text-green-700 rounded-full transition-colors"
+                          title="Approve"
+                        >
+                          <Check class="w-4 h-4" />
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" class="w-40 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                        <DropdownMenuItem v-if="authStore.user?.role === 'admin'" @click="openApprovalDialog(ot)" class="cursor-pointer text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20">
-                          <CheckCircle class="mr-2 h-4 w-4" /> Process
-                        </DropdownMenuItem>
-                        <DropdownMenuItem @click="confirmDelete(ot.id)" class="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
-                          <XCircle class="mr-2 h-4 w-4" /> Cancel
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    <span v-else class="text-gray-400 dark:text-zinc-600 text-xs">-</span>
+                        <Button 
+                          v-if="authStore.user?.role === 'admin'" 
+                          @click="directAction(ot.id, 'rejected')" 
+                          size="icon" 
+                          variant="outline" 
+                          class="h-8 w-8 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 hover:text-red-700 rounded-full transition-colors"
+                          title="Reject"
+                        >
+                          <X class="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          v-else 
+                          @click="confirmDelete(ot.id)" 
+                          size="icon" 
+                          variant="outline" 
+                          class="h-8 w-8 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 hover:text-red-700 rounded-full transition-colors"
+                          title="Cancel Request"
+                        >
+                          <X class="w-4 h-4" />
+                        </Button>
+                      </template>
+                    </div>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -444,51 +458,69 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
       </DialogContent>
     </Dialog>
 
-    <!-- Dialog Approval -->
-    <Dialog v-model:open="isApprovalDialogOpen">
-      <DialogContent class="sm:max-w-[425px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
+    <!-- Dialog View Overtime Detail -->
+    <Dialog v-model:open="isDetailDialogOpen">
+      <DialogContent class="sm:max-w-[500px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
         <DialogHeader>
-          <DialogTitle class="text-gray-900 dark:text-zinc-100">Process Request</DialogTitle>
+          <DialogTitle class="text-gray-900 dark:text-zinc-100">Overtime Request Details</DialogTitle>
           <DialogDescription class="text-gray-500 dark:text-zinc-400">
-            Determine approval for this overtime request.
+            View detailed information about this overtime request.
           </DialogDescription>
         </DialogHeader>
         
-        <form @submit.prevent="submitApproval" class="space-y-4 py-4">
-          <div class="space-y-2">
-            <Label class="text-gray-700 dark:text-gray-300">Approval Status</Label>
-            <Select v-model="approvalData.status">
-              <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                <SelectGroup>
-                  <SelectItem value="approved">Approve</SelectItem>
-                  <SelectItem value="rejected">Reject</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+        <div v-if="selectedOt" class="space-y-4 py-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <Label class="text-xs text-gray-500">Employee Name</Label>
+              <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ selectedOt.user?.name }}</div>
+            </div>
+            <div>
+              <Label class="text-xs text-gray-500">Date</Label>
+              <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ formatDate(selectedOt.date) }}</div>
+            </div>
+            <div>
+              <Label class="text-xs text-gray-500">Time</Label>
+              <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ formatTime(selectedOt.start_time) }} - {{ formatTime(selectedOt.end_time) }}</div>
+            </div>
+            <div>
+              <Label class="text-xs text-gray-500">Total Duration</Label>
+              <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ selectedOt.total_duration }} Hours</div>
+            </div>
+            <div>
+              <Label class="text-xs text-gray-500">Status</Label>
+              <div class="mt-1">
+                <Badge v-if="selectedOt.status === 'approved'" variant="outline" class="bg-green-50 text-green-700 border-green-200 px-2 py-0.5 text-xs rounded-full">Approved</Badge>
+                <Badge v-else-if="selectedOt.status === 'rejected'" variant="outline" class="bg-red-50 text-red-700 border-red-200 px-2 py-0.5 text-xs rounded-full">Rejected</Badge>
+                <Badge v-else variant="outline" class="bg-yellow-50 text-yellow-700 border-yellow-200 px-2 py-0.5 text-xs rounded-full">Pending</Badge>
+              </div>
+            </div>
           </div>
           
-          <div class="space-y-2">
-            <Label for="admin_note" class="text-gray-700 dark:text-gray-300">Note (Optional)</Label>
-            <Input 
-              id="admin_note" 
-              v-model="approvalData.admin_note" 
-              placeholder="Add a note if necessary..." 
-              class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
-            />
+          <div class="border-t border-gray-100 dark:border-zinc-800 my-4"></div>
+          
+          <div>
+            <Label class="text-xs text-gray-500">Reason / Task</Label>
+            <div class="text-sm mt-1.5 bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
+              {{ selectedOt.reason }}
+            </div>
           </div>
           
-          <DialogFooter class="pt-4">
-            <Button type="button" variant="outline" @click="isApprovalDialogOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-              Cancel
-            </Button>
-            <Button type="submit" :disabled="isSubmitting" class="bg-indigo-600 hover:bg-indigo-700 text-white">
-              {{ isSubmitting ? 'Processing...' : 'Save' }}
-            </Button>
-          </DialogFooter>
-        </form>
+          <div v-if="selectedOt.admin_note">
+            <Label class="text-xs text-gray-500">Admin Note</Label>
+            <div class="text-sm mt-1.5 text-gray-700 dark:text-gray-300 italic">
+              "{{ selectedOt.admin_note }}"
+            </div>
+          </div>
+        </div>
+        
+        <DialogFooter v-if="selectedOt?.status === 'pending' && authStore.user?.role === 'admin'" class="pt-4 border-t border-gray-100 dark:border-zinc-800">
+          <Button variant="outline" @click="directAction(selectedOt.id, 'rejected'); isDetailDialogOpen = false" class="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
+            Reject
+          </Button>
+          <Button @click="directAction(selectedOt.id, 'approved'); isDetailDialogOpen = false" class="bg-green-600 hover:bg-green-700 text-white">
+            Approve
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
 
