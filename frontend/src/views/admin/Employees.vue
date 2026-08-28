@@ -48,7 +48,7 @@ import {
 import AppSidebar from "@/components/layout/AppSidebar.vue";
 import AppHeader from "@/components/layout/AppHeader.vue";
 import AppBreadcrumb from "@/components/layout/AppBreadcrumb.vue";
-import EmployeeFormSheet from "@/components/dashboard/EmployeeFormSheet.vue";
+import EmployeeFormModal from "@/components/dashboard/EmployeeFormModal.vue";
 import api from "@/lib/axios";
 import { toast } from "vue-sonner";
 import { useRouter } from "vue-router";
@@ -325,7 +325,7 @@ const prevPage = () => {
     </main>
     
     <!-- Form Create / Edit Karyawan -->
-    <EmployeeFormSheet 
+    <EmployeeFormModal 
       v-model="isFormOpen" 
       :employeeToEdit="selectedEmployee" 
       @saved="fetchEmployees" 
