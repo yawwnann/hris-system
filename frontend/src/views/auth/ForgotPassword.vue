@@ -87,9 +87,6 @@ const goToLogin = () => {
 
       <div class="relative z-10 p-12 mt-12">
         <div class="flex items-center space-x-3 mb-10 cursor-pointer" @click="goToLogin">
-          <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg">
-            <span class="text-orange-600 font-extrabold text-2xl tracking-tighter">HR</span>
-          </div>
           <span class="text-white text-3xl font-bold tracking-tight">HRIS System</span>
         </div>
         
@@ -156,7 +153,7 @@ const goToLogin = () => {
             
             <Button 
               type="submit" 
-              class="w-full h-12 mt-2 text-base font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg shadow-orange-500/30 transition-all active:scale-[0.98]" 
+              class="w-full h-12 mt-2 text-base font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-xl  transition-all active:scale-[0.98]" 
               :disabled="loading"
             >
               <Loader2 v-if="loading" class="w-5 h-5 mr-2 animate-spin" />
@@ -191,7 +188,7 @@ const goToLogin = () => {
             
             <Button 
               type="submit" 
-              class="w-full h-12 mt-2 text-base font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg shadow-orange-500/30 transition-all active:scale-[0.98]" 
+              class="w-full h-12 mt-2 text-base font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-xl  transition-all active:scale-[0.98]" 
               :disabled="loading"
             >
               <Loader2 v-if="loading" class="w-5 h-5 mr-2 animate-spin" />

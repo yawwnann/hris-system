@@ -41,7 +41,6 @@ const handleLogin = async () => {
 <template>
   <div class="min-h-screen w-full flex bg-gray-50 dark:bg-zinc-950 font-sans">
     
-    <!-- Left Section - Branding (Hidden on mobile) -->
     <div class="hidden lg:flex w-1/2 bg-orange-500 relative flex-col justify-between overflow-hidden">
       <!-- Decorative pattern / shapes -->
       <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
