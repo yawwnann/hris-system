@@ -55,7 +55,7 @@ onMounted(() => {
   <Card class="border-gray-200 dark:border-zinc-800 border-2">
     <CardHeader class="pb-4">
       <CardTitle class="text-sm font-semibold text-gray-800 dark:text-zinc-200"
-        >All Employees</CardTitle
+        >Semua Karyawan</CardTitle
       >
     </CardHeader>
     <CardContent>
@@ -67,7 +67,7 @@ onMounted(() => {
             />
             <Input
               class="pl-9 h-9 border-gray-200 dark:border-zinc-800 text-xs"
-              placeholder="Search employee..."
+              placeholder="Cari karyawan..."
             />
           </div>
           <Button
@@ -87,7 +87,7 @@ onMounted(() => {
           variant="outline"
           class="h-9 text-xs text-gray-600 dark:text-zinc-300 border-gray-200 dark:border-zinc-800"
         >
-          <Download class="w-3 h-3 mr-2" /> Export
+          <Download class="w-3 h-3 mr-2" /> Ekspor
         </Button>
       </div>
 
@@ -104,10 +104,10 @@ onMounted(() => {
               <TableHead class="w-12 text-center"><Checkbox /></TableHead>
               <TableHead class="w-12 text-center text-xs font-semibold text-gray-500 dark:text-zinc-400">No.</TableHead>
               <TableHead class="text-xs font-semibold text-gray-500 dark:text-zinc-400"
-                >Employee ID</TableHead
+                >ID Karyawan</TableHead
               >
               <TableHead class="text-xs font-semibold text-gray-500 dark:text-zinc-400"
-                >Employee name</TableHead
+                >Nama Karyawan</TableHead
               >
               <TableHead class="text-xs font-semibold text-gray-500 dark:text-zinc-400"
                 >Email</TableHead
@@ -168,7 +168,7 @@ onMounted(() => {
                       emp.status === 'active' ? 'bg-green-50 dark:bg-green-900/200' : 'bg-orange-50 dark:bg-orange-900/200'
                     "
                   ></span>
-                  {{ emp.status === "active" ? "Active" : "Inactive" }}
+                  {{ emp.status === "active" ? "Aktif" : "Tidak Aktif" }}
                 </Badge>
               </TableCell>
               <TableCell class="text-right">
@@ -213,7 +213,7 @@ onMounted(() => {
 
       <div class="mt-4 flex items-center justify-between">
         <p class="text-xs text-gray-500 dark:text-zinc-400">
-          Showing {{ Math.min(5, employees.length) }} of {{ employees.length }} employees
+          Menampilkan {{ Math.min(5, employees.length) }} dari {{ employees.length }} karyawan
         </p>
         <div class="flex space-x-2">
           <router-link to="/employees">

@@ -16,7 +16,31 @@ export const adminDashboardMock = {
     text: `User ${i+1} performed an action`,
     time: `0${8 + i}:00 AM`
   })),
-  departments: departments.map(name => ({ name, count: Math.floor(Math.random() * 40) + 5 }))
+  departments: departments.map(name => ({ name, count: Math.floor(Math.random() * 40) + 5 })),
+  attendance_chart: (() => {
+    const days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    return Array.from({ length: 7 }).map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      const on_leave = Math.floor(Math.random() * 5);
+      const late = Math.floor(Math.random() * 10);
+      const absent = Math.floor(Math.random() * 8);
+      const present = 150 - late - absent - on_leave;
+      return {
+        date: d.toISOString().split('T')[0],
+        day: days[d.getDay() === 0 ? 6 : d.getDay() - 1],
+        present,
+        late,
+        absent,
+        on_leave
+      };
+    });
+  })(),
+  pending_approvals: [
+    { id: 1, user: { name: 'Budi Santoso' }, type: 'Leave', reason: 'Cuti tahunan', date: new Date().toISOString().split('T')[0] },
+    { id: 2, user: { name: 'Siti Aminah' }, type: 'Overtime', reason: 'Deadline proyek', date: new Date().toISOString().split('T')[0] },
+    { id: 3, user: { name: 'Andi Wijaya' }, type: 'Leave', reason: 'Urusan keluarga', date: new Date(Date.now() - 86400000).toISOString().split('T')[0] }
+  ]
 };
 
 export const employeeDashboardMock = {

@@ -37,7 +37,7 @@ const absentPct = computed(() =>
     <Card class="border-gray-200 dark:border-zinc-800 border-2">
       <CardHeader class="pb-2 flex flex-row items-center justify-between">
         <CardTitle class="text-sm font-semibold text-gray-800 dark:text-zinc-200"
-          >Total Employees Overview</CardTitle
+          >Ringkasan Total Karyawan</CardTitle
         >
         <MoreVertical class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
       </CardHeader>
@@ -54,7 +54,7 @@ const absentPct = computed(() =>
             >
           </div>
           <span class="text-sm text-green-800 dark:text-green-400 font-medium"
-            >Registered Employee</span
+            >Karyawan Terdaftar</span
           >
         </div>
 
@@ -70,7 +70,7 @@ const absentPct = computed(() =>
             >
           </div>
           <span class="text-sm text-orange-800 dark:text-orange-400 font-medium"
-            >Absen Employee</span
+            >Karyawan Absen</span
           >
         </div>
       </CardContent>
@@ -108,8 +108,8 @@ const absentPct = computed(() =>
           class="flex items-center space-x-4 text-xs text-gray-500 dark:text-zinc-400 flex-wrap gap-y-2"
         >
           <div class="flex items-center">
-            <span class="w-2 h-2 rounded-full bg-orange-400 mr-2"></span> On
-            time ({{ present - late }})
+            <span class="w-2 h-2 rounded-full bg-orange-400 mr-2"></span> Tepat
+            Waktu ({{ present - late }})
           </div>
           <div class="flex items-center">
             <span class="w-2 h-2 rounded-full bg-blue-400 mr-2"></span> Terlambat ({{
@@ -117,7 +117,7 @@ const absentPct = computed(() =>
             }})
           </div>
           <div class="flex items-center">
-            <span class="w-2 h-2 rounded-full bg-yellow-400 mr-2"></span> Leave
+            <span class="w-2 h-2 rounded-full bg-yellow-400 mr-2"></span> Cuti
             ({{ onLeave }})
           </div>
           <div class="flex items-center">

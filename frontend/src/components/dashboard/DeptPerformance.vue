@@ -31,7 +31,7 @@ const divisions = computed(() => {
   <Card class="border-gray-200 dark:border-zinc-800 border-2">
     <CardHeader class="pb-2 flex flex-row items-center justify-between">
       <CardTitle class="text-sm font-semibold text-gray-800 dark:text-zinc-200"
-        >Employee by Department</CardTitle
+        >Karyawan per Departemen</CardTitle
       >
       <MoreVertical class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
     </CardHeader>
@@ -49,7 +49,7 @@ const divisions = computed(() => {
           v-if="divisions.length === 0"
           class="w-full text-center text-xs text-gray-400 dark:text-zinc-500 leading-[3rem]"
         >
-          No data
+          Tidak ada data
         </div>
       </div>
 

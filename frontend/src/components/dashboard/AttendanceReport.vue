@@ -40,8 +40,8 @@ const getThreshold = (item: any) => {
     <CardContent>
       <div class="text-3xl font-bold mb-1">{{ onTimeArrivalRate }}%</div>
       <div class="text-xs text-gray-500 dark:text-zinc-400 mb-6 flex items-center">
-        On-time Arrival Rate
-        <span class="text-green-600 dark:text-green-400 font-medium ml-1">Overall</span>
+        Tingkat Kehadiran Tepat Waktu
+        <span class="text-green-600 dark:text-green-400 font-medium ml-1">Keseluruhan</span>
       </div>
 
       <div class="flex">

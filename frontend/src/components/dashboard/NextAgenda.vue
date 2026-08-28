@@ -32,7 +32,7 @@ const getInitials = (name: string) => {
           {{ nextAcara.description || nextAcara.type }}
         </div>
         <div class="text-xs text-gray-500 dark:text-zinc-400 mt-1 mb-4">
-          Date: {{ nextAcara.date }}
+          Tanggal: {{ nextAcara.date }}
         </div>
 
         <div v-if="totalEmp > 0" class="flex items-center space-x-3 mb-6">
@@ -62,7 +62,7 @@ const getInitials = (name: string) => {
         v-else
         class="text-center py-4 text-xs text-gray-400 dark:text-zinc-500 border border-dashed rounded-lg mt-2"
       >
-        No upcoming agendas
+        Tidak ada agenda mendatang
       </div>
     </CardContent>
   </Card>

@@ -30,7 +30,7 @@ const donutStyle = computed(() => {
   <Card class="border-gray-200 dark:border-zinc-800 border-2">
     <CardHeader class="pb-2 flex flex-row items-center justify-between">
       <CardTitle class="text-sm font-semibold text-gray-800 dark:text-zinc-200"
-        >Attendance Issues</CardTitle
+        >Masalah Kehadiran</CardTitle
       >
       <MoreVertical class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
     </CardHeader>
@@ -59,7 +59,7 @@ const donutStyle = computed(() => {
             <span class="w-1 h-4 bg-yellow-400 rounded mr-2"></span
             ><span class="font-bold text-sm">{{ onLeave }}</span>
           </div>
-          <span class="text-xs text-gray-500 dark:text-zinc-400">Leave</span>
+          <span class="text-xs text-gray-500 dark:text-zinc-400">Cuti</span>
         </div>
         <div class="flex items-center justify-between space-x-4">
           <div class="flex items-center">
