@@ -83,12 +83,13 @@ const fetchEmployees = async () => {
     const { data } = await api.get("/users", {
       params: { search: searchQuery.value, page: currentPage.value, per_page: Number(itemsPerPage.value) }
     });
-    employees.value = data.data;
-    totalPages.value = data.last_page;
-    totalItems.value = data.total;
-  } catch (error) {
+    console.log("FETCH EMPLOYEES DATA:", data);
+    employees.value = data.data || [];
+    totalPages.value = data.last_page || 1;
+    totalItems.value = data.total || 0;
+  } catch (error: any) {
     console.error("Failed to fetch employees", error);
-    toast.error("Failed to fetch employees data");
+    toast.error(`Failed to fetch employees data: ${error.message || String(error)}`);
   } finally {
     loading.value = false;
   }

@@ -240,21 +240,14 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
                   {{ item.status === 'published' ? 'Published' : 'Draft' }}
                 </Badge>
                 
-                <DropdownMenu v-if="authStore.user?.role === 'admin'">
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" class="h-8 w-8 -mr-2 text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100">
-                      <MoreHorizontal class="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" class="w-36 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                    <DropdownMenuItem @click="openEditDialog(item)" class="cursor-pointer text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:hover:bg-orange-900/20">
-                      <Edit class="mr-2 h-4 w-4" /> Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem @click="confirmDelete(item.id)" class="cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20">
-                      <Trash2 class="mr-2 h-4 w-4" /> Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <div v-if="authStore.user?.role === 'admin'" class="flex items-center gap-1 -mr-2">
+                  <Button variant="ghost" size="icon" @click="openEditDialog(item)" class="h-8 w-8 text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:text-orange-400 dark:hover:bg-orange-900/20">
+                    <Edit class="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" @click="confirmDelete(item.id)" class="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20">
+                    <Trash2 class="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               
               <h3 class="text-lg font-semibold text-gray-900 dark:text-zinc-100 mb-2 leading-tight">
