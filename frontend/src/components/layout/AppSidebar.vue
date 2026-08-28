@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
-  ChevronDown,
-  ChevronRight,
+
   LayoutDashboard,
   Users,
   Clock,
