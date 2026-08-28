@@ -9,6 +9,12 @@ const routes = [
     meta: { guest: true },
   },
   {
+    path: "/forgot-password",
+    name: "ForgotPassword",
+    component: () => import("@/views/auth/ForgotPassword.vue"),
+    meta: { guest: true },
+  },
+  {
     path: "/",
     name: "Dashboard",
     component: () => import("@/views/admin/Dashboard.vue"),
@@ -84,9 +90,12 @@ if (import.meta.env.VITE_INTEGRATION_MODE === 'false') {
   const loginRoute = originalRoutes.find(r => r.path === '/login');
   if (loginRoute) routes.push(loginRoute);
 
+  const forgotPasswordRoute = originalRoutes.find(r => r.path === '/forgot-password');
+  if (forgotPasswordRoute) routes.push(forgotPasswordRoute);
+
   const addPrefixedRoutes = (prefix: string, role: string) => {
     originalRoutes.forEach((r: any) => {
-      if (r.path === '/login') return;
+      if (r.path === '/login' || r.path === '/forgot-password') return;
       const newPath = r.path === '/' ? `${prefix}/dashboard` : `${prefix}${r.path}`;
       const newRoute: any = {
         ...r,
