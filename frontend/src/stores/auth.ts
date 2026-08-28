@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
 import api from "@/lib/axios";
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import router from "@/router";
 
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<any>(null);
   const token = ref(localStorage.getItem("access_token") || "");
-  const router = useRouter();
+  
 
   const login = async (credentials: any) => {
     const { data } = await api.post("/login", credentials);

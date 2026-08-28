@@ -278,7 +278,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                   class="border-b border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
                 >
                   <TableCell class="py-4 text-center text-gray-500 dark:text-zinc-400 font-medium">
-                    {{ (currentPage - 1) * itemsPerPage + index + 1 }}
+                    {{ (currentPage - 1) * Number(itemsPerPage) + index + 1 }}
                   </TableCell>
                   <TableCell v-if="authStore.user?.role === 'admin'" class="py-4">
                     <div class="font-medium text-gray-900 dark:text-zinc-100">{{ ot.user?.name || '-' }}</div>
@@ -380,8 +380,8 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
               </Select>
             </div>
 <div class="text-sm text-gray-500 dark:text-zinc-400">
-              Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedOvertimes.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0 }}</span> - 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * itemsPerPage, totalItems) }}</span> dari 
+              Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedOvertimes.length > 0 ? (currentPage - 1) * Number(itemsPerPage) + 1 : 0 }}</span> - 
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * Number(itemsPerPage), totalItems) }}</span> dari 
               <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> pengajuan
             </div>
             </div>

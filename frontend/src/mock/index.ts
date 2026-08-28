@@ -40,6 +40,24 @@ export const setupMockAdapter = (api: AxiosInstance) => {
 
       console.log(`[MOCK API] ${method?.toUpperCase()} ${url}`);
 
+      if (url.includes('/login') && method === 'post') {
+        const payload = JSON.parse(config.data || '{}');
+        const role = payload.email?.includes('employee') ? 'employee' : 'admin';
+        const user = usersMock.data.find(u => u.role === role) || usersMock.data[0];
+        
+        return {
+          data: {
+            access_token: 'mock-token-' + role,
+            user: user
+          },
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config,
+          request: {}
+        } as AxiosResponse;
+      }
+
       if (url.includes('/dashboard/admin')) {
         data = adminDashboardMock;
       } else if (url.includes('/dashboard/employee')) {

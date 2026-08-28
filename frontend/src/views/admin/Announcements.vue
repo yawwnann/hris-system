@@ -84,7 +84,7 @@ const fetchAnnouncements = async () => {
   loading.value = true;
   try {
     const { data } = await api.get("/announcements", {
-      params: { search: searchQuery.value, page: currentPage.value, per_page: Number(itemsPerPage.value) }
+      params: { search: searchQuery.value, page: currentPage.value, per_page: Number(itemsPerPage) }
     });
     announcements.value = data.data;
     totalPages.value = data.last_page;

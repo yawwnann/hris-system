@@ -40,6 +40,14 @@ export const adminDashboardMock = {
     { id: 1, user: { name: 'Budi Santoso' }, type: 'Leave', reason: 'Cuti tahunan', date: new Date().toISOString().split('T')[0] },
     { id: 2, user: { name: 'Siti Aminah' }, type: 'Overtime', reason: 'Deadline proyek', date: new Date().toISOString().split('T')[0] },
     { id: 3, user: { name: 'Andi Wijaya' }, type: 'Leave', reason: 'Urusan keluarga', date: new Date(Date.now() - 86400000).toISOString().split('T')[0] }
+  ],
+  division_stats: [
+    { division: { name: 'Engineering' }, count: 45 },
+    { division: { name: 'HR' }, count: 20 },
+    { division: { name: 'Marketing' }, count: 30 },
+    { division: { name: 'Sales' }, count: 25 },
+    { division: { name: 'Finance' }, count: 15 },
+    { division: { name: 'Operations' }, count: 15 }
   ]
 };
 

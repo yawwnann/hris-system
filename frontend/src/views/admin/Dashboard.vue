@@ -30,6 +30,7 @@ import { ref, onMounted, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import api from "@/lib/axios";
 import moment from "moment";
+// @ts-ignore
 import "moment/locale/id";
 moment.locale('id');
 

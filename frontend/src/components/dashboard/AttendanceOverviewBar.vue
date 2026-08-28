@@ -126,7 +126,7 @@ const onBarLeave = () => {
                 v-for="(item, index) in chartData"
                 :key="item.date"
                 class="flex flex-col items-center flex-1 h-full justify-end cursor-pointer group"
-                @mouseenter="onBarHover(index, $event)"
+                @mouseenter="onBarHover(Number(index), $event)"
                 @mouseleave="onBarLeave"
               >
                 <!-- Stacked Bar -->

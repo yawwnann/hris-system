@@ -26,9 +26,8 @@ const toggleDark = useToggle(isDark);
 
 const isLogoutDialogOpen = ref(false);
 
-const executeLogout = () => {
-  authStore.logout();
-  router.push("/login");
+const executeLogout = async () => {
+  await authStore.logout();
 };
 </script>
 

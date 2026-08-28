@@ -98,7 +98,7 @@ const saveEmployee = async () => {
     
     const payload = { ...form.value };
     if (isEditing.value && !payload.password) {
-      delete payload.password;
+      delete (payload as any).password;
     }
     
     if (isEditing.value) {
