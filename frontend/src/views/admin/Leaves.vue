@@ -479,7 +479,12 @@ const handleFileUpload = (event: Event) => {
         
         <form @submit.prevent="submitLeaveRequest" class="space-y-4 py-4">
           <div class="space-y-2">
-            <Label class="text-gray-700 dark:text-gray-300">Tipe Pengajuan</Label>
+            <div class="flex items-center justify-between">
+              <Label class="text-gray-700 dark:text-gray-300">Tipe Pengajuan</Label>
+              <div v-if="formData.type === 'annual'" class="text-xs font-medium text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 px-2 py-1 rounded-md">
+                Sisa Cuti: {{ authStore.user?.leave_quota ?? 0 }} Hari
+              </div>
+            </div>
             <Select v-model="formData.type">
               <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
                 <SelectValue placeholder="Select type" />
@@ -528,16 +533,35 @@ const handleFileUpload = (event: Event) => {
             />
           </div>
 
-          <div class="space-y-2" v-if="formData.type === 'sick' || formData.type === 'permission'">
-            <Label for="attachment" class="text-gray-700 dark:text-gray-300">Lampiran Bukti (Opsional)</Label>
-            <Input 
-              id="attachment" 
-              type="file"
-              @change="handleFileUpload" 
-              class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100 cursor-pointer file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
-              accept=".pdf,.jpg,.jpeg,.png"
-            />
-            <p class="text-xs text-gray-500 mt-1">Sertakan surat keterangan dokter atau dokumen pendukung lainnya.</p>
+          <div class="space-y-2">
+            <Label class="text-gray-700 dark:text-gray-300">Lampiran Bukti (Opsional)</Label>
+            <label 
+              for="attachment"
+              class="relative flex flex-col items-center justify-center w-full py-6 border-2 border-dashed border-gray-300 dark:border-zinc-700 rounded-lg cursor-pointer bg-gray-50 dark:bg-zinc-900 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <div v-if="formData.attachment" class="flex flex-col items-center justify-center">
+                <div class="w-10 h-10 mb-2 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
+                  <Check class="w-5 h-5" />
+                </div>
+                <p class="text-sm font-medium text-gray-900 dark:text-zinc-100">{{ formData.attachment.name }}</p>
+                <p class="text-xs text-gray-500 dark:text-zinc-400 mt-1">Click to replace</p>
+              </div>
+              <div v-else class="flex flex-col items-center justify-center">
+                <div class="w-10 h-10 mb-2 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center text-gray-500 dark:text-zinc-400">
+                  <Paperclip class="w-5 h-5" />
+                </div>
+                <p class="text-sm text-gray-600 dark:text-zinc-300"><span class="font-semibold text-orange-600 dark:text-orange-400">Click to upload</span> or drag and drop</p>
+                <p class="text-xs text-gray-500 dark:text-zinc-500 mt-1">PDF, JPG, JPEG, PNG</p>
+              </div>
+              <input 
+                id="attachment" 
+                type="file"
+                class="hidden"
+                @change="handleFileUpload" 
+                accept=".pdf,.jpg,.jpeg,.png"
+              />
+            </label>
+            <p class="text-xs text-gray-500 mt-1">Sertakan surat keterangan dokter atau dokumen pendukung lainnya jika diperlukan.</p>
           </div>
           
           <DialogFooter class="pt-4">
