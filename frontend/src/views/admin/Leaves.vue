@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -82,11 +83,18 @@ const isSubmitting = ref(false);
 const isDeleteDialogOpen = ref(false);
 const itemToDelete = ref<number | null>(null);
 
-const formData = ref({
+const formData = ref<{
+  type: string;
+  start_date: string;
+  end_date: string;
+  reason: string;
+  attachment: File | null;
+}>({
   type: "annual",
   start_date: "",
   end_date: "",
   reason: "",
+  attachment: null,
 });
 
 const fetchLeaves = async () => {
@@ -157,6 +165,7 @@ const openAddDialog = () => {
     start_date: "",
     end_date: "",
     reason: "",
+    attachment: null,
   };
   isAddDialogOpen.value = true;
 };
@@ -169,7 +178,21 @@ const submitLeaveRequest = async () => {
 
   isSubmitting.value = true;
   try {
-    await api.post("/leave-requests", formData.value);
+    const payload = new FormData();
+    payload.append("type", formData.value.type);
+    payload.append("start_date", formData.value.start_date);
+    payload.append("end_date", formData.value.end_date);
+    payload.append("reason", formData.value.reason);
+    if (formData.value.attachment) {
+      payload.append("attachment", formData.value.attachment);
+    }
+
+    await api.post("/leave-requests", payload, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
+    
     toast.success("Leave request submitted successfully");
     isAddDialogOpen.value = false;
     fetchLeaves();
@@ -226,6 +249,15 @@ const getTypeLabel = (type: string) => {
     permission: "Izin"
   };
   return map[type] || type;
+};
+
+const handleFileUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    formData.value.attachment = target.files[0];
+  } else {
+    formData.value.attachment = null;
+  }
 };
 </script>
 
@@ -487,13 +519,25 @@ const getTypeLabel = (type: string) => {
           
           <div class="space-y-2">
             <Label for="reason" class="text-gray-700 dark:text-gray-300">Alasan</Label>
-            <Input 
+            <Textarea 
               id="reason" 
               v-model="formData.reason" 
               placeholder="Jelaskan alasan secara singkat..." 
-              class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
+              class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100 resize-none h-24"
               required
             />
+          </div>
+
+          <div class="space-y-2" v-if="formData.type === 'sick' || formData.type === 'permission'">
+            <Label for="attachment" class="text-gray-700 dark:text-gray-300">Lampiran Bukti (Opsional)</Label>
+            <Input 
+              id="attachment" 
+              type="file"
+              @change="handleFileUpload" 
+              class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100 cursor-pointer file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"
+              accept=".pdf,.jpg,.jpeg,.png"
+            />
+            <p class="text-xs text-gray-500 mt-1">Sertakan surat keterangan dokter atau dokumen pendukung lainnya.</p>
           </div>
           
           <DialogFooter class="pt-4">
