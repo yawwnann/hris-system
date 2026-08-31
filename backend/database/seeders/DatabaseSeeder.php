@@ -24,63 +24,69 @@ class DatabaseSeeder extends Seeder
         $divisions = [];
         $divNames = ['IT & Engineering', 'Human Resources', 'Finance & Tax', 'Marketing', 'Sales & BD', 'Operations'];
         foreach ($divNames as $name) {
-            $divisions[] = Division::create(['name' => $name]);
+            $divisions[] = Division::firstOrCreate(['name' => $name]);
         }
 
         // Create Positions
         $positions = [];
         $posNames = ['Manager', 'Senior Staff', 'Staff', 'Intern', 'Supervisor'];
         foreach ($posNames as $name) {
-            $positions[] = Position::create(['name' => $name, 'level' => rand(1, 5)]);
+            $positions[] = Position::firstOrCreate(['name' => $name], ['level' => rand(1, 5)]);
         }
 
         // Create Default Shift
-        $shift = Shift::create([
-            'name' => 'Regular Shift',
-            'time_in' => '09:00:00',
-            'time_out' => '17:00:00',
-        ]);
+        $shift = Shift::firstOrCreate(
+            ['name' => 'Regular Shift'],
+            [
+                'time_in' => '09:00:00',
+                'time_out' => '17:00:00',
+            ]
+        );
 
         // Create Admins
-        User::create([
-            'name' => 'Super Admin',
-            'email' => 'admin@hris.com',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-            'nik' => 'ADM-001',
-            'status' => 'active',
-            'division_id' => $divisions[1]->id,
-            'position_id' => $positions[0]->id,
-            'shift_id' => $shift->id,
-            'leave_quota' => 12,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@hris.com'],
+            [
+                'name' => 'Super Admin',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'nik' => 'ADM-001',
+                'status' => 'active',
+                'division_id' => $divisions[1]->id,
+                'position_id' => $positions[0]->id,
+                'shift_id' => $shift->id,
+                'leave_quota' => 12,
+            ]
+        );
 
         // Create 100 Employees
         $users = [];
  
         for ($i = 1; $i <= 100; $i++) {
-            $users[] = User::create([
-                'name' => $faker->name,
-                'email' => "employee{$i}@hris.com",
-                'password' => Hash::make('password'),
-                'role' => 'employee',
-                'nik' => sprintf(
-                    '%06d%02d%02d%04d',
-                    rand(340201, 340499), 
-                    rand(1, 31),
-                    rand(1, 12),
-                    $i + 1000
-                ),
-                'status' => $faker->boolean(90) ? 'active' : 'inactive',
-                'division_id' => $faker->randomElement($divisions)->id,
-                'position_id' => $faker->randomElement($positions)->id,
-                'shift_id' => $shift->id,
-                'leave_quota' => 12,
-                'phone' => $faker->phoneNumber,
-                'address' => $faker->address,
-                'dob' => $faker->dateTimeBetween('-40 years', '-20 years'),
-                'join_date' => $faker->dateTimeBetween('-3 years', 'now'),
-            ]);
+            $users[] = User::updateOrCreate(
+                ['email' => "employee{$i}@hris.com"],
+                [
+                    'name' => $faker->name,
+                    'password' => Hash::make('password'),
+                    'role' => 'employee',
+                    'nik' => sprintf(
+                        '%06d%02d%02d%04d',
+                        rand(340201, 340499),
+                        rand(1, 31),
+                        rand(1, 12),
+                        $i + 1000
+                    ),
+                    'status' => $faker->boolean(90) ? 'active' : 'inactive',
+                    'division_id' => $faker->randomElement($divisions)->id,
+                    'position_id' => $faker->randomElement($positions)->id,
+                    'shift_id' => $shift->id,
+                    'leave_quota' => 12,
+                    'phone' => $faker->phoneNumber,
+                    'address' => $faker->address,
+                    'dob' => $faker->dateTimeBetween('-40 years', '-20 years'),
+                    'join_date' => $faker->dateTimeBetween('-3 years', 'now'),
+                ]
+            );
         }
 
         // Seed Work Calendar (Upcoming Events)
@@ -144,6 +150,7 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call([
+            EmployeeSeeder::class,
             SettingSeeder::class,
             OvertimeRequestSeeder::class,
         ]);

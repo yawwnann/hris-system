@@ -121,16 +121,6 @@ const router = createRouter({
 
 router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore();
-  
-  if (import.meta.env.VITE_INTEGRATION_MODE === 'false') {
-    if (to.path.startsWith('/admin')) {
-      authStore.user = { id: 1, name: 'Mock Admin', email: 'admin@mock.com', role: 'admin' };
-      authStore.token = 'mock-token';
-    } else if (to.path.startsWith('/employee')) {
-      authStore.user = { id: 2, name: 'Mock Employee', email: 'employee@mock.com', role: 'employee' };
-      authStore.token = 'mock-token';
-    }
-  }
 
   if (!authStore.user && authStore.token) {
     await authStore.fetchUser();

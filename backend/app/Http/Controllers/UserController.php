@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -11,6 +12,10 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $query = User::with(['division', 'position', 'shift']);
 
         if ($request->has('search')) {
@@ -37,6 +42,10 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -62,6 +71,10 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $user->load(['division', 'position', 'shift']);
         
         $month = request('month', now()->month);
@@ -92,6 +105,10 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
@@ -121,6 +138,10 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
         $user->delete();
         return response()->json(null, 204);
     }

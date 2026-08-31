@@ -167,4 +167,37 @@ class AttendanceTest extends TestCase
         $response->assertStatus(400)
                  ->assertJsonFragment(['message' => 'You have already checked out today.']);
     }
+
+    public function test_check_in_requires_numeric_coordinates(): void
+    {
+        $this->actingAs($this->user)
+            ->postJson('/api/attendance/check-in', ['lat' => 'invalid', 'long' => null])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['lat', 'long']);
+
+        $this->assertDatabaseCount('attendances', 0);
+    }
+
+    public function test_employee_can_only_view_own_attendance(): void
+    {
+        $otherUser = User::factory()->create(['status' => 'active']);
+        Attendance::create([
+            'user_id' => $this->user->id,
+            'date' => Carbon::today(),
+            'time_in' => '08:00:00',
+            'status' => 'present',
+        ]);
+        Attendance::create([
+            'user_id' => $otherUser->id,
+            'date' => Carbon::today()->subDay(),
+            'time_in' => '08:00:00',
+            'status' => 'present',
+        ]);
+
+        $response = $this->actingAs($this->user)->getJson('/api/attendance?paginate=false');
+
+        $response->assertOk()
+            ->assertJsonCount(1)
+            ->assertJsonPath('0.user_id', $this->user->id);
+    }
 }

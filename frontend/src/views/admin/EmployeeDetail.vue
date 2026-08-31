@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   AlertCircle,
   XCircle,
-  Clock
+  Clock,
+  Building2
 } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -85,6 +86,13 @@ const getStatusBadgeVariant = (status: string) => {
     default: return 'bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-800/30';
   }
 };
+
+const statItems = [
+  { key: 'present', label: 'Hadir', icon: CheckCircle2, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20' },
+  { key: 'late', label: 'Terlambat', icon: Clock, color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20' },
+  { key: 'absent', label: 'Absen', icon: XCircle, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20' },
+  { key: 'leave', label: 'Cuti', icon: AlertCircle, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/20' },
+];
 </script>
 
 <template>
@@ -98,75 +106,120 @@ const getStatusBadgeVariant = (status: string) => {
         <AppBreadcrumb />
         
         <!-- Page Header -->
-        <div class="flex items-center mb-8 gap-4">
-          <Button variant="ghost" size="icon" @click="router.push('/employees')" class="h-8 w-8 mr-2 text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-zinc-100">
-            <ArrowLeft class="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100">
-              Detail Karyawan
-            </h1>
-            <p class="text-gray-500 dark:text-zinc-400 mt-1">Detailed statistics and profile information.</p>
+        <div class="flex items-center justify-between mb-8 gap-4">
+          <div class="flex items-center gap-3">
+            <Button variant="outline" size="icon" @click="router.push('/employees')" class="h-9 w-9 rounded-lg border-gray-200 dark:border-zinc-800 text-gray-500 hover:text-gray-900 hover:border-gray-300 dark:text-zinc-400 dark:hover:text-zinc-100">
+              <ArrowLeft class="h-4 w-4" />
+            </Button>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100">Detail Karyawan</h1>
+              <p class="text-gray-500 dark:text-zinc-400 mt-0.5">Profile & rekap absensi karyawan.</p>
+            </div>
           </div>
+
         </div>
 
-        <div v-if="loading" class="flex justify-center items-center py-20">
+        <div v-if="loading" class="flex justify-center items-center py-24">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
         </div>
 
         <div v-else-if="employee" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           <!-- Left Column: Profile Card -->
-          <div class="lg:col-span-1 space-y-6">
-            <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm p-6 text-center">
-              <div class="w-24 h-24 rounded-full bg-orange-100 dark:bg-orange-900/30 border-4 border-white dark:border-zinc-800 mx-auto mb-4 flex items-center justify-center text-orange-700 dark:text-orange-400 text-3xl font-bold">
-                {{ employee.name.charAt(0) }}
+          <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden">
+              <div class="h-24 bg-gradient-to-br from-orange-500 to-orange-600 dark:from-orange-600 dark:to-orange-700"></div>
+              <div class="p-6 -mt-12 text-center">
+                <div class="w-full flex justify-center">
+                  <div class="w-24 h-24 rounded-full bg-orange-100 dark:bg-zinc-800 border-4 border-white dark:border-zinc-900 flex items-center justify-center text-orange-700 dark:text-orange-400 text-3xl font-bold shadow-md">
+                    {{ employee.name.charAt(0) }}
+                  </div>
+                </div>
+                
+                <h2 class="text-xl font-bold text-gray-900 dark:text-zinc-100 mt-4">{{ employee.name }}</h2>
+                <p class="text-gray-500 dark:text-zinc-400 mb-3">{{ employee.position?.name || '-' }}</p>
+                
+                <div class="flex justify-center gap-2 flex-wrap">
+                  <Badge v-if="employee.status === 'active'" variant="outline" class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/30">
+                    Active
+                  </Badge>
+                  <Badge v-else variant="outline" class="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/30">
+                    Inactive
+                  </Badge>
+                  <Badge v-if="employee.role" variant="outline" class="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800/30 capitalize">
+                    {{ employee.role }}
+                  </Badge>
+                </div>
               </div>
-              <h2 class="text-xl font-bold text-gray-900 dark:text-zinc-100">{{ employee.name }}</h2>
-              <p class="text-gray-500 dark:text-zinc-400 mb-2">{{ employee.position?.name || '-' }}</p>
-              <Badge v-if="employee.status === 'active'" variant="outline" class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/30">
-                Active
-              </Badge>
-              <Badge v-else variant="outline" class="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/30">
-                Inactive
-              </Badge>
 
-              <div class="mt-6 pt-6 border-t border-gray-100 dark:border-zinc-800 text-left space-y-4">
-                <div class="flex items-center gap-3 text-gray-600 dark:text-zinc-300">
-                  <UserIcon class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
-                  <span class="text-sm">NIK: {{ employee.nik || '-' }}</span>
-                </div>
-                <div class="flex items-center gap-3 text-gray-600 dark:text-zinc-300">
-                  <Mail class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
-                  <span class="text-sm">{{ employee.email }}</span>
-                </div>
-                <div class="flex items-center gap-3 text-gray-600 dark:text-zinc-300">
-                  <Phone class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
-                  <span class="text-sm">{{ employee.phone || '-' }}</span>
-                </div>
-                <div class="flex items-center gap-3 text-gray-600 dark:text-zinc-300">
-                  <Briefcase class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
-                  <span class="text-sm">{{ employee.division?.name || '-' }}</span>
-                </div>
-                <div class="flex items-center gap-3 text-gray-600 dark:text-zinc-300">
-                  <CalendarIcon class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
-                  <span class="text-sm">Joined: {{ employee.join_date ? moment(employee.join_date).format('DD MMM YYYY') : '-' }}</span>
+              <div class="px-6 pb-6 space-y-1">
+                <div class="border-t border-gray-100 dark:border-zinc-800 pt-4 space-y-4">
+                  <div class="flex items-center gap-3 text-gray-600 dark:text-zinc-300">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                      <UserIcon class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-[10px] uppercase tracking-wide text-gray-400 dark:text-zinc-500">NIK</div>
+                      <div class="text-sm font-medium truncate">{{ employee.nik || '-' }}</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 text-gray-600 dark:text-zinc-300">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                      <Mail class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-[10px] uppercase tracking-wide text-gray-400 dark:text-zinc-500">Email</div>
+                      <div class="text-sm font-medium truncate">{{ employee.email }}</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 text-gray-600 dark:text-zinc-300">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                      <Phone class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-[10px] uppercase tracking-wide text-gray-400 dark:text-zinc-500">Telepon</div>
+                      <div class="text-sm font-medium truncate">{{ employee.phone || '-' }}</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 text-gray-600 dark:text-zinc-300">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                      <Briefcase class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-[10px] uppercase tracking-wide text-gray-400 dark:text-zinc-500">Divisi</div>
+                      <div class="text-sm font-medium truncate">{{ employee.division?.name || '-' }}</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 text-gray-600 dark:text-zinc-300">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                      <CalendarIcon class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
+                    </div>
+                    <div class="min-w-0">
+                      <div class="text-[10px] uppercase tracking-wide text-gray-400 dark:text-zinc-500">Bergabung</div>
+                      <div class="text-sm font-medium">{{ employee.join_date ? moment(employee.join_date).format('DD MMM YYYY') : '-' }}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Right Column: Stats & Recent Absensi -->
-          <div class="lg:col-span-2 space-y-8">
+          <div class="lg:col-span-2 space-y-8 bg-white dark:bg-zinc-900 p-6 rounded-xl border border-gray-200 dark:border-zinc-800">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-zinc-100">
-                Absensi Statistics for {{ monthsList[selectedMonth - 1] }} {{ selectedYear }}
-              </h2>
+              <div>
+                <h2 class="text-lg font-bold text-gray-900 dark:text-zinc-100">
+                  Rekap Absensi
+                </h2>
+                <p class="text-sm text-gray-500 dark:text-zinc-400 mt-0.5">
+                  {{ monthsList[selectedMonth - 1] }} {{ selectedYear }}
+                </p>
+              </div>
               <div class="flex items-center space-x-2">
-                <select v-model="selectedMonth" class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-md text-sm px-3 py-1.5 text-gray-700 dark:text-gray-300 focus:outline-none focus:border-orange-500">
+                <select v-model="selectedMonth" class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg text-sm px-3 py-2 text-gray-700 dark:text-gray-300 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30">
                   <option v-for="(m, index) in monthsList" :key="index" :value="index + 1">{{ m }}</option>
                 </select>
-                <select v-model="selectedYear" class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-md text-sm px-3 py-1.5 text-gray-700 dark:text-gray-300 focus:outline-none focus:border-orange-500">
+                <select v-model="selectedYear" class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg text-sm px-3 py-2 text-gray-700 dark:text-gray-300 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/30">
                   <option v-for="y in yearsList" :key="y" :value="y">{{ y }}</option>
                 </select>
               </div>
@@ -174,51 +227,24 @@ const getStatusBadgeVariant = (status: string) => {
 
             <!-- Stats Grid -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5">
-                <div class="flex items-center gap-3 mb-2">
-                  <div class="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg">
-                    <CheckCircle2 class="w-5 h-5" />
+              <div v-for="item in statItems" :key="item.key" class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5">
+                <div class="flex items-center gap-2.5 mb-3">
+                  <div class="p-2 rounded-lg" :class="item.bg">
+                    <component :is="item.icon" class="w-4 h-4" :class="item.color" />
                   </div>
-                  <h3 class="font-medium text-gray-600 dark:text-zinc-400">Hadir</h3>
+                  <h3 class="font-medium text-gray-600 dark:text-zinc-400 text-sm">{{ item.label }}</h3>
                 </div>
-                <div class="text-2xl font-bold text-gray-900 dark:text-zinc-100">{{ stats?.present || 0 }}</div>
-              </div>
-
-              <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5">
-                <div class="flex items-center gap-3 mb-2">
-                  <div class="p-2 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 rounded-lg">
-                    <Clock class="w-5 h-5" />
-                  </div>
-                  <h3 class="font-medium text-gray-600 dark:text-zinc-400">Terlambat</h3>
+                <div class="text-3xl font-bold text-gray-900 dark:text-zinc-100">
+                  <template v-if="item.key === 'leave'">{{ (stats?.leave || 0) + (stats?.sick || 0) }}</template>
+                  <template v-else>{{ stats?.[item.key] || 0 }}</template>
                 </div>
-                <div class="text-2xl font-bold text-gray-900 dark:text-zinc-100">{{ stats?.late || 0 }}</div>
-              </div>
-
-              <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5">
-                <div class="flex items-center gap-3 mb-2">
-                  <div class="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg">
-                    <XCircle class="w-5 h-5" />
-                  </div>
-                  <h3 class="font-medium text-gray-600 dark:text-zinc-400">Absen</h3>
-                </div>
-                <div class="text-2xl font-bold text-gray-900 dark:text-zinc-100">{{ stats?.absent || 0 }}</div>
-              </div>
-
-              <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-5">
-                <div class="flex items-center gap-3 mb-2">
-                  <div class="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">
-                    <AlertCircle class="w-5 h-5" />
-                  </div>
-                  <h3 class="font-medium text-gray-600 dark:text-zinc-400">Cuti</h3>
-                </div>
-                <div class="text-2xl font-bold text-gray-900 dark:text-zinc-100">{{ (stats?.leave || 0) + (stats?.sick || 0) }}</div>
               </div>
             </div>
 
             <!-- Recent Absensi Table -->
             <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl overflow-hidden">
-              <div class="px-6 py-5 border-b border-gray-200 dark:border-zinc-800">
-                <h3 class="text-base font-semibold text-gray-900 dark:text-zinc-100">Recent Attendances</h3>
+              <div class="px-6 py-4 border-b border-gray-200 dark:border-zinc-800">
+                <h3 class="text-base font-semibold text-gray-900 dark:text-zinc-100">Riwayat Absensi</h3>
               </div>
               <div class="overflow-x-auto">
                 <Table>
@@ -226,15 +252,15 @@ const getStatusBadgeVariant = (status: string) => {
                     <TableRow class="border-b border-gray-200 dark:border-zinc-800">
                       <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
                       <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Tanggal</TableHead>
-                      <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Time In</TableHead>
-                      <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Time Out</TableHead>
-                      <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Status</TableHead>
+                      <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Masuk</TableHead>
+                      <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Keluar</TableHead>
+                      <TableHead class="text-center font-semibold text-gray-600 dark:text-zinc-300">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     <TableRow v-if="recentAttendances.length === 0">
                       <TableCell colspan="5" class="h-24 text-center text-gray-500 dark:text-zinc-400">
-                        No recent attendances found.
+                        Tidak ada riwayat absensi.
                       </TableCell>
                     </TableRow>
                     <TableRow 
@@ -246,10 +272,10 @@ const getStatusBadgeVariant = (status: string) => {
                       <TableCell class="text-center py-3 text-gray-500 dark:text-zinc-400 font-medium">
                         {{ index + 1 }}
                       </TableCell>
-                      <TableCell class="py-3 text-gray-900 dark:text-zinc-200">{{ moment(att.date).format('DD MMM YYYY') }}</TableCell>
+                      <TableCell class="py-3 text-gray-900 dark:text-zinc-200">{{ moment(att.date).format('dddd, DD MMM YYYY') }}</TableCell>
                       <TableCell class="py-3 text-gray-600 dark:text-zinc-300">{{ att.time_in ? moment(att.time_in, 'HH:mm:ss').format('HH:mm') : '-' }}</TableCell>
                       <TableCell class="py-3 text-gray-600 dark:text-zinc-300">{{ att.time_out ? moment(att.time_out, 'HH:mm:ss').format('HH:mm') : '-' }}</TableCell>
-                      <TableCell class="py-3">
+                      <TableCell class="py-3 text-center">
                         <Badge variant="outline" :class="getStatusBadgeVariant(att.status)" class="capitalize">
                           {{ att.status }}
                         </Badge>

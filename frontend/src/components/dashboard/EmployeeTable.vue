@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "vue-router";
 import api from "@/lib/axios";
+import { toast } from "vue-sonner";
 
 const router = useRouter();
 const employees = ref<any[]>([]);
@@ -41,6 +42,7 @@ const fetchEmployees = async () => {
     employees.value = data.data;
   } catch (error) {
     console.error("Failed to fetch employees", error);
+    toast.error("Gagal memuat data karyawan");
   } finally {
     loading.value = false;
   }

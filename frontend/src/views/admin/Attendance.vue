@@ -192,7 +192,7 @@ const handleClockAction = (type: 'in' | 'out') => {
               
               <div class="flex items-center space-x-4">
                 <Button 
-                  v-if="!todayRecord"
+                  v-if="!todayRecord?.time_in"
                   @click="handleClockAction('in')" 
                   :disabled="locationLoading"
                   class="h-14 px-8 text-base font-bold bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
@@ -202,7 +202,7 @@ const handleClockAction = (type: 'in' | 'out') => {
                 </Button>
                 
                 <Button 
-                  v-else-if="todayRecord && !todayRecord.time_out"
+                  v-else-if="todayRecord?.time_in && !todayRecord?.time_out"
                   @click="handleClockAction('out')" 
                   :disabled="locationLoading"
                   class="h-14 px-8 text-base font-bold bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"

@@ -65,6 +65,17 @@ export const setupMockAdapter = (api: AxiosInstance) => {
       } else if (url.includes('/users')) {
         data = paginate(usersMock, config);
       } else if (url.includes('/me')) {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          return {
+            data: { message: 'Unauthenticated.' },
+            status: 401,
+            statusText: 'Unauthorized',
+            headers: {},
+            config,
+            request: {}
+          } as AxiosResponse;
+        }
         const roleMatch = window.location.pathname.startsWith('/employee') ? 'employee' : 'admin';
         data = usersMock.data.find(u => u.role === roleMatch) || usersMock.data[0];
       } else if (url.includes('/divisions')) {

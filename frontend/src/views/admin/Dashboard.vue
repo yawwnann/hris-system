@@ -29,6 +29,7 @@ import EmployeeStatus from "@/components/dashboard/EmployeeStatus.vue";
 import { ref, onMounted, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import api from "@/lib/axios";
+import { toast } from "vue-sonner";
 import moment from "moment";
 // @ts-ignore
 import "moment/locale/id";
@@ -45,9 +46,24 @@ const fetchDashboardStats = async () => {
         ? "/dashboard/admin"
         : "/dashboard/employee";
     const { data } = await api.get(endpoint);
+
+    // Normalize backend field names (time_in/time_out) to the UI contract (clock_in_time/clock_out_time).
+    if (authStore.user?.role !== "admin") {
+      const mapAttendance = (record: any) =>
+        record
+          ? { ...record, clock_in_time: record.time_in, clock_out_time: record.time_out }
+          : null;
+
+      data.today_attendance = mapAttendance(data.today_attendance);
+      if (Array.isArray(data.recent_attendances)) {
+        data.recent_attendances = data.recent_attendances.map(mapAttendance);
+      }
+    }
+
     stats.value = data;
   } catch (e) {
     console.error(e);
+    toast.error("Failed to load dashboard data");
   } finally {
     loading.value = false;
   }

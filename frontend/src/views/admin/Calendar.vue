@@ -120,12 +120,14 @@ const fetchEvents = async () => {
     const start = currentDate.value.clone().startOf('month').startOf('isoWeek').format('YYYY-MM-DD');
     const end = currentDate.value.clone().endOf('month').endOf('isoWeek').format('YYYY-MM-DD');
     
+    const isAdmin = authStore.user?.role === 'admin';
+
     const [eventsRes, usersRes, divsRes] = await Promise.all([
       api.get('/calendar-events', {
         params: { start, end, categories: activeCategories.value.join(',') }
       }),
-      usersList.value.length === 0 ? api.get('/users') : Promise.resolve(null),
-      divisionsList.value.length === 0 ? api.get('/divisions') : Promise.resolve(null)
+      isAdmin && usersList.value.length === 0 ? api.get('/users') : Promise.resolve(null),
+      isAdmin && divisionsList.value.length === 0 ? api.get('/divisions') : Promise.resolve(null)
     ]);
     
     // Replace 'Z' to prevent unwanted UTC to Local Time timezone shifting
