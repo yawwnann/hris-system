@@ -246,7 +246,8 @@ const getTypeLabel = (type: string) => {
   const map: Record<string, string> = {
     annual: "Cuti Tahunan",
     sick: "Cuti Sakit",
-    permission: "Izin"
+    permission: "Izin",
+    maternity: "Cuti Melahirkan"
   };
   return map[type] || type;
 };
@@ -300,9 +301,10 @@ const handleFileUpload = (event: Event) => {
               </SelectTrigger>
               <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                 <SelectItem value="all">Semua Tipe</SelectItem>
-                <SelectItem value="annual">Annual</SelectItem>
-                <SelectItem value="sick">Sick</SelectItem>
+                <SelectItem value="annual">Cuti Tahunan</SelectItem>
+                <SelectItem value="sick">Cuti Sakit</SelectItem>
                 <SelectItem value="permission">Izin</SelectItem>
+                <SelectItem value="maternity">Cuti Melahirkan</SelectItem>
               </SelectContent>
             </Select>
 
@@ -342,7 +344,7 @@ const handleFileUpload = (event: Event) => {
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Rentang Tanggal</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Alasan</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Status</TableHead>
-                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300 pr-4">Aksi</TableHead>
+                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300 pr-4">Aksi / Bukti</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

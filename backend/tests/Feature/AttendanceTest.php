@@ -50,7 +50,7 @@ class AttendanceTest extends TestCase
         
         $this->assertDatabaseHas('attendances', [
             'user_id' => $this->user->id,
-            'status' => 'present',
+            'status' => 'online',
         ]);
 
         Carbon::setTestNow(); // Reset Mock
@@ -58,7 +58,7 @@ class AttendanceTest extends TestCase
 
     public function test_user_is_marked_late_if_check_in_after_time_in()
     {
-        Carbon::setTestNow(Carbon::createFromTime(9, 30, 0)); // After default time in (09:00:00)
+        Carbon::setTestNow(Carbon::createFromTime(9, 30, 0)); // After grace period (09:15:00)
 
         $response = $this->actingAs($this->user)->postJson('/api/attendance/check-in', [
             'lat' => $this->officeLat,
@@ -70,7 +70,7 @@ class AttendanceTest extends TestCase
         
         $this->assertDatabaseHas('attendances', [
             'user_id' => $this->user->id,
-            'status' => 'late',
+            'status' => 'terlambat',
         ]);
 
         Carbon::setTestNow(); // Reset Mock

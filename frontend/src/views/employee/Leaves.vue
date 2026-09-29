@@ -215,7 +215,8 @@ const getTypeLabel = (type: string) => {
   const map: Record<string, string> = {
     annual: "Cuti Tahunan",
     sick: "Cuti Sakit",
-    permission: "Izin"
+    permission: "Izin",
+    maternity: "Cuti Melahirkan"
   };
   return map[type] || type;
 };
@@ -269,9 +270,10 @@ const handleFileUpload = (event: Event) => {
               </SelectTrigger>
               <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                 <SelectItem value="all">Semua Tipe</SelectItem>
-                <SelectItem value="annual">Annual</SelectItem>
-                <SelectItem value="sick">Sick</SelectItem>
+                <SelectItem value="annual">Cuti Tahunan</SelectItem>
+                <SelectItem value="sick">Cuti Sakit</SelectItem>
                 <SelectItem value="permission">Izin</SelectItem>
+                <SelectItem value="maternity">Cuti Melahirkan</SelectItem>
               </SelectContent>
             </Select>
 
@@ -402,6 +404,7 @@ const handleFileUpload = (event: Event) => {
                 <SelectItem value="annual">Cuti Tahunan</SelectItem>
                 <SelectItem value="sick">Cuti Sakit</SelectItem>
                 <SelectItem value="permission">Izin</SelectItem>
+                <SelectItem value="maternity">Cuti Melahirkan</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -424,6 +427,19 @@ const handleFileUpload = (event: Event) => {
 
           <div class="space-y-2">
             <Label>Lampiran Pendukung (Opsional)</Label>
+            
+            <div v-if="formData.type === 'maternity'" class="mb-2">
+              <Select>
+                <SelectTrigger class="bg-gray-50 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 mb-2">
+                  <SelectValue placeholder="Pilih Jenis Dokumen..." />
+                </SelectTrigger>
+                <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                  <SelectItem value="dokter">Surat Keterangan Dokter/Bidan</SelectItem>
+                  <SelectItem value="rs">Surat Keterangan Rumah Sakit</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <Input type="file" @change="handleFileUpload" class="bg-gray-50 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 cursor-pointer" />
             <p class="text-xs text-gray-500">Format: JPG, PNG, atau PDF (Maks. 2MB)</p>
           </div>

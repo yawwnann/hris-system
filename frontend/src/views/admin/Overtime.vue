@@ -83,7 +83,7 @@ const formData = ref({
   date: "",
   start_time: "",
   end_time: "",
-  reason: "",
+  proof: "",
 });
 
 const approvalData = ref({
@@ -145,13 +145,13 @@ const openAddDialog = () => {
     date: "",
     start_time: "",
     end_time: "",
-    reason: "",
+    proof: "",
   };
   isAddDialogOpen.value = true;
 };
 
 const submitOvertimeRequest = async () => {
-  if (!formData.value.date || !formData.value.start_time || !formData.value.end_time || !formData.value.reason) {
+  if (!formData.value.date || !formData.value.start_time || !formData.value.end_time || !formData.value.proof) {
     toast.error("Please fill in all required fields");
     return;
   }
@@ -234,7 +234,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
               <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
               <Input 
                 v-model="searchQuery"
-                :placeholder="authStore.user?.role === 'admin' ? 'Search name or reason...' : 'Search reason...'"
+                :placeholder="authStore.user?.role === 'admin' ? 'Search name...' : 'Search...'"
                 class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100"
               />
             </div>
@@ -255,9 +255,8 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Tanggal</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Waktu</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Durasi</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Alasan</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Status</TableHead>
-                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300 pr-4">Aksi</TableHead>
+                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300 pr-4">Aksi / Bukti</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -299,12 +298,6 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                   <TableCell class="py-4 text-center">
                     <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400">
                       {{ ot.total_duration }} Jam
-                    </div>
-                  </TableCell>
-                  
-                  <TableCell class="py-4">
-                    <div class="text-gray-700 dark:text-zinc-300 truncate max-w-[200px]" :title="ot.reason">
-                      {{ ot.reason }}
                     </div>
                   </TableCell>
                   
@@ -456,14 +449,18 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
           </div>
           
           <div class="space-y-2">
-            <Label for="reason" class="text-gray-700 dark:text-gray-300">Task/Reason</Label>
-            <Input 
-              id="reason" 
-              v-model="formData.reason" 
-              placeholder="Explain the tasks performed..." 
-              class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
-              required
-            />
+            <Label for="proof" class="text-gray-700 dark:text-gray-300">Bukti Lembur</Label>
+            <Select v-model="formData.proof">
+              <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100">
+                <SelectValue placeholder="Pilih Bukti Lembur" />
+              </SelectTrigger>
+              <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                <SelectItem value="Hasil Pekerjaan">Hasil Pekerjaan</SelectItem>
+                <SelectItem value="Laporan Tugas">Laporan Tugas</SelectItem>
+                <SelectItem value="Persetujuan Klien">Persetujuan Klien</SelectItem>
+                <SelectItem value="Lainnya">Lainnya</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
           <DialogFooter class="pt-4">
@@ -519,9 +516,9 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
           <div class="border-t border-gray-100 dark:border-zinc-800 my-4"></div>
           
           <div>
-            <Label class="text-xs text-gray-500">Reason / Task</Label>
+            <Label class="text-xs text-gray-500">Bukti Lembur</Label>
             <div class="text-sm mt-1.5 bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-              {{ selectedOt.reason }}
+              {{ selectedOt.proof || '-' }}
             </div>
           </div>
           

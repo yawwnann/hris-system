@@ -51,14 +51,30 @@ class LeaveRequestController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'type' => 'required|string|in:annual,sick,permission',
+            'type' => 'required|string|in:annual,sick,permission,maternity',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'reason' => 'required|string',
+            'attachment' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048',
         ]);
 
+        if ($request->hasFile('attachment')) {
+            $path = $request->file('attachment')->store('leave_attachments', 'public');
+            $validated['attachment'] = $path;
+        }
+
         if ($validated['type'] === 'annual') {
-            $days = \Carbon\Carbon::parse($validated['start_date'])->diffInDays(\Carbon\Carbon::parse($validated['end_date'])) + 1;
+            $start = \Carbon\Carbon::parse($validated['start_date']);
+            $end = \Carbon\Carbon::parse($validated['end_date']);
+            
+            $days = 0;
+            while ($start->lte($end)) {
+                if (!$start->isWeekend()) {
+                    $days++;
+                }
+                $start->addDay();
+            }
+
             if (Auth::user()->leave_quota < $days) {
                 return response()->json(['message' => 'Your remaining leave quota is insufficient (Remaining: ' . Auth::user()->leave_quota . ' days)'], 400);
             }
@@ -84,7 +100,15 @@ class LeaveRequestController extends Controller
         ]);
 
         if ($leaveRequest->type === 'annual') {
-            $days = \Carbon\Carbon::parse($leaveRequest->start_date)->diffInDays(\Carbon\Carbon::parse($leaveRequest->end_date)) + 1;
+            $start = \Carbon\Carbon::parse($leaveRequest->start_date);
+            $end = \Carbon\Carbon::parse($leaveRequest->end_date);
+            $days = 0;
+            while ($start->lte($end)) {
+                if (!$start->isWeekend()) {
+                    $days++;
+                }
+                $start->addDay();
+            }
             
             if ($validated['status'] === 'approved' && $leaveRequest->status !== 'approved') {
                 if ($leaveRequest->user->leave_quota < $days) {

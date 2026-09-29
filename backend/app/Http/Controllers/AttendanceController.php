@@ -29,6 +29,18 @@ class AttendanceController extends Controller
             });
         }
 
+        if ($request->has('month')) {
+            $query->whereMonth('date', $request->input('month'));
+        }
+
+        if ($request->has('year')) {
+            $query->whereYear('date', $request->input('year'));
+        }
+
+        if ($request->has('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
         $sortBy = $request->input('sort_by', 'date');
         $sortDir = $request->input('sort_dir', 'desc');
         $query->orderBy($sortBy, $sortDir);
@@ -85,14 +97,13 @@ class AttendanceController extends Controller
             ], 400);
         }
 
-        // Determine Status (Present or Late)
+        // Determine Status (Online or Terlambat)
         $timeIn = Carbon::now()->toTimeString();
-        $status = 'present';
         
-        $expectedTimeIn = $user->shift ? $user->shift->time_in : $setting->default_time_in;
-        if ($expectedTimeIn && $timeIn > $expectedTimeIn) {
-            $status = 'late';
-        }
+        // Jam masuk: 09:00, batas terlambat: 09:15
+        $limitTime = '09:15:00';
+        
+        $status = ($timeIn > $limitTime) ? 'terlambat' : 'online';
 
         $attendance = Attendance::create([
             'user_id' => $user->id,
@@ -135,10 +146,19 @@ class AttendanceController extends Controller
         $timeOutCarbon = Carbon::parse($timeOut);
         $totalHours = $timeInCarbon->diffInMinutes($timeOutCarbon) / 60;
 
+        // Determine Overtime (Jam pulang 17:00)
+        $status = $attendance->status;
+        if ($timeOut > '17:00:00' && $status !== 'terlambat') {
+            // Keep 'terlambat' if they were late, otherwise mark 'overtime'
+            // Or if the requirement says status overtime overrides it:
+            $status = 'overtime';
+        }
+
         $attendance->update([
             'time_out' => $timeOut,
             'lat_out' => $request->lat,
             'long_out' => $request->long,
+            'status' => $status,
             'total_hours' => round($totalHours, 2),
         ]);
 

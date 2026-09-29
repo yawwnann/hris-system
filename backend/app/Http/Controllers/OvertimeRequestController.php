@@ -47,7 +47,8 @@ class OvertimeRequestController extends Controller
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'reason' => 'required|string',
+            'reason' => 'nullable|string',
+            'proof' => 'nullable|string',
         ]);
 
         $start = \Carbon\Carbon::parse($validated['start_time']);
@@ -75,6 +76,24 @@ class OvertimeRequestController extends Controller
         ]);
 
         $overtimeRequest->update($validated);
+
+        return response()->json($overtimeRequest);
+    }
+
+    public function updateOutput(Request $request, OvertimeRequest $overtimeRequest)
+    {
+        if (Auth::id() !== $overtimeRequest->user_id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'output' => 'required|string',
+        ]);
+
+        $overtimeRequest->update([
+            'output' => $validated['output'],
+            'status_pengerjaan' => 'done'
+        ]);
 
         return response()->json($overtimeRequest);
     }

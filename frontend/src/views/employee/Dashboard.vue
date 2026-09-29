@@ -122,14 +122,6 @@ onMounted(() => {
               <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Halo, {{ authStore.user?.name }}</h2>
               <p class="text-gray-500 dark:text-gray-400 mt-1.5">{{ currentDateDisplay }} | {{ authStore.user?.position?.name || 'Karyawan' }}</p>
             </div>
-            <div class="flex items-center space-x-3 mt-5 md:mt-0">
-              <router-link to="/employee/attendance">
-                <Button class="bg-black hover:bg-gray-800 text-white dark:bg-white dark:text-black dark:hover:bg-gray-200 h-10 px-6 font-medium">Jam Masuk</Button>
-              </router-link>
-              <router-link to="/employee/leaves">
-                <Button variant="outline" class="border-gray-300 dark:border-zinc-700 bg-white text-gray-900 hover:bg-gray-50 dark:bg-zinc-900 dark:text-gray-100 h-10 px-6 font-medium">Ajukan Cuti</Button>
-              </router-link>
-            </div>
           </div>
 
           <!-- Stats Row -->

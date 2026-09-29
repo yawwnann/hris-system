@@ -43,6 +43,8 @@ const todayRecord = ref<any>(null);
 const loading = ref(true);
 const locationLoading = ref(false);
 const searchQuery = ref("");
+const selectedPeriod = ref("all");
+const selectedStatus = ref("all");
 
 // Pagination
 const currentPage = ref(1);
@@ -58,8 +60,23 @@ const totalItems = ref(0);
 const fetchData = async () => {
   loading.value = true;
   try {
+    const params: any = { 
+      search: searchQuery.value, 
+      page: currentPage.value, 
+      per_page: Number(itemsPerPage.value) 
+    };
+    
+    if (selectedPeriod.value !== 'all') {
+      params.month = selectedPeriod.value;
+      params.year = moment().year(); // assume current year for simplicity
+    }
+    
+    if (selectedStatus.value !== 'all') {
+      params.status = selectedStatus.value;
+    }
+    
     const [historyRes, todayRes] = await Promise.all([
-      api.get("/attendance", { params: { search: searchQuery.value, page: currentPage.value, per_page: Number(itemsPerPage.value) } }),
+      api.get("/attendance", { params }),
       api.get("/attendance/today")
     ]);
     history.value = historyRes.data.data;
@@ -82,7 +99,7 @@ onMounted(() => {
 const filteredHistory = computed(() => history.value);
 const paginatedHistory = computed(() => history.value);
 
-watch(searchQuery, () => {
+watch([searchQuery, selectedPeriod, selectedStatus], () => {
   currentPage.value = 1;
   fetchData();
 });
@@ -223,17 +240,55 @@ const handleClockAction = (type: 'in' | 'out') => {
         <!-- History Table -->
         <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden">
           <div class="p-4 border-b border-gray-200 dark:border-zinc-800 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50/50 dark:bg-zinc-950/30">
-            <h3 class="font-semibold text-gray-800 dark:text-zinc-200 flex items-center">
-              <Calendar class="w-4 h-4 mr-2" /> Absensi History
+            <h3 class="font-semibold text-gray-800 dark:text-zinc-200 flex items-center whitespace-nowrap">
+              <Calendar class="w-4 h-4 mr-2" /> Riwayat Absensi
             </h3>
             
-            <div class="relative w-full md:w-72">
-              <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
-              <Input 
-                v-model="searchQuery"
-                :placeholder="authStore.user?.role === 'admin' ? 'Search name or date...' : 'Search date...'" 
-                class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 h-9"
-              />
+            <div class="flex flex-col md:flex-row w-full gap-3 justify-end">
+              <!-- Period Dropdown -->
+              <Select v-model="selectedPeriod" v-if="authStore.user?.role === 'admin'">
+                <SelectTrigger class="w-full md:w-40 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 h-9">
+                  <SelectValue placeholder="Pilih Periode" />
+                </SelectTrigger>
+                <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                  <SelectItem value="all">Semua Periode</SelectItem>
+                  <SelectItem value="01">Januari</SelectItem>
+                  <SelectItem value="02">Februari</SelectItem>
+                  <SelectItem value="03">Maret</SelectItem>
+                  <SelectItem value="04">April</SelectItem>
+                  <SelectItem value="05">Mei</SelectItem>
+                  <SelectItem value="06">Juni</SelectItem>
+                  <SelectItem value="07">Juli</SelectItem>
+                  <SelectItem value="08">Agustus</SelectItem>
+                  <SelectItem value="09">September</SelectItem>
+                  <SelectItem value="10">Oktober</SelectItem>
+                  <SelectItem value="11">November</SelectItem>
+                  <SelectItem value="12">Desember</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <!-- Status Dropdown -->
+              <Select v-model="selectedStatus" v-if="authStore.user?.role === 'admin'">
+                <SelectTrigger class="w-full md:w-36 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 h-9">
+                  <SelectValue placeholder="Pilih Status" />
+                </SelectTrigger>
+                <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                  <SelectItem value="all">Semua Status</SelectItem>
+                  <SelectItem value="online">Online</SelectItem>
+                  <SelectItem value="terlambat">Terlambat</SelectItem>
+                  <SelectItem value="overtime">Overtime</SelectItem>
+                  <SelectItem value="absent">Absen</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div class="relative w-full md:w-72">
+                <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
+                <Input 
+                  v-model="searchQuery"
+                  :placeholder="authStore.user?.role === 'admin' ? 'Search name or date...' : 'Search date...'" 
+                  class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 h-9"
+                />
+              </div>
             </div>
           </div>
           

@@ -5,7 +5,8 @@ import {
   Search,
   Trash2,
   Eye,
-  Clock
+  Clock,
+  CheckSquare
 } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,6 +74,34 @@ const formData = ref({
   end_time: "",
   reason: "",
 });
+
+const isOutputDialogOpen = ref(false);
+const outputFormData = ref({ output: "" });
+const selectedOtForOutput = ref<any>(null);
+
+const openOutputDialog = (ot: any) => {
+  selectedOtForOutput.value = ot;
+  outputFormData.value.output = ot.output || "";
+  isOutputDialogOpen.value = true;
+};
+
+const submitOutput = async () => {
+  if (!outputFormData.value.output) {
+    toast.error("Output tidak boleh kosong");
+    return;
+  }
+  isSubmitting.value = true;
+  try {
+    await api.put(`/overtime-requests/${selectedOtForOutput.value.id}/output`, { output: outputFormData.value.output });
+    toast.success("Output lembur berhasil disimpan");
+    isOutputDialogOpen.value = false;
+    fetchOvertimes();
+  } catch (error: any) {
+    toast.error(error.response?.data?.message || "Gagal menyimpan output");
+  } finally {
+    isSubmitting.value = false;
+  }
+};
 
 const fetchOvertimes = async () => {
   loading.value = true;
@@ -211,7 +240,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Tanggal</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Waktu</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Durasi</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Alasan</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Kegiatan Pengerjaan</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Status</TableHead>
                   <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300 pr-4">Aksi</TableHead>
                 </TableRow>
@@ -279,6 +308,16 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                         <Eye class="w-4 h-4" />
                       </Button>
                       <Button 
+                        v-if="ot.status === 'approved' && ot.status_pengerjaan !== 'done'"
+                        @click="openOutputDialog(ot)" 
+                        size="icon" 
+                        variant="ghost" 
+                        class="h-8 w-8 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        title="Input Output Lembur"
+                      >
+                        <CheckSquare class="w-4 h-4" />
+                      </Button>
+                      <Button 
                         v-if="ot.status === 'pending'"
                         @click="confirmDelete(ot.id)" 
                         size="icon" 
@@ -326,8 +365,8 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
           </div>
 
           <div class="space-y-2">
-            <Label>Alasan / Pekerjaan</Label>
-            <Textarea v-model="formData.reason" placeholder="Tuliskan tugas atau alasan lembur..." class="bg-gray-50 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 resize-none h-24" required />
+            <Label>Kegiatan Pengerjaan</Label>
+            <Textarea v-model="formData.reason" placeholder="Tuliskan kegiatan pengerjaan lembur..." class="bg-gray-50 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 resize-none h-24" required />
           </div>
 
           <DialogFooter class="pt-4">
@@ -360,13 +399,43 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
             <span class="font-medium uppercase text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-zinc-800">{{ selectedOt.status }}</span>
           </div>
           <div>
-            <span class="text-gray-500 block mb-1">Alasan:</span>
+            <span class="text-gray-500 block mb-1">Kegiatan Pengerjaan:</span>
             <p class="bg-gray-50 dark:bg-zinc-800/50 p-3 rounded-lg text-gray-700 dark:text-zinc-300">{{ selectedOt.reason }}</p>
+          </div>
+          <div v-if="selectedOt.output">
+            <span class="text-gray-500 block mb-1">Output / Hasil:</span>
+            <p class="bg-gray-50 dark:bg-zinc-800/50 p-3 rounded-lg text-gray-700 dark:text-zinc-300">{{ selectedOt.output }}</p>
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" @click="isDetailDialogOpen = false">Tutup</Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    <!-- Dialog Input Output -->
+    <Dialog v-model:open="isOutputDialogOpen">
+      <DialogContent class="sm:max-w-[500px] bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
+        <DialogHeader>
+          <DialogTitle>Input Output Lembur</DialogTitle>
+          <DialogDescription class="text-gray-500 dark:text-zinc-400">
+            Tuliskan hasil yang Anda kerjakan pada lembur ini.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <form @submit.prevent="submitOutput" class="space-y-4 py-4">
+          <div class="space-y-2">
+            <Label>Output Pengerjaan</Label>
+            <Textarea v-model="outputFormData.output" placeholder="Tuliskan hasil pekerjaan yang diselesaikan..." class="bg-gray-50 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 resize-none h-24" required />
+          </div>
+
+          <DialogFooter class="pt-4">
+            <Button type="button" variant="outline" @click="isOutputDialogOpen = false">Batal</Button>
+            <Button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white" :disabled="isSubmitting">
+              {{ isSubmitting ? 'Menyimpan...' : 'Simpan Output' }}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
 

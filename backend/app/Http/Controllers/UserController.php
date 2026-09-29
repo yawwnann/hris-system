@@ -59,6 +59,7 @@ class UserController extends Controller
             'position_id' => 'nullable|exists:positions,id',
             'shift_id' => 'nullable|exists:shifts,id',
             'status' => 'required|in:active,inactive',
+            'employment_status' => 'nullable|in:Karyawan Tetap,Kontrak,Bantu',
             'join_date' => 'nullable|date',
             'role' => 'required|in:admin,employee',
         ]);
@@ -83,8 +84,9 @@ class UserController extends Controller
         $attendanceQuery = $user->attendances()->whereMonth('date', $month)->whereYear('date', $year);
 
         $stats = [
-            'present' => (clone $attendanceQuery)->where('status', 'present')->count(),
-            'late' => (clone $attendanceQuery)->where('status', 'late')->count(),
+            'online' => (clone $attendanceQuery)->where('status', 'online')->count(),
+            'terlambat' => (clone $attendanceQuery)->where('status', 'terlambat')->count(),
+            'overtime' => (clone $attendanceQuery)->where('status', 'overtime')->count(),
             'absent' => (clone $attendanceQuery)->where('status', 'absent')->count(),
             'leave' => (clone $attendanceQuery)->where('status', 'leave')->count(),
             'sick' => (clone $attendanceQuery)->where('status', 'sick')->count(),
@@ -122,6 +124,7 @@ class UserController extends Controller
             'position_id' => 'nullable|exists:positions,id',
             'shift_id' => 'nullable|exists:shifts,id',
             'status' => 'sometimes|required|in:active,inactive',
+            'employment_status' => 'nullable|in:Karyawan Tetap,Kontrak,Bantu',
             'join_date' => 'nullable|date',
             'role' => 'sometimes|required|in:admin,employee',
         ]);

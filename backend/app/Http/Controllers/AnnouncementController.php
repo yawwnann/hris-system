@@ -13,10 +13,15 @@ class AnnouncementController extends Controller
         $query = Announcement::query();
 
         if (Auth::user()->role !== 'admin') {
+            $user = Auth::user();
             $query->where('status', 'published')
                   ->where(function ($q) {
                       $q->whereNull('publish_date')
                         ->orWhere('publish_date', '<=', now());
+                  })
+                  ->where(function($q) use ($user) {
+                      $q->whereNull('division_id')
+                        ->orWhere('division_id', $user->division_id);
                   });
         }
 
@@ -52,6 +57,8 @@ class AnnouncementController extends Controller
             'content' => 'required|string',
             'status' => 'required|in:draft,published',
             'publish_date' => 'nullable|date',
+            'category' => 'nullable|string|max:255',
+            'division_id' => 'nullable|exists:divisions,id',
         ]);
 
         $announcement = Announcement::create($validated);
@@ -80,6 +87,8 @@ class AnnouncementController extends Controller
             'content' => 'required|string',
             'status' => 'required|in:draft,published',
             'publish_date' => 'nullable|date',
+            'category' => 'nullable|string|max:255',
+            'division_id' => 'nullable|exists:divisions,id',
         ]);
 
         $announcement->update($validated);

@@ -59,6 +59,16 @@ const authStore = useAuthStore();
 const announcements = ref<any[]>([]);
 const loading = ref(true);
 const searchQuery = ref("");
+const divisions = ref<any[]>([]);
+
+const fetchDivisions = async () => {
+  try {
+    const { data } = await api.get("/divisions", { params: { paginate: false } });
+    divisions.value = data;
+  } catch (error) {
+    console.error("Failed to fetch divisions", error);
+  }
+};
 
 // Pagination
 const currentPage = ref(1);
@@ -78,6 +88,8 @@ const formData = ref({
   content: "",
   status: "published",
   publish_date: "",
+  category: "Umum",
+  division_id: "" as string | null,
 });
 
 const fetchAnnouncements = async () => {
@@ -99,6 +111,9 @@ const fetchAnnouncements = async () => {
 
 onMounted(() => {
   fetchAnnouncements();
+  if (authStore.user?.role === 'admin') {
+    fetchDivisions();
+  }
 });
 
 watch(searchQuery, () => {
@@ -117,6 +132,8 @@ const openAddDialog = () => {
     content: "",
     status: "published",
     publish_date: moment().format("YYYY-MM-DDTHH:mm"),
+    category: "Umum",
+    division_id: null,
   };
   isAddDialogOpen.value = true;
 };
@@ -128,6 +145,8 @@ const openEditDialog = (announcement: any) => {
     content: announcement.content,
     status: announcement.status,
     publish_date: announcement.publish_date ? moment(announcement.publish_date).format("YYYY-MM-DDTHH:mm") : "",
+    category: announcement.category || "Umum",
+    division_id: announcement.division_id ? String(announcement.division_id) : null,
   };
   isAddDialogOpen.value = true;
 };
@@ -143,6 +162,7 @@ const submitAnnouncement = async () => {
     const payload = {
       ...formData.value,
       publish_date: formData.value.publish_date ? moment(formData.value.publish_date).format("YYYY-MM-DD HH:mm:ss") : null,
+      division_id: formData.value.division_id === "" ? null : formData.value.division_id,
     };
     if (editId.value) {
       await api.put(`/announcements/${editId.value}`, payload);
@@ -250,6 +270,15 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
                 </div>
               </div>
               
+              <div class="flex gap-2 mb-3">
+                <Badge variant="outline" class="text-xs bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800">
+                  {{ item.category || 'Umum' }}
+                </Badge>
+                <Badge v-if="item.division" variant="outline" class="text-xs bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800">
+                  {{ item.division.name }}
+                </Badge>
+              </div>
+
               <h3 class="text-lg font-semibold text-gray-900 dark:text-zinc-100 mb-2 leading-tight">
                 {{ item.title }}
               </h3>
@@ -329,6 +358,39 @@ const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYY
               class="min-h-[150px] bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
               required
             />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <Label class="text-gray-700 dark:text-gray-300">Kategori</Label>
+              <Select v-model="formData.category">
+                <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
+                  <SelectValue placeholder="Pilih Kategori" />
+                </SelectTrigger>
+                <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                  <SelectGroup>
+                    <SelectItem value="Umum">Umum</SelectItem>
+                    <SelectItem value="Rapat">Rapat</SelectItem>
+                    <SelectItem value="Permintaan Divisi">Permintaan Divisi</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div class="space-y-2">
+              <Label class="text-gray-700 dark:text-gray-300">Target Divisi (Opsional)</Label>
+              <Select v-model="formData.division_id">
+                <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
+                  <SelectValue placeholder="Semua Divisi (Global)" />
+                </SelectTrigger>
+                <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                  <SelectGroup>
+                    <SelectItem value="">Semua Divisi (Global)</SelectItem>
+                    <SelectItem v-for="div in divisions" :key="div.id" :value="String(div.id)">{{ div.name }}</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div class="grid grid-cols-2 gap-4">

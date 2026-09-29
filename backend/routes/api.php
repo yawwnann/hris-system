@@ -12,6 +12,7 @@ use App\Http\Controllers\RosterController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\CalendarEventController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\EmployeeDocumentController;
 
 use App\Http\Controllers\ForgotPasswordController;
 
@@ -54,10 +55,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('overtime-requests', [App\Http\Controllers\OvertimeRequestController::class, 'index']);
     Route::post('overtime-requests', [App\Http\Controllers\OvertimeRequestController::class, 'store']);
     Route::put('overtime-requests/{overtimeRequest}/status', [App\Http\Controllers\OvertimeRequestController::class, 'updateStatus']);
+    Route::put('overtime-requests/{overtimeRequest}/output', [App\Http\Controllers\OvertimeRequestController::class, 'updateOutput']);
     Route::delete('overtime-requests/{overtimeRequest}', [App\Http\Controllers\OvertimeRequestController::class, 'destroy']);
 
     // Announcements
     Route::apiResource('announcements', AnnouncementController::class);
+
+    // Employee Documents
+    Route::get('/users/{id}/documents', [EmployeeDocumentController::class, 'index']);
+    Route::post('/users/{id}/documents', [EmployeeDocumentController::class, 'store']);
+    Route::delete('/employee-documents/{id}', [EmployeeDocumentController::class, 'destroy']);
 
     // Calendar Events
     Route::apiResource('calendar-events', CalendarEventController::class);

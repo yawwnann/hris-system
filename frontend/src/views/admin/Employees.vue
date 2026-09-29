@@ -8,7 +8,8 @@ import {
   Edit, 
   Trash2,
   Download,
-  Eye
+  Eye,
+  Phone
 } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import {
@@ -53,9 +54,26 @@ import api from "@/lib/axios";
 import { toast } from "vue-sonner";
 import { useRouter } from "vue-router";
 
+import moment from "moment";
+
 // Data
 const router = useRouter();
 const employees = ref<any[]>([]);
+
+const calculateTenure = (joinDate: string | null) => {
+  if (!joinDate) return '-';
+  const start = moment(joinDate);
+  const now = moment();
+  const years = now.diff(start, 'years');
+  start.add(years, 'years');
+  const months = now.diff(start, 'months');
+  
+  if (years === 0 && months === 0) return '< 1 bulan';
+  let result = [];
+  if (years > 0) result.push(`${years} tahun`);
+  if (months > 0) result.push(`${months} bulan`);
+  return result.join(' ');
+};
 const loading = ref(true);
 const searchQuery = ref("");
 
@@ -178,9 +196,6 @@ const prevPage = () => {
                 class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100"
               />
             </div>
-            <Button variant="outline" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-              <Download class="w-4 h-4 mr-2" /> Export
-            </Button>
             <Button @click="openAddForm" class="bg-orange-600 hover:bg-orange-700 text-white dark:text-white">
               <Plus class="w-4 h-4 mr-2" /> Add Employee
             </Button>
@@ -195,9 +210,10 @@ const prevPage = () => {
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
                   <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
                   <TableHead class="w-[250px] font-semibold text-gray-600 dark:text-zinc-300">Employee</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Position & Division</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Position & Bidang</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Contact</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Status</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Status Kepegawaian</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Lama Bekerja</TableHead>
                   <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
@@ -245,17 +261,25 @@ const prevPage = () => {
                   <!-- Kontak -->
                   <TableCell class="py-4">
                     <div class="text-gray-700 dark:text-zinc-300 truncate max-w-[180px]">{{ employee.email }}</div>
-                    <div class="text-xs text-gray-500 dark:text-zinc-400">{{ employee.phone || '-' }}</div>
+                    <div class="text-xs text-gray-500 dark:text-zinc-400 mt-1">
+                      <a v-if="employee.phone" :href="`https://wa.me/${employee.phone.replace(/[^0-9]/g, '')}`" target="_blank" class="flex items-center hover:text-green-600">
+                        <Phone class="w-3 h-3 mr-1" /> {{ employee.phone }}
+                      </a>
+                      <span v-else>-</span>
+                    </div>
                   </TableCell>
                   
-                  <!-- Status -->
+                  <!-- Status Kepegawaian -->
                   <TableCell class="py-4">
-                    <Badge v-if="employee.status === 'active'" variant="outline" class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/30">
-                      Active
+                    <Badge v-if="employee.employment_status" variant="outline" class="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800/30">
+                      {{ employee.employment_status }}
                     </Badge>
-                    <Badge v-else variant="outline" class="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/30">
-                      Inactive
-                    </Badge>
+                    <span v-else class="text-gray-400 text-xs">-</span>
+                  </TableCell>
+
+                  <!-- Lama Bekerja -->
+                  <TableCell class="py-4 text-sm text-gray-700 dark:text-zinc-300">
+                    {{ calculateTenure(employee.join_date) }}
                   </TableCell>
                   
                   <!-- Aksi -->

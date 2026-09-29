@@ -35,9 +35,10 @@ const form = ref({
   phone: '',
   role: 'employee',
   status: 'active',
+  employment_status: null as null | string,
+  join_date: '',
   division_id: null as null | string,
   position_id: null as null | string,
-  shift_id: null as null | string,
 });
 
 const resetForm = () => {
@@ -50,9 +51,10 @@ const resetForm = () => {
       phone: props.employeeToEdit.phone || '',
       role: props.employeeToEdit.role || 'employee',
       status: props.employeeToEdit.status || 'active',
+      employment_status: props.employeeToEdit.employment_status || null,
+      join_date: props.employeeToEdit.join_date ? props.employeeToEdit.join_date.split('T')[0] : '',
       division_id: props.employeeToEdit.division_id ? String(props.employeeToEdit.division_id) : null,
       position_id: props.employeeToEdit.position_id ? String(props.employeeToEdit.position_id) : null,
-      shift_id: props.employeeToEdit.shift_id ? String(props.employeeToEdit.shift_id) : null,
     };
   } else {
     form.value = {
@@ -63,9 +65,10 @@ const resetForm = () => {
       phone: '',
       role: 'employee',
       status: 'active',
+      employment_status: null,
+      join_date: '',
       division_id: null,
       position_id: null,
-      shift_id: null,
     };
   }
 };
@@ -168,10 +171,10 @@ const saveEmployee = async () => {
             
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-1.5">
-                <Label class="text-gray-700 dark:text-gray-300">Divisi</Label>
+                <Label class="text-gray-700 dark:text-gray-300">Bidang (Divisi)</Label>
                 <Select v-model="form.division_id">
                   <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 focus:border-orange-500 focus:ring-orange-500/20">
-                    <SelectValue placeholder="Pilih Divisi" />
+                    <SelectValue placeholder="Pilih Bidang" />
                   </SelectTrigger>
                   <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                     <SelectItem v-for="div in divisions" :key="div.id" :value="String(div.id)" class="text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-zinc-800">{{ div.name }}</SelectItem>
@@ -192,6 +195,27 @@ const saveEmployee = async () => {
             </div>
             
             <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <Label class="text-gray-700 dark:text-gray-300">Tanggal Bergabung</Label>
+                <Input type="date" v-model="form.join_date" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 focus:border-orange-500 focus:ring-orange-500/20" />
+              </div>
+              
+              <div class="space-y-1.5">
+                <Label class="text-gray-700 dark:text-gray-300">Status Kepegawaian</Label>
+                <Select v-model="form.employment_status">
+                  <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 focus:border-orange-500 focus:ring-orange-500/20">
+                    <SelectValue placeholder="Pilih Status Kepegawaian" />
+                  </SelectTrigger>
+                  <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                    <SelectItem value="Karyawan Tetap" class="text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-zinc-800">Karyawan Tetap</SelectItem>
+                    <SelectItem value="Kontrak" class="text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-zinc-800">Kontrak</SelectItem>
+                    <SelectItem value="Bantu" class="text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-zinc-800">Bantu</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
                <div class="space-y-1.5">
                 <Label class="text-gray-700 dark:text-gray-300">Hak Akses Sistem</Label>
                 <Select v-model="form.role">
@@ -201,19 +225,6 @@ const saveEmployee = async () => {
                   <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                     <SelectItem value="employee" class="text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-zinc-800">Karyawan</SelectItem>
                     <SelectItem value="admin" class="text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-zinc-800">Super Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div class="space-y-1.5">
-                <Label class="text-gray-700 dark:text-gray-300">Status Keaktifan</Label>
-                <Select v-model="form.status">
-                  <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 focus:border-orange-500 focus:ring-orange-500/20">
-                    <SelectValue placeholder="Pilih Status" />
-                  </SelectTrigger>
-                  <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                    <SelectItem value="active" class="text-green-600 dark:text-green-400 focus:bg-green-50 dark:focus:bg-green-900/20">Aktif Bekerja</SelectItem>
-                    <SelectItem value="inactive" class="text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20">Tidak Aktif / Keluar</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

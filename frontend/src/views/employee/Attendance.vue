@@ -41,6 +41,8 @@ const todayRecord = ref<any>(null);
 const loading = ref(true);
 const locationLoading = ref(false);
 const searchQuery = ref("");
+const filterMonth = ref(moment().format('MM'));
+const filterYear = ref(moment().format('YYYY'));
 
 // Pagination
 const currentPage = ref(1);
@@ -56,7 +58,15 @@ const fetchData = async () => {
   loading.value = true;
   try {
     const [historyRes, todayRes] = await Promise.all([
-      api.get("/attendance", { params: { search: searchQuery.value, page: currentPage.value, per_page: Number(itemsPerPage.value) } }),
+      api.get("/attendance", { 
+        params: { 
+          search: searchQuery.value, 
+          page: currentPage.value, 
+          per_page: Number(itemsPerPage.value),
+          month: filterMonth.value,
+          year: filterYear.value
+        } 
+      }),
       api.get("/attendance/today")
     ]);
     history.value = historyRes.data.data;
@@ -77,7 +87,7 @@ onMounted(() => {
 
 const paginatedHistory = computed(() => history.value);
 
-watch(searchQuery, () => {
+watch([searchQuery, filterMonth, filterYear], () => {
   currentPage.value = 1;
   fetchData();
 });
@@ -212,13 +222,46 @@ const handleClockAction = (type: 'in' | 'out') => {
               <Calendar class="w-4 h-4 mr-2" /> Riwayat Absensi Saya
             </h3>
             
-            <div class="relative w-full md:w-72">
-              <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
-              <Input 
-                v-model="searchQuery"
-                placeholder="Cari tanggal..." 
-                class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 h-9"
-              />
+            <div class="flex flex-col sm:flex-row gap-3">
+              <Select v-model="filterMonth">
+                <SelectTrigger class="w-[140px] bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
+                  <SelectValue placeholder="Pilih Bulan" />
+                </SelectTrigger>
+                <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                  <SelectItem value="01">Januari</SelectItem>
+                  <SelectItem value="02">Februari</SelectItem>
+                  <SelectItem value="03">Maret</SelectItem>
+                  <SelectItem value="04">April</SelectItem>
+                  <SelectItem value="05">Mei</SelectItem>
+                  <SelectItem value="06">Juni</SelectItem>
+                  <SelectItem value="07">Juli</SelectItem>
+                  <SelectItem value="08">Agustus</SelectItem>
+                  <SelectItem value="09">September</SelectItem>
+                  <SelectItem value="10">Oktober</SelectItem>
+                  <SelectItem value="11">November</SelectItem>
+                  <SelectItem value="12">Desember</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select v-model="filterYear">
+                <SelectTrigger class="w-[100px] bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
+                  <SelectValue placeholder="Tahun" />
+                </SelectTrigger>
+                <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                  <SelectItem :value="moment().subtract(1, 'year').format('YYYY')">{{ moment().subtract(1, 'year').format('YYYY') }}</SelectItem>
+                  <SelectItem :value="moment().format('YYYY')">{{ moment().format('YYYY') }}</SelectItem>
+                  <SelectItem :value="moment().add(1, 'year').format('YYYY')">{{ moment().add(1, 'year').format('YYYY') }}</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div class="relative w-full md:w-64">
+                <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
+                <Input 
+                  v-model="searchQuery"
+                  placeholder="Cari tanggal..." 
+                  class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 h-9"
+                />
+              </div>
             </div>
           </div>
           

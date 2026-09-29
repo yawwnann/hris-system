@@ -13,11 +13,18 @@ import {
   AlertCircle,
   XCircle,
   Clock,
-  Building2
+  Building2,
+  Upload,
+  FileText,
+  Eye,
+  Trash2
 } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -41,6 +48,15 @@ const loading = ref(true);
 const employee = ref<any>(null);
 const stats = ref<any>(null);
 const recentAttendances = ref<any[]>([]);
+const documents = ref<any[]>([]);
+const storageUrl = import.meta.env.VITE_STORAGE_URL || 'http://localhost:8000/storage';
+
+const isUploadDialogOpen = ref(false);
+const uploading = ref(false);
+const docForm = ref({
+  type: '',
+  file: null as File | null
+});
 
 const monthsList = [
   "January", "February", "March", "April", "May", "June",
@@ -51,6 +67,21 @@ const yearsList = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
 const selectedMonth = ref(new Date().getMonth() + 1);
 const selectedYear = ref(currentYear);
+
+const calculateTenure = (joinDate: string | null) => {
+  if (!joinDate) return '-';
+  const start = moment(joinDate);
+  const now = moment();
+  const years = now.diff(start, 'years');
+  start.add(years, 'years');
+  const months = now.diff(start, 'months');
+  
+  if (years === 0 && months === 0) return '< 1 bulan';
+  let result = [];
+  if (years > 0) result.push(`${years} tahun`);
+  if (months > 0) result.push(`${months} bulan`);
+  return result.join(' ');
+};
 
 const fetchEmployeeDetail = async () => {
   loading.value = true;
@@ -80,19 +111,86 @@ watch([selectedMonth, selectedYear], () => {
 
 const getStatusBadgeVariant = (status: string) => {
   switch (status) {
-    case 'present': return 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/30';
-    case 'late': return 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800/30';
+    case 'online': return 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/30';
+    case 'terlambat': return 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800/30';
+    case 'overtime': return 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800/30';
     case 'absent': return 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/30';
     default: return 'bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-800/30';
   }
 };
 
 const statItems = [
-  { key: 'present', label: 'Hadir', icon: CheckCircle2, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20' },
-  { key: 'late', label: 'Terlambat', icon: Clock, color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20' },
+  { key: 'online', label: 'Hadir (Online)', icon: CheckCircle2, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20' },
+  { key: 'terlambat', label: 'Terlambat', icon: Clock, color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20' },
+  { key: 'overtime', label: 'Overtime', icon: Clock, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-900/20' },
   { key: 'absent', label: 'Absen', icon: XCircle, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20' },
   { key: 'leave', label: 'Cuti', icon: AlertCircle, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/20' },
 ];
+
+const fetchDocuments = async () => {
+  try {
+    const { data } = await api.get(`/users/${employeeId}/documents`);
+    documents.value = data;
+  } catch (error) {
+    console.error("Failed to fetch documents", error);
+  }
+};
+
+const openUploadDialog = () => {
+  docForm.value.type = '';
+  docForm.value.file = null;
+  isUploadDialogOpen.value = true;
+};
+
+const handleFileUpload = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    docForm.value.file = target.files[0];
+  }
+};
+
+const uploadDocument = async () => {
+  if (!docForm.value.file || !docForm.value.type) {
+    toast.error('Pilih file dan isi jenis dokumen');
+    return;
+  }
+  
+  uploading.value = true;
+  const formData = new FormData();
+  formData.append('type', docForm.value.type);
+  formData.append('file', docForm.value.file);
+  
+  try {
+    await api.post(`/users/${employeeId}/documents`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    toast.success('Dokumen berhasil diupload');
+    isUploadDialogOpen.value = false;
+    fetchDocuments();
+  } catch (error: any) {
+    toast.error(error.response?.data?.message || 'Gagal mengupload dokumen');
+  } finally {
+    uploading.value = false;
+  }
+};
+
+const deleteDocument = async (id: number) => {
+  if (confirm('Yakin ingin menghapus dokumen ini?')) {
+    try {
+      await api.delete(`/employee-documents/${id}`);
+      toast.success('Dokumen berhasil dihapus');
+      fetchDocuments();
+    } catch (error) {
+      toast.error('Gagal menghapus dokumen');
+    }
+  }
+};
+
+onMounted(() => {
+  fetchDocuments();
+});
 </script>
 
 <template>
@@ -140,11 +238,11 @@ const statItems = [
                 <p class="text-gray-500 dark:text-zinc-400 mb-3">{{ employee.position?.name || '-' }}</p>
                 
                 <div class="flex justify-center gap-2 flex-wrap">
-                  <Badge v-if="employee.status === 'active'" variant="outline" class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/30">
-                    Active
+                  <Badge v-if="employee.employment_status" variant="outline" class="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800/30 capitalize">
+                    {{ employee.employment_status }}
                   </Badge>
-                  <Badge v-else variant="outline" class="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/30">
-                    Inactive
+                  <Badge v-else variant="outline" class="bg-gray-50 dark:bg-gray-900/20 text-gray-700 dark:text-gray-400 border-gray-200 dark:border-gray-800/30">
+                    -
                   </Badge>
                   <Badge v-if="employee.role" variant="outline" class="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800/30 capitalize">
                     {{ employee.role }}
@@ -177,8 +275,13 @@ const statItems = [
                       <Phone class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                     </div>
                     <div class="min-w-0">
-                      <div class="text-[10px] uppercase tracking-wide text-gray-400 dark:text-zinc-500">Telepon</div>
-                      <div class="text-sm font-medium truncate">{{ employee.phone || '-' }}</div>
+                      <div class="text-[10px] uppercase tracking-wide text-gray-400 dark:text-zinc-500">No. WhatsApp</div>
+                      <div class="text-sm font-medium truncate">
+                        <a v-if="employee.phone" :href="`https://wa.me/${employee.phone.replace(/[^0-9]/g, '')}`" target="_blank" class="hover:text-green-600">
+                          {{ employee.phone }}
+                        </a>
+                        <span v-else>-</span>
+                      </div>
                     </div>
                   </div>
                   <div class="flex items-center gap-3 text-gray-600 dark:text-zinc-300">
@@ -186,7 +289,7 @@ const statItems = [
                       <Briefcase class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                     </div>
                     <div class="min-w-0">
-                      <div class="text-[10px] uppercase tracking-wide text-gray-400 dark:text-zinc-500">Divisi</div>
+                      <div class="text-[10px] uppercase tracking-wide text-gray-400 dark:text-zinc-500">Bidang (Divisi)</div>
                       <div class="text-sm font-medium truncate">{{ employee.division?.name || '-' }}</div>
                     </div>
                   </div>
@@ -195,8 +298,11 @@ const statItems = [
                       <CalendarIcon class="w-4 h-4 text-gray-400 dark:text-zinc-500" />
                     </div>
                     <div class="min-w-0">
-                      <div class="text-[10px] uppercase tracking-wide text-gray-400 dark:text-zinc-500">Bergabung</div>
-                      <div class="text-sm font-medium">{{ employee.join_date ? moment(employee.join_date).format('DD MMM YYYY') : '-' }}</div>
+                      <div class="text-[10px] uppercase tracking-wide text-gray-400 dark:text-zinc-500">Bergabung / Lama Bekerja</div>
+                      <div class="text-sm font-medium">
+                        {{ employee.join_date ? moment(employee.join_date).format('DD MMM YYYY') : '-' }} 
+                        <span class="text-gray-400 text-xs ml-1">({{ calculateTenure(employee.join_date) }})</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -286,10 +392,88 @@ const statItems = [
               </div>
             </div>
 
+            <!-- Documents Section -->
+            <div class="mt-8 border-t border-gray-100 dark:border-zinc-800 pt-8">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-zinc-100">
+                  Dokumen Karyawan
+                </h2>
+                <Button @click="openUploadDialog" variant="outline" class="bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-300">
+                  <Upload class="w-4 h-4 mr-2" /> Upload Dokumen
+                </Button>
+              </div>
+              
+              <div v-if="documents.length === 0" class="text-center py-8 text-gray-500 dark:text-zinc-400 border border-dashed rounded-lg border-gray-200 dark:border-zinc-800">
+                Belum ada dokumen yang di-upload.
+              </div>
+              <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div v-for="doc in documents" :key="doc.id" class="p-4 border border-gray-200 dark:border-zinc-800 rounded-lg flex items-center justify-between bg-gray-50 dark:bg-zinc-900/50">
+                  <div class="flex items-center min-w-0 pr-4">
+                    <FileText class="w-8 h-8 text-orange-500 mr-3 flex-shrink-0" />
+                    <div class="min-w-0">
+                      <p class="text-sm font-semibold text-gray-900 dark:text-zinc-100 truncate">{{ doc.type }}</p>
+                      <p class="text-xs text-gray-500 truncate">{{ doc.file_name }}</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <a :href="`${storageUrl}/${doc.file_path}`" target="_blank" class="p-2 text-gray-500 hover:text-orange-600 bg-white dark:bg-zinc-800 rounded-md border border-gray-200 dark:border-zinc-700 shadow-sm">
+                      <Eye class="w-4 h-4" />
+                    </a>
+                    <button @click="deleteDocument(doc.id)" class="p-2 text-gray-500 hover:text-red-600 bg-white dark:bg-zinc-800 rounded-md border border-gray-200 dark:border-zinc-700 shadow-sm">
+                      <Trash2 class="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
       </ScrollArea>
+      
+      <!-- Upload Document Dialog -->
+      <Dialog v-model:open="isUploadDialogOpen">
+        <DialogContent class="sm:max-w-[425px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
+          <DialogHeader>
+            <DialogTitle class="text-gray-900 dark:text-zinc-100">Upload Dokumen</DialogTitle>
+            <DialogDescription class="text-gray-500 dark:text-zinc-400">
+              Pilih jenis dokumen dan file untuk diupload (KTP, CV, dll).
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form @submit.prevent="uploadDocument" class="space-y-4 py-4">
+            <div class="space-y-2">
+              <Label class="text-gray-700 dark:text-gray-300">Jenis Dokumen</Label>
+              <Input 
+                v-model="docForm.type" 
+                placeholder="Contoh: KTP, CV, Ijazah" 
+                required
+                class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
+              />
+            </div>
+            
+            <div class="space-y-2">
+              <Label class="text-gray-700 dark:text-gray-300">File Dokumen</Label>
+              <Input 
+                type="file" 
+                @change="handleFileUpload" 
+                required
+                accept=".pdf,.jpg,.jpeg,.png"
+                class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
+              />
+              <p class="text-xs text-gray-500 mt-1">Format: PDF, JPG, PNG (Max 5MB)</p>
+            </div>
+            
+            <DialogFooter class="pt-4">
+              <Button type="button" variant="outline" @click="isUploadDialogOpen = false" class="bg-white dark:bg-zinc-900 text-gray-700 border-gray-200">Batal</Button>
+              <Button type="submit" :disabled="uploading" class="bg-orange-600 hover:bg-orange-700 text-white">
+                {{ uploading ? 'Uploading...' : 'Upload' }}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </main>
   </div>
 </template>

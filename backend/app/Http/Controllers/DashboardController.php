@@ -226,12 +226,25 @@ class DashboardController extends Controller
 
         // Pengumuman terbaru
         $announcements = Announcement::where('status', 'published')
+            ->where(function($q) use ($user) {
+                $q->whereNull('division_id')
+                  ->orWhere('division_id', $user->division_id);
+            })
             ->orderBy('publish_date', 'desc')
             ->limit(2)
             ->get();
 
-        // Upcoming Calendar Events
-        $upcomingEvents = CalendarEvent::whereDate('start_datetime', '>=', $today)
+        // Upcoming Calendar Events (Jadwal Hari Ini)
+        $upcomingEvents = CalendarEvent::whereDate('start_datetime', '=', $today)
+            ->where(function($q) use ($user) {
+                $q->whereHas('users', function($q2) use ($user) {
+                    $q2->where('users.id', $user->id);
+                })->orWhereHas('divisions', function($q2) use ($user) {
+                    $q2->where('divisions.id', $user->division_id);
+                })->orWhere(function($q2) {
+                    $q2->doesntHave('users')->doesntHave('divisions');
+                });
+            })
             ->with(['users:id,name', 'divisions:id,name'])
             ->orderBy('start_datetime', 'asc')
             ->limit(3)

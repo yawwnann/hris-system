@@ -8,6 +8,7 @@ import {
   Settings,
   UserCheck,
   X,
+  ListTodo
 } from "lucide-vue-next";
 import { onUnmounted, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -95,7 +96,7 @@ const getRoute = (path: string) => {
               <Users class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Karyawan
             </router-link>
             <router-link :to="getRoute('/departments')" class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-zinc-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group [&.router-link-active]:bg-emerald-800 dark:[&.router-link-active]:bg-emerald-700 [&.router-link-active]:text-white">
-              <FileText class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Departemen
+              <FileText class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Bidang
             </router-link>
           </div>
         </div>
@@ -109,9 +110,6 @@ const getRoute = (path: string) => {
             </router-link>
             <router-link :to="getRoute('/announcements')" class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-zinc-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group [&.router-link-active]:bg-emerald-800 dark:[&.router-link-active]:bg-emerald-700 [&.router-link-active]:text-white">
               <FileText class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Pengumuman
-            </router-link>
-            <router-link v-if="authStore.user?.role === 'admin'" :to="getRoute('/reports')" class="flex items-center px-3 py-2.5 text-sm text-gray-500 dark:text-zinc-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-zinc-900 rounded-lg transition-all duration-200 group [&.router-link-active]:bg-emerald-800 dark:[&.router-link-active]:bg-emerald-700 [&.router-link-active]:text-white">
-              <FileText class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform" /> Laporan & Ekspor
             </router-link>
           </div>
         </div>

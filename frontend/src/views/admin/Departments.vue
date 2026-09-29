@@ -199,9 +199,9 @@ const executeDelete = async () => {
         <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
           <div>
             <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
-              Departemen & Divisi
+              Bidang
             </h1>
-            <p class="text-gray-500 dark:text-zinc-400 mt-1">Kelola daftar divisi beserta jumlah karyawannya.</p>
+            <p class="text-gray-500 dark:text-zinc-400 mt-1">Kelola daftar bidang beserta jumlah karyawannya.</p>
           </div>
           
           <div class="flex items-center space-x-3">
@@ -331,15 +331,15 @@ const executeDelete = async () => {
     <Dialog v-model:open="isDialogOpen">
       <DialogContent class="sm:max-w-[425px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
         <DialogHeader>
-          <DialogTitle class="text-gray-900 dark:text-zinc-100">{{ editMode ? 'Edit Department' : 'Add Department' }}</DialogTitle>
+          <DialogTitle class="text-gray-900 dark:text-zinc-100">{{ editMode ? 'Ubah Bidang' : 'Tambah Bidang' }}</DialogTitle>
           <DialogDescription class="text-gray-500 dark:text-zinc-400">
-            {{ editMode ? 'Change the department name below.' : 'Enter a new department/division name.' }}
+            {{ editMode ? 'Ubah nama bidang di bawah ini.' : 'Masukkan nama bidang baru.' }}
           </DialogDescription>
         </DialogHeader>
         
         <form @submit.prevent="saveDepartment" class="space-y-4 py-4">
           <div class="space-y-2">
-            <Label for="name" class="text-gray-700 dark:text-gray-300">Nama Departemen</Label>
+            <Label for="name" class="text-gray-700 dark:text-gray-300">Nama Bidang</Label>
             <Input 
               id="name" 
               v-model="formData.name" 

@@ -83,12 +83,7 @@ const routes = [
     component: () => import("@/views/admin/Settings.vue"),
     meta: { requiresAuth: true, role: "admin" },
   },
-  {
-    path: "/reports",
-    name: "AdminReports",
-    component: () => import("@/views/admin/Reports.vue"),
-    meta: { requiresAuth: true, role: "admin" },
-  },
+
 
   // Employee Explicit Routes (alias/fallback)
   {
