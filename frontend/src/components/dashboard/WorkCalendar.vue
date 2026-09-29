@@ -26,7 +26,7 @@ onMounted(() => {
   const monday = new Date(today);
   monday.setDate(today.getDate() + diffToMonday);
 
-  const days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+  const days = ['Sn', 'Sl', 'Rb', 'Km', 'Jm', 'Sb', 'Mg'];
   const weekData = [];
 
   for (let i = 0; i < 7; i++) {

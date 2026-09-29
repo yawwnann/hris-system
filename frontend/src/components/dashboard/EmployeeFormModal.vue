@@ -136,17 +136,17 @@ const saveEmployee = async () => {
             
             <div class="space-y-1.5">
               <Label class="text-gray-700 dark:text-gray-300">Nama Lengkap</Label>
-              <Input v-model="form.name" required placeholder="John Doe" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 focus:border-orange-500 focus:ring-orange-500/20" />
+              <Input v-model="form.name" required placeholder="Masukan Nama" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 focus:border-orange-500 focus:ring-orange-500/20" />
             </div>
             
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-1.5">
                 <Label class="text-gray-700 dark:text-gray-300">Email</Label>
-                <Input v-model="form.email" type="email" required placeholder="john@example.com" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 focus:border-orange-500 focus:ring-orange-500/20" />
+                <Input v-model="form.email" type="email" required placeholder="Masukan Email" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 focus:border-orange-500 focus:ring-orange-500/20" />
               </div>
               <div class="space-y-1.5">
                 <Label class="text-gray-700 dark:text-gray-300">Nomor Induk (NIK)</Label>
-                <Input v-model="form.nik" placeholder="EMP-001" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 focus:border-orange-500 focus:ring-orange-500/20" />
+                <Input v-model="form.nik" placeholder="Masukan NIK" class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 focus:border-orange-500 focus:ring-orange-500/20" />
               </div>
             </div>
             
@@ -193,17 +193,6 @@ const saveEmployee = async () => {
             
             <div class="grid grid-cols-2 gap-4">
                <div class="space-y-1.5">
-                <Label class="text-gray-700 dark:text-gray-300">Shift Kerja</Label>
-                <Select v-model="form.shift_id">
-                  <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 focus:border-orange-500 focus:ring-orange-500/20">
-                    <SelectValue placeholder="Pilih Shift" />
-                  </SelectTrigger>
-                  <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                    <SelectItem v-for="shift in shifts" :key="shift.id" :value="String(shift.id)" class="text-gray-700 dark:text-gray-300 focus:bg-gray-100 dark:focus:bg-zinc-800">{{ shift.name }} ({{ shift.start_time }} - {{ shift.end_time }})</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-               <div class="space-y-1.5">
                 <Label class="text-gray-700 dark:text-gray-300">Hak Akses Sistem</Label>
                 <Select v-model="form.role">
                   <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 focus:border-orange-500 focus:ring-orange-500/20">
@@ -215,19 +204,19 @@ const saveEmployee = async () => {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            
-            <div class="space-y-1.5">
-              <Label class="text-gray-700 dark:text-gray-300">Status Keaktifan</Label>
-              <Select v-model="form.status">
-                <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 focus:border-orange-500 focus:ring-orange-500/20">
-                  <SelectValue placeholder="Pilih Status" />
-                </SelectTrigger>
-                <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                  <SelectItem value="active" class="text-green-600 dark:text-green-400 focus:bg-green-50 dark:focus:bg-green-900/20">Aktif Bekerja</SelectItem>
-                  <SelectItem value="inactive" class="text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20">Tidak Aktif / Keluar</SelectItem>
-                </SelectContent>
-              </Select>
+              
+              <div class="space-y-1.5">
+                <Label class="text-gray-700 dark:text-gray-300">Status Keaktifan</Label>
+                <Select v-model="form.status">
+                  <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 focus:border-orange-500 focus:ring-orange-500/20">
+                    <SelectValue placeholder="Pilih Status" />
+                  </SelectTrigger>
+                  <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                    <SelectItem value="active" class="text-green-600 dark:text-green-400 focus:bg-green-50 dark:focus:bg-green-900/20">Aktif Bekerja</SelectItem>
+                    <SelectItem value="inactive" class="text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-900/20">Tidak Aktif / Keluar</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
   

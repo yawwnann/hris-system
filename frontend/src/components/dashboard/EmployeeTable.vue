@@ -76,13 +76,13 @@ onMounted(() => {
             variant="outline"
             class="h-9 text-xs text-gray-600 dark:text-zinc-300 border-gray-200 dark:border-zinc-800"
           >
-            All Status <ChevronDown class="w-3 h-3 ml-2" />
+            Semua Status <ChevronDown class="w-3 h-3 ml-2" />
           </Button>
           <Button
             variant="outline"
             class="h-9 text-xs text-gray-600 dark:text-zinc-300 border-gray-200 dark:border-zinc-800"
           >
-            All Role <ChevronDown class="w-3 h-3 ml-2" />
+            Semua Peran <ChevronDown class="w-3 h-3 ml-2" />
           </Button>
         </div>
         <Button
@@ -98,7 +98,7 @@ onMounted(() => {
           v-if="loading"
           class="absolute inset-0 bg-white dark:bg-zinc-950/80 flex items-center justify-center z-10"
         >
-          <span class="text-sm text-gray-500 dark:text-zinc-400">Loading data...</span>
+          <span class="text-sm text-gray-500 dark:text-zinc-400">Memuat data...</span>
         </div>
         <Table>
           <TableHeader class="bg-gray-50 dark:bg-zinc-900/50">
@@ -194,10 +194,10 @@ onMounted(() => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" class="w-40 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                       <DropdownMenuItem @click="router.push(`/employees/${emp.id}`)" class="cursor-pointer text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800/50">
-                        <Eye class="mr-2 h-4 w-4" /> View Details
+                        <Eye class="mr-2 h-4 w-4" /> Lihat Detail
                       </DropdownMenuItem>
                       <DropdownMenuItem @click="router.push('/employees')" class="cursor-pointer text-orange-600 hover:text-orange-700 hover:bg-orange-50 dark:hover:bg-orange-900/20">
-                        Manage
+                        Kelola
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -206,7 +206,7 @@ onMounted(() => {
             </TableRow>
             <TableRow v-if="!loading && employees.length === 0">
               <TableCell colspan="8" class="text-center py-10 text-gray-500 dark:text-zinc-400"
-                >No employees found.</TableCell
+                >Tidak ada karyawan ditemukan.</TableCell
               >
             </TableRow>
           </TableBody>

@@ -33,7 +33,7 @@ const attendanceRate = computed(() => {
           {{ stats?.total_employees || 0 }}
         </div>
         <div class="text-xs text-gray-400 dark:text-zinc-500 font-medium mt-2">
-          Updated today
+          Diperbarui hari ini
         </div>
       </CardContent>
     </Card>
@@ -41,11 +41,11 @@ const attendanceRate = computed(() => {
       <CardContent class="p-5">
         <div class="flex items-center space-x-2 mb-4 text-gray-500 dark:text-zinc-400">
           <CheckCircle class="w-4 h-4" />
-          <span class="font-medium text-sm">Attendance Rate</span>
+          <span class="font-medium text-sm">Tingkat Kehadiran</span>
         </div>
         <div class="text-3xl font-bold mb-2">{{ attendanceRate }}%</div>
         <div class="text-xs text-gray-400 dark:text-zinc-500 font-medium mt-2">
-          Updated today
+          Diperbarui hari ini
         </div>
       </CardContent>
     </Card>
@@ -59,7 +59,7 @@ const attendanceRate = computed(() => {
           {{ stats?.pending_requests || 0 }}
         </div>
         <div class="text-xs text-gray-400 dark:text-zinc-500 font-medium mt-2">
-          Updated today
+          Diperbarui hari ini
         </div>
       </CardContent>
     </Card>
@@ -76,7 +76,7 @@ const attendanceRate = computed(() => {
           >
         </div>
         <div class="text-xs text-gray-400 dark:text-zinc-500 font-medium mt-2">
-          Updated today
+          Diperbarui hari ini
         </div>
       </CardContent>
     </Card>

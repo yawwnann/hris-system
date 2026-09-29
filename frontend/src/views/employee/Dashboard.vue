@@ -120,7 +120,7 @@ onMounted(() => {
           <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between">
             <div>
               <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Halo, {{ authStore.user?.name }}</h2>
-              <p class="text-gray-500 dark:text-gray-400 mt-1.5">{{ currentDateDisplay }} | {{ authStore.user?.position?.name || 'Employee' }}</p>
+              <p class="text-gray-500 dark:text-gray-400 mt-1.5">{{ currentDateDisplay }} | {{ authStore.user?.position?.name || 'Karyawan' }}</p>
             </div>
             <div class="flex items-center space-x-3 mt-5 md:mt-0">
               <router-link to="/employee/attendance">

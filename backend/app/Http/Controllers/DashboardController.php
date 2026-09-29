@@ -96,14 +96,14 @@ class DashboardController extends Controller
             });
         // --- QUICK APPROVALS ---
         $pendingLeaveRequests = LeaveRequest::with('user:id,name,position_id')->where('status', 'pending')->limit(5)->get()->map(function($req) {
-            $role = $req->user->position ? $req->user->position->name : 'Employee';
+            $role = $req->user->position ? $req->user->position->name : 'Karyawan';
             return [
                 'id' => 'L' . $req->id,
                 'original_id' => $req->id,
-                'type' => 'Leave',
+                'type' => 'Cuti',
                 'user' => $req->user->name,
                 'role' => $role,
-                'date' => Carbon::parse($req->start_date)->format('d M') . ' - ' . Carbon::parse($req->end_date)->format('d M'),
+                'date' => Carbon::parse($req->start_date)->locale('id')->translatedFormat('d M') . ' - ' . Carbon::parse($req->end_date)->locale('id')->translatedFormat('d M'),
                 'duration' => null,
                 'reason' => $req->reason,
                 'status' => 'pending',
@@ -112,15 +112,15 @@ class DashboardController extends Controller
         });
 
         $pendingOvertimeRequests = OvertimeRequest::with('user:id,name,position_id')->where('status', 'pending')->limit(5)->get()->map(function($req) {
-            $role = $req->user->position ? $req->user->position->name : 'Employee';
+            $role = $req->user->position ? $req->user->position->name : 'Karyawan';
             return [
                 'id' => 'O' . $req->id,
                 'original_id' => $req->id,
-                'type' => 'Overtime',
+                'type' => 'Lembur',
                 'user' => $req->user->name,
                 'role' => $role,
-                'date' => Carbon::parse($req->date)->format('d M'),
-                'duration' => $req->duration_hours . ' Hours',
+                'date' => Carbon::parse($req->date)->locale('id')->translatedFormat('d M'),
+                'duration' => $req->duration_hours . ' Jam',
                 'reason' => $req->notes,
                 'status' => 'pending',
                 'created_at' => clone $req->created_at

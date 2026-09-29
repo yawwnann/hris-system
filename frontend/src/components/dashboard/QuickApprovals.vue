@@ -29,7 +29,7 @@ const approvals = computed(() => {
     <CardHeader class="pb-3 border-b border-gray-100 dark:border-zinc-800 flex flex-row items-center justify-between">
       <div>
         <CardTitle class="text-base font-semibold text-gray-900 dark:text-zinc-100">Persetujuan Cepat</CardTitle>
-        <CardDescription class="text-xs">Menunggu requests requiring your attention</CardDescription>
+        <CardDescription class="text-xs">Permintaan menunggu yang membutuhkan perhatian Anda</CardDescription>
       </div>
       <Badge variant="secondary" class="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 hover:bg-amber-100">{{ approvals.length }} Menunggu</Badge>
     </CardHeader>
@@ -73,7 +73,7 @@ const approvals = computed(() => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" class="text-xs text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950/30 w-full transition-colors flex items-center justify-center">
-              View All Approvals <ChevronDown class="w-3 h-3 ml-1" />
+              Lihat Semua Persetujuan <ChevronDown class="w-3 h-3 ml-1" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center" class="w-56 bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800">

@@ -17,12 +17,10 @@ import AppHeader from "@/components/layout/AppHeader.vue";
 import SummaryCards from "@/components/dashboard/SummaryCards.vue";
 import EmployeeOverview from "@/components/dashboard/EmployeeOverview.vue";
 import AttendanceOverviewBar from "@/components/dashboard/AttendanceOverviewBar.vue";
-import EmployeeTable from "@/components/dashboard/EmployeeTable.vue";
 import DeptPerformance from "@/components/dashboard/DeptPerformance.vue";
 import DeviceUsage from "@/components/dashboard/DeviceUsage.vue";
 import WorkCalendar from "@/components/dashboard/WorkCalendar.vue";
 import NextAgenda from "@/components/dashboard/NextAgenda.vue";
-import AttendanceReport from "@/components/dashboard/AttendanceReport.vue";
 import QuickApprovals from "@/components/dashboard/QuickApprovals.vue";
 import EmployeeStatus from "@/components/dashboard/EmployeeStatus.vue";
 
@@ -111,27 +109,14 @@ onMounted(() => {
       <ScrollArea class="flex-1 p-8">
         <div class="flex items-center justify-between mb-8">
           <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Dasbor HR</h1>
-          <div class="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-600 dark:text-gray-300 h-9"
-            >
-              <CalendarIcon class="w-4 h-4 mr-2" /> {{ currentDateRange }}
-            </Button>
-            <Button
-              size="icon"
-              class="h-9 w-9 bg-black dark:bg-white dark:bg-zinc-950 text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200"
-            >
-              <Download class="w-4 h-4" />
-            </Button>
-          </div>
+ 
         </div>
 
         <div
           v-if="loading"
           class="flex justify-center items-center py-20 text-gray-500 dark:text-zinc-400"
         >
-          Loading dashboard...
+          Memuat dasbor...
         </div>
 
         <div v-else-if="stats">
@@ -141,10 +126,8 @@ onMounted(() => {
             <!-- LEFT CONTENT (Col Span 3) -->
             <div class="xl:col-span-3 space-y-6">
               <SummaryCards :stats="stats" />
-              <QuickApprovals :stats="stats" />
               <EmployeeOverview :stats="stats" />
               <AttendanceOverviewBar :stats="stats" />
-              <EmployeeTable />
               <DeptPerformance :stats="stats" />
             </div>
 
@@ -154,7 +137,6 @@ onMounted(() => {
               <DeviceUsage :stats="stats" />
               <WorkCalendar :stats="stats" />
               <NextAgenda :stats="stats" />
-              <AttendanceReport :stats="stats" />
             </div>
           </div>
 
@@ -165,7 +147,7 @@ onMounted(() => {
             <div class="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl shadow-sm p-6 mb-6 flex flex-col md:flex-row md:items-center justify-between">
               <div>
                 <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Halo, {{ authStore.user?.name }}</h2>
-                <p class="text-gray-500 dark:text-gray-400 mt-1.5">{{ currentDateDisplay }} | {{ authStore.user?.position?.name || 'Employee' }}</p>
+                <p class="text-gray-500 dark:text-gray-400 mt-1.5">{{ currentDateDisplay }} | {{ authStore.user?.position?.name || 'Karyawan' }}</p>
               </div>
               <div class="flex items-center space-x-3 mt-5 md:mt-0">
                 <Button class="bg-black hover:bg-gray-800 text-white dark:bg-white dark:text-black dark:hover:bg-gray-200 h-10 px-6 font-medium">Jam Masuk</Button>

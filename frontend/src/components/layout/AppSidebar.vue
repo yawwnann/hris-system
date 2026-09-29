@@ -149,7 +149,7 @@ const getRoute = (path: string) => {
         </div>
         <div class="ml-3 flex-1 overflow-hidden">
           <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{{ authStore.user?.name || 'Administrator' }}</p>
-          <p class="text-[11px] text-gray-500 dark:text-zinc-400 truncate">{{ authStore.user?.role === 'admin' ? 'Super Admin' : 'Employee' }}</p>
+          <p class="text-[11px] text-gray-500 dark:text-zinc-400 truncate">{{ authStore.user?.role === 'admin' ? 'Admin Super' : 'Karyawan' }}</p>
         </div>
       </div>
     </div>

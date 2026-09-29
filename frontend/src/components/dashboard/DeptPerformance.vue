@@ -19,7 +19,7 @@ const divisions = computed(() => {
   if (!props.stats?.division_stats) return [];
   const total = props.stats.total_employees || 1;
   return props.stats.division_stats.map((div: any, i: number) => ({
-    name: div.division?.name || "Unknown",
+    name: div.division?.name || "Tidak Diketahui",
     count: div.count,
     percent: ((div.count / total) * 100).toFixed(1),
     color: colors[i % colors.length],

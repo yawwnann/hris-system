@@ -49,7 +49,7 @@ const executeLogout = async () => {
       </Button>
       <span class="truncate text-base font-bold text-gray-900 dark:text-zinc-100 md:hidden">HRIS System</span>
       <span class="hidden truncate text-sm font-semibold text-gray-700 dark:text-zinc-200 md:inline">
-        {{ authStore.user?.role === 'admin' ? 'Admin Dashboard' : 'Employee Portal' }}
+        {{ authStore.user?.role === 'admin' ? 'Dasbor Admin' : 'Portal Karyawan' }}
       </span>
     </div>
 

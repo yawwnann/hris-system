@@ -35,7 +35,7 @@ const celebrations = computed(() => {
   <Card class="bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 shadow-sm overflow-hidden">
     <CardHeader class="pb-3 border-b border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-950/50">
       <CardTitle class="text-base font-semibold text-gray-900 dark:text-zinc-100 flex items-center">
-        <Plane class="w-4 h-4 mr-2 text-orange-500" /> Employee Status
+        <Plane class="w-4 h-4 mr-2 text-orange-500" /> Status Karyawan
       </CardTitle>
     </CardHeader>
     <CardContent class="p-4 space-y-5">
@@ -59,8 +59,8 @@ const celebrations = computed(() => {
 
       <!-- Celebrations -->
       <div class="pt-4 border-t border-gray-100 dark:border-zinc-800">
-        <h4 class="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-3">Upcoming Celebrations ({{ celebrations.length }})</h4>
-        <div v-if="celebrations.length === 0" class="text-xs text-gray-400 italic">No upcoming celebrations in the next 7 days.</div>
+        <h4 class="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-3">Perayaan Mendatang ({{ celebrations.length }})</h4>
+        <div v-if="celebrations.length === 0" class="text-xs text-gray-400 italic">Tidak ada perayaan mendatang dalam 7 hari ke depan.</div>
         <div class="space-y-3 max-h-[180px] overflow-y-auto pr-2 custom-scrollbar">
           <div v-for="person in celebrations" :key="person.id" class="flex items-center space-x-3 group">
             <div :class="`w-8 h-8 rounded-full flex items-center justify-center transition-transform group-hover:scale-110 ${person.bg} ${person.color}`">
