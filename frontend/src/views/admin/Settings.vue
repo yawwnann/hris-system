@@ -111,13 +111,13 @@ const searchLocation = async () => {
         formData.value.office_location = data[0].display_name;
       }
       updateMap();
-      toast.success("Location found and coordinates updated!");
+      toast.success("Lokasi ditemukan dan koordinat diperbarui!");
     } else {
-      toast.error("Location not found on map search.");
+      toast.error("Lokasi tidak ditemukan.");
     }
   } catch (e) {
     console.error(e);
-    toast.error("Failed to search location.");
+    toast.error("Gagal mencari lokasi.");
   }
 };
 
@@ -128,14 +128,14 @@ const getCurrentLocation = () => {
         formData.value.office_lat = position.coords.latitude.toFixed(6);
         formData.value.office_long = position.coords.longitude.toFixed(6);
         updateMap();
-        toast.success("Current GPS coordinates acquired!");
+        toast.success("Koordinat GPS saat ini berhasil diambil!");
       },
       (error) => {
-        toast.error("Unable to retrieve your location: " + error.message);
+        toast.error("Gagal mendapatkan lokasi Anda: " + error.message);
       }
     );
   } else {
-    toast.error("Geolocation is not supported by your browser");
+    toast.error("Geolokasi tidak didukung oleh browser Anda");
   }
 };
 
@@ -157,7 +157,7 @@ const fetchSettings = async () => {
     }
   } catch (error) {
     console.error("Failed to fetch settings", error);
-    toast.error("Failed to load settings");
+    toast.error("Gagal memuat pengaturan");
   } finally {
     loading.value = false;
     await nextTick();
@@ -190,10 +190,10 @@ const saveSettings = async () => {
       default_time_out: formData.value.default_time_out.length === 5 ? formData.value.default_time_out + ':00' : formData.value.default_time_out,
     };
     await api.post("/settings", payload);
-    toast.success("Settings saved successfully");
+    toast.success("Pengaturan berhasil disimpan");
   } catch (error: any) {
     console.error(error);
-    toast.error(error.response?.data?.message || "Failed to save settings");
+    toast.error(error.response?.data?.message || "Gagal menyimpan pengaturan");
   } finally {
     isSubmitting.value = false;
   }

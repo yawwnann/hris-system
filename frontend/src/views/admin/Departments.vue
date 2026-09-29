@@ -97,7 +97,7 @@ const fetchDepartments = async () => {
     totalItems.value = data.total;
   } catch (error) {
     console.error("Failed to fetch departments", error);
-    toast.error("Failed to fetch department data");
+    toast.error("Gagal memuat data bidang");
   } finally {
     loading.value = false;
   }
@@ -143,7 +143,7 @@ const openEditDialog = (dept: any) => {
 
 const saveDepartment = async () => {
   if (!formData.value.name.trim()) {
-    toast.error("Department name cannot be empty");
+    toast.error("Nama bidang tidak boleh kosong");
     return;
   }
   
@@ -151,15 +151,15 @@ const saveDepartment = async () => {
   try {
     if (editMode.value) {
       await api.put(`/divisions/${formData.value.id}`, { name: formData.value.name });
-      toast.success("Department successfully updated");
+      toast.success("Bidang berhasil diperbarui");
     } else {
       await api.post("/divisions", { name: formData.value.name });
-      toast.success("New department successfully added");
+      toast.success("Bidang baru berhasil ditambahkan");
     }
     isDialogOpen.value = false;
     fetchDepartments();
   } catch (error: any) {
-    toast.error(error.response?.data?.message || "Failed to save department");
+    toast.error(error.response?.data?.message || "Gagal menyimpan bidang");
   } finally {
     isSubmitting.value = false;
   }
@@ -175,10 +175,10 @@ const executeDelete = async () => {
   
   try {
     await api.delete(`/divisions/${itemToDelete.value}`);
-    toast.success("Department successfully deleted");
+    toast.success("Bidang berhasil dihapus");
     fetchDepartments();
   } catch (error) {
-    toast.error("Failed to delete department");
+    toast.error("Gagal menghapus bidang");
   } finally {
     isDeleteDialogOpen.value = false;
     itemToDelete.value = null;

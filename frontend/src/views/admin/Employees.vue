@@ -107,7 +107,7 @@ const fetchEmployees = async () => {
     totalItems.value = data.total || 0;
   } catch (error: any) {
     console.error("Failed to fetch employees", error);
-    toast.error(`Failed to fetch employees data: ${error.message || String(error)}`);
+    toast.error(`Gagal memuat data karyawan: ${error.message || String(error)}`);
   } finally {
     loading.value = false;
   }
@@ -137,10 +137,10 @@ const executeDelete = async () => {
   
   try {
     await api.delete(`/users/${itemToDelete.value}`);
-    toast.success("Employee successfully deleted");
+    toast.success("Karyawan berhasil dihapus");
     fetchEmployees();
   } catch (error) {
-    toast.error("Failed to delete employee");
+    toast.error("Gagal menghapus karyawan");
   } finally {
     isDeleteDialogOpen.value = false;
     itemToDelete.value = null;

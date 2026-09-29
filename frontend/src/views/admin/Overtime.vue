@@ -103,7 +103,7 @@ const fetchOvertimes = async () => {
     totalItems.value = data.total;
   } catch (error) {
     console.error("Failed to fetch overtime requests", error);
-    toast.error("Failed to fetch overtime requests");
+    toast.error("Gagal memuat data lembur");
   } finally {
     loading.value = false;
   }
@@ -152,18 +152,18 @@ const openAddDialog = () => {
 
 const submitOvertimeRequest = async () => {
   if (!formData.value.date || !formData.value.start_time || !formData.value.end_time || !formData.value.proof) {
-    toast.error("Please fill in all required fields");
+    toast.error("Harap isi semua kolom wajib");
     return;
   }
 
   isSubmitting.value = true;
   try {
     await api.post("/overtime-requests", formData.value);
-    toast.success("Overtime request submitted successfully");
+    toast.success("Pengajuan lembur berhasil dikirim");
     isAddDialogOpen.value = false;
     fetchOvertimes();
   } catch (error: any) {
-    toast.error(error.response?.data?.message || "Failed to submit request");
+    toast.error(error.response?.data?.message || "Gagal mengirim pengajuan");
   } finally {
     isSubmitting.value = false;
   }
@@ -179,7 +179,7 @@ const directAction = async (id: number, status: 'approved' | 'rejected') => {
     toast.success(`Pengajuan berhasil ${status}`);
     fetchOvertimes();
   } catch (error: any) {
-    toast.error(error.response?.data?.message || "Failed to process approval");
+    toast.error(error.response?.data?.message || "Gagal memproses persetujuan");
   } finally {
     isSubmitting.value = false;
   }
@@ -197,7 +197,7 @@ const executeDelete = async () => {
     toast.success("Pengajuan berhasil dibatalkan");
     fetchOvertimes();
   } catch (error: any) {
-    toast.error(error.response?.data?.message || "Failed to cancel request");
+    toast.error(error.response?.data?.message || "Gagal membatalkan pengajuan");
   } finally {
     isDeleteDialogOpen.value = false;
     itemToDelete.value = null;

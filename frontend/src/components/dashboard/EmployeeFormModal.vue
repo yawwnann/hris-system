@@ -91,7 +91,7 @@ const fetchOptions = async () => {
     positions.value = posRes.data;
     shifts.value = shiftRes.data;
   } catch (error) {
-    toast.error('Failed to load division/position options');
+    toast.error('Gagal memuat opsi bidang/jabatan');
   }
 };
 
@@ -106,16 +106,16 @@ const saveEmployee = async () => {
     
     if (isEditing.value) {
       await api.put(`/users/${props.employeeToEdit.id}`, payload);
-      toast.success('Successfully updated employee data');
+      toast.success('Data karyawan berhasil diperbarui');
     } else {
       await api.post('/users', payload);
-      toast.success('Successfully added new employee');
+      toast.success('Karyawan baru berhasil ditambahkan');
     }
     
     isOpen.value = false;
     emit('saved');
   } catch (error: any) {
-    toast.error(error.response?.data?.message || 'An error occurred while saving data');
+    toast.error(error.response?.data?.message || 'Terjadi kesalahan saat menyimpan data');
   } finally {
     loading.value = false;
   }

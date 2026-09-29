@@ -110,7 +110,7 @@ const fetchLeaves = async () => {
     totalPages.value = data.last_page;
     totalItems.value = data.total;
   } catch (error) {
-    console.error("Failed to fetch leave requests", error);
+    console.error("Gagal memuat data cuti", error);
     toast.error("Gagal memuat data cuti");
   } finally {
     loading.value = false;

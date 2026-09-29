@@ -72,10 +72,10 @@ const toggleDivision = (id: any) => {
             <!-- Category -->
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <Label>Category</Label>
+                <Label>Kategori</Label>
                 <Select v-model="eventForm.category">
                   <SelectTrigger class="mt-1">
-                    <SelectValue placeholder="Select Category" />
+                    <SelectValue placeholder="Pilih Category" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem v-for="cat in categoriesList" :key="cat.value" :value="cat.value">
@@ -88,7 +88,7 @@ const toggleDivision = (id: any) => {
                 </Select>
               </div>
               <div>
-                <Label>Custom Color (Optional)</Label>
+                <Label>Warna Kustom (Opsional)</Label>
                 <div class="flex mt-1 space-x-2">
                   <Input type="color" v-model="eventForm.color" class="w-12 h-9 p-1" />
                   <Input v-model="eventForm.color" class="flex-1" />
@@ -104,7 +104,7 @@ const toggleDivision = (id: any) => {
               </div>
               <div class="flex items-center space-x-2">
                 <Checkbox id="is_working_day" :checked="eventForm.is_working_day" @update:checked="eventForm.is_working_day = !!$event" />
-                <label for="is_working_day" class="text-sm font-medium leading-none cursor-pointer">Count as Workday</label>
+                <label for="is_working_day" class="text-sm font-medium leading-none cursor-pointer">Hitung sbg Hari Kerja</label>
               </div>
             </div>
 
@@ -122,7 +122,7 @@ const toggleDivision = (id: any) => {
 
             <!-- Location -->
             <div>
-              <Label>Location</Label>
+              <Label>Lokasi</Label>
               <Input v-model="eventForm.location" placeholder="Rapat Room A, Zoom, etc." class="mt-1" />
             </div>
 
@@ -134,14 +134,14 @@ const toggleDivision = (id: any) => {
 
             <!-- Peserta -->
             <div class="border-t border-gray-100 dark:border-zinc-800 pt-4 mt-2">
-              <Label class="text-sm font-semibold mb-3 block">Peserta (Optional)</Label>
+              <Label class="text-sm font-semibold mb-3 block">Peserta (Opsional)</Label>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label class="text-xs text-gray-500 mb-2 block">Select Division</Label>
+                  <Label class="text-xs text-gray-500 mb-2 block">Pilih Bidang</Label>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" class="w-full justify-between font-normal text-left">
-                        <span>{{ eventForm.division_ids.length > 0 ? `${eventForm.division_ids.length} Divisions Selected` : 'Select Division...' }}</span>
+                        <span>{{ eventForm.division_ids.length > 0 ? `${eventForm.division_ids.length} Divisions Selected` : 'Pilih Bidang...' }}</span>
                         <span class="opacity-50 text-xs">▼</span>
                       </Button>
                     </DropdownMenuTrigger>
@@ -159,11 +159,11 @@ const toggleDivision = (id: any) => {
                   </DropdownMenu>
                 </div>
                 <div>
-                  <Label class="text-xs text-gray-500 mb-2 block">Select Employee</Label>
+                  <Label class="text-xs text-gray-500 mb-2 block">Pilih Karyawan</Label>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" class="w-full justify-between font-normal text-left">
-                        <span>{{ eventForm.user_ids.length > 0 ? `${eventForm.user_ids.length} Employees Selected` : 'Select Employee...' }}</span>
+                        <span>{{ eventForm.user_ids.length > 0 ? `${eventForm.user_ids.length} Employees Selected` : 'Pilih Karyawan...' }}</span>
                         <span class="opacity-50 text-xs">▼</span>
                       </Button>
                     </DropdownMenuTrigger>

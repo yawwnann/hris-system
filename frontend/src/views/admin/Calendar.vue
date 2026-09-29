@@ -140,7 +140,7 @@ const fetchEvents = async () => {
     if (divsRes) divisionsList.value = divsRes.data.data;
   } catch (error) {
     console.error(error);
-    toast.error("Failed to fetch calendar data");
+    toast.error("Gagal memuat data kalender");
   } finally {
     loading.value = false;
   }
@@ -329,7 +329,7 @@ const saveEvent = async () => {
     isDialogOpen.value = false;
     fetchEvents();
   } catch (error: any) {
-    toast.error(error.response?.data?.message || "Failed to save event");
+    toast.error(error.response?.data?.message || "Gagal menyimpan acara");
   } finally {
     isSubmitting.value = false;
   }
@@ -348,7 +348,7 @@ const executeDelete = async () => {
     isViewDialogOpen.value = false;
     fetchEvents();
   } catch (error) {
-    toast.error("Failed to delete event");
+    toast.error("Gagal menghapus acara");
   } finally {
     isDeleteDialogOpen.value = false;
     itemToDelete.value = null;
@@ -426,7 +426,7 @@ const executeDelete = async () => {
                 </Button>
               </div>
               
-              <div v-if="loading" class="text-sm text-gray-500 animate-pulse">Loading...</div>
+              <div v-if="loading" class="text-sm text-gray-500 animate-pulse">Memuat...</div>
             </div>
 
             <!-- Calendar Grid -->
@@ -548,7 +548,7 @@ const executeDelete = async () => {
         <AlertDialogHeader>
           <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Hapus Acara?</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
-            Are you sure you want to delete this event from the calendar?
+            Apakah Anda yakin ingin menghapus this event from the calendar?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

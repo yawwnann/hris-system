@@ -61,7 +61,7 @@ const fetchDashboardStats = async () => {
     stats.value = data;
   } catch (e) {
     console.error(e);
-    toast.error("Failed to load dashboard data");
+    toast.error("Gagal memuat data dashboard");
   } finally {
     loading.value = false;
   }

@@ -74,7 +74,7 @@ const fetchData = async () => {
     totalItems.value = historyRes.data.total;
     todayRecord.value = todayRes.data;
   } catch (error) {
-    console.error("Failed to fetch attendance data", error);
+    console.error("Gagal memuat data absensi", error);
     toast.error("Gagal memuat data absensi");
   } finally {
     loading.value = false;

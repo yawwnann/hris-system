@@ -93,8 +93,8 @@ const fetchEmployeeDetail = async () => {
     stats.value = data.stats;
     recentAttendances.value = data.recent_attendances;
   } catch (error) {
-    console.error("Failed to fetch employee details", error);
-    toast.error("Failed to fetch employee details");
+    console.error("Gagal memuat detail karyawan", error);
+    toast.error("Gagal memuat detail karyawan");
     router.push('/employees');
   } finally {
     loading.value = false;

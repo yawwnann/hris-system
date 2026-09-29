@@ -84,8 +84,8 @@ const fetchData = async () => {
     totalItems.value = historyRes.data.total;
     todayRecord.value = todayRes.data;
   } catch (error) {
-    console.error("Failed to fetch attendance data", error);
-    toast.error("Failed to fetch attendance data");
+    console.error("Gagal memuat data absensi", error);
+    toast.error("Gagal memuat data absensi");
   } finally {
     loading.value = false;
   }
@@ -123,7 +123,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
 // Geolocation & Clock In / Out
 const handleClockAction = (type: 'in' | 'out') => {
   if (!navigator.geolocation) {
-    toast.error("Geolocation is not supported by your browser");
+    toast.error("Geolokasi tidak didukung oleh browser Anda");
     return;
   }
 
@@ -139,12 +139,12 @@ const handleClockAction = (type: 'in' | 'out') => {
         const endpoint = type === 'in' ? "/attendance/check-in" : "/attendance/check-out";
         const { data } = await api.post(endpoint, { lat, long });
         
-        toast.success(data.message || `Successfully ${type === 'in' ? 'Check In' : 'Check Out'}`);
+        toast.success(data.message || `Berhasil ${type === 'in' ? 'Check In' : 'Check Out'}`);
         fetchData(); 
       } catch (error: any) {
-        toast.error(error.response?.data?.message || `Failed to ${type === 'in' ? 'Check In' : 'Check Out'}`);
+        toast.error(error.response?.data?.message || `Gagal ${type === 'in' ? 'Check In' : 'Check Out'}`);
         if(error.response?.data?.distance) {
-            toast.error(`Your distance: ${error.response.data.distance}. Limit: ${error.response.data.allowed_radius}`);
+            toast.error(`Jarak Anda: ${error.response.data.distance}. Batas: ${error.response.data.allowed_radius}`);
         }
       } finally {
         locationLoading.value = false;
@@ -153,7 +153,7 @@ const handleClockAction = (type: 'in' | 'out') => {
     (error) => {
       console.error(error);
       locationLoading.value = false;
-      toast.error("Failed to get location. Make sure you allow location access.");
+      toast.error("Gagal mengambil lokasi. Pastikan izin lokasi aktif.");
     },
     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
   );

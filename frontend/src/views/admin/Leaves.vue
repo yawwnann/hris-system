@@ -115,8 +115,8 @@ const fetchLeaves = async () => {
     totalPages.value = data.last_page;
     totalItems.value = data.total;
   } catch (error) {
-    console.error("Failed to fetch leave requests", error);
-    toast.error("Failed to fetch leave requests");
+    console.error("Gagal memuat data cuti", error);
+    toast.error("Gagal memuat data cuti");
   } finally {
     loading.value = false;
   }
@@ -172,7 +172,7 @@ const openAddDialog = () => {
 
 const submitLeaveRequest = async () => {
   if (!formData.value.start_date || !formData.value.end_date || !formData.value.reason) {
-    toast.error("Please fill in all required fields");
+    toast.error("Harap isi semua kolom wajib");
     return;
   }
 
@@ -193,11 +193,11 @@ const submitLeaveRequest = async () => {
       }
     });
     
-    toast.success("Leave request submitted successfully");
+    toast.success("Pengajuan cuti berhasil dikirim");
     isAddDialogOpen.value = false;
     fetchLeaves();
   } catch (error: any) {
-    toast.error(error.response?.data?.message || "Failed to submit request");
+    toast.error(error.response?.data?.message || "Gagal mengirim pengajuan");
   } finally {
     isSubmitting.value = false;
   }
@@ -215,7 +215,7 @@ const directAction = async (id: number, status: 'approved' | 'rejected') => {
     toast.success(`Pengajuan berhasil ${status}`);
     fetchLeaves();
   } catch (error: any) {
-    toast.error(error.response?.data?.message || "Failed to process approval");
+    toast.error(error.response?.data?.message || "Gagal memproses persetujuan");
   } finally {
     isSubmitting.value = false;
   }
@@ -233,7 +233,7 @@ const executeDelete = async () => {
     toast.success("Pengajuan berhasil dibatalkan");
     fetchLeaves();
   } catch (error: any) {
-    toast.error(error.response?.data?.message || "Failed to cancel request");
+    toast.error(error.response?.data?.message || "Gagal membatalkan pengajuan");
   } finally {
     isDeleteDialogOpen.value = false;
     itemToDelete.value = null;
@@ -489,7 +489,7 @@ const handleFileUpload = (event: Event) => {
             </div>
             <Select v-model="formData.type">
               <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
-                <SelectValue placeholder="Select type" />
+                <SelectValue placeholder="Pilih type" />
               </SelectTrigger>
               <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                 <SelectGroup>
