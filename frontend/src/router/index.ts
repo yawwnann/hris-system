@@ -14,29 +14,38 @@ const routes = [
     component: () => import("@/views/auth/ForgotPassword.vue"),
     meta: { guest: true },
   },
+  // Root Dashboard (Dynamic Component based on role)
   {
     path: "/",
     name: "Dashboard",
-    component: () => import("@/views/admin/Dashboard.vue"),
+    component: () => {
+      const authStore = useAuthStore();
+      if (authStore.user?.role === 'employee') {
+        return import("@/views/employee/Dashboard.vue");
+      }
+      return import("@/views/admin/Dashboard.vue");
+    },
     meta: { requiresAuth: true },
   },
+
+  // Admin Routes
   {
     path: "/employees",
-    name: "Employees",
+    name: "AdminEmployees",
     component: () => import("@/views/admin/Employees.vue"),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, role: "admin" },
   },
   {
     path: "/employees/:id",
-    name: "EmployeeDetail",
+    name: "AdminEmployeeDetail",
     component: () => import("@/views/admin/EmployeeDetail.vue"),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, role: "admin" },
   },
   {
     path: "/departments",
-    name: "Departments",
+    name: "AdminDepartments",
     component: () => import("@/views/admin/Departments.vue"),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, role: "admin" },
   },
   {
     path: "/attendance",
@@ -48,7 +57,7 @@ const routes = [
     path: "/calendar",
     name: "Calendar",
     component: () => import("@/views/admin/Calendar.vue"),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, role: "admin" },
   },
   {
     path: "/leaves",
@@ -70,51 +79,57 @@ const routes = [
   },
   {
     path: "/settings",
-    name: "Settings",
+    name: "AdminSettings",
     component: () => import("@/views/admin/Settings.vue"),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, role: "admin" },
   },
   {
     path: "/reports",
-    name: "Reports",
+    name: "AdminReports",
     component: () => import("@/views/admin/Reports.vue"),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, role: "admin" },
+  },
+
+  // Employee Explicit Routes (alias/fallback)
+  {
+    path: "/employee/dashboard",
+    name: "EmployeeDashboard",
+    component: () => import("@/views/employee/Dashboard.vue"),
+    meta: { requiresAuth: true, role: "employee" },
+  },
+  {
+    path: "/employee/attendance",
+    name: "EmployeeAttendance",
+    component: () => import("@/views/employee/Attendance.vue"),
+    meta: { requiresAuth: true, role: "employee" },
+  },
+  {
+    path: "/employee/calendar",
+    name: "EmployeeCalendar",
+    component: () => import("@/views/admin/Calendar.vue"),
+    meta: { requiresAuth: true, role: "employee" },
+  },
+  {
+    path: "/employee/leaves",
+    name: "EmployeeLeaves",
+    component: () => import("@/views/employee/Leaves.vue"),
+    meta: { requiresAuth: true, role: "employee" },
+  },
+  {
+    path: "/employee/overtime",
+    name: "EmployeeOvertime",
+    component: () => import("@/views/employee/Overtime.vue"),
+    meta: { requiresAuth: true, role: "employee" },
+  },
+  {
+    path: "/employee/announcements",
+    name: "EmployeeAnnouncements",
+    component: () => import("@/views/admin/Announcements.vue"),
+    meta: { requiresAuth: true, role: "employee" },
   },
 ];
 
-
-if (import.meta.env.VITE_INTEGRATION_MODE === 'false') {
-  const originalRoutes = [...routes];
-  routes.length = 0; // clear existing routes
-  
-  const loginRoute = originalRoutes.find(r => r.path === '/login');
-  if (loginRoute) routes.push(loginRoute);
-
-  const forgotPasswordRoute = originalRoutes.find(r => r.path === '/forgot-password');
-  if (forgotPasswordRoute) routes.push(forgotPasswordRoute);
-
-  const addPrefixedRoutes = (prefix: string, role: string) => {
-    originalRoutes.forEach((r: any) => {
-      if (r.path === '/login' || r.path === '/forgot-password') return;
-      const newPath = r.path === '/' ? `${prefix}/dashboard` : `${prefix}${r.path}`;
-      const newRoute: any = {
-        ...r,
-        path: newPath,
-        name: r.name ? `${role}-${String(r.name)}` : undefined
-      };
-      (routes as any[]).push(newRoute);
-    });
-  };
-
-  addPrefixedRoutes('/admin', 'admin');
-  addPrefixedRoutes('/employee', 'employee');
-
-  // Redirect root to admin dashboard so it doesn't show a blank page
-  (routes as any[]).push({ path: '/', redirect: '/admin/dashboard' });
-}
-
 const router = createRouter({
-
   history: createWebHistory(),
   routes,
 });
@@ -131,6 +146,10 @@ router.beforeEach(async (to, _from, next) => {
   } else if (to.meta.guest && authStore.user) {
     next("/");
   } else {
+    if (authStore.user && to.meta.role && to.meta.role !== authStore.user.role) {
+      next("/");
+      return;
+    }
     next();
   }
 });

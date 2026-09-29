@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import api from "@/lib/axios";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -16,56 +17,77 @@ const error = ref("");
 // Form Data
 const email = ref("");
 const otp = ref("");
+const resetToken = ref("");
 const newPassword = ref("");
 const confirmPassword = ref("");
-const showPassword = ref(false);
 
 const handleSendEmail = async () => {
   if (!email.value) return;
   loading.value = true;
   error.value = "";
-  // Simulate API Call
-  setTimeout(() => {
-    loading.value = false;
-    if (!email.value.includes("@")) {
-      error.value = "Format email tidak valid.";
-      return;
-    }
+  try {
+    await api.post("/forgot-password/request-otp", { email: email.value });
     step.value = 2; // Go to OTP
-  }, 1000);
+  } catch (err: any) {
+    error.value =
+      err.response?.data?.message || "Gagal mengirim kode OTP. Silakan coba lagi.";
+  } finally {
+    loading.value = false;
+  }
 };
 
 const handleVerifyOTP = async () => {
-  if (otp.value.length < 4) return;
+  if (otp.value.length < 6) {
+    error.value = "Kode OTP harus 6 digit.";
+    return;
+  }
   loading.value = true;
   error.value = "";
-  // Simulate API Call
-  setTimeout(() => {
-    loading.value = false;
-    if (otp.value !== "123456" && otp.value !== "000000") { // Just accept any 6 digit for mock, or specific ones. Actually let's just accept anything >= 4 chars for demo
-      // step.value = 3;
-    }
+  try {
+    const { data } = await api.post("/forgot-password/verify-otp", {
+      email: email.value,
+      otp: otp.value,
+    });
+    resetToken.value = data.reset_token;
     step.value = 3; // Go to Reset Password
-  }, 1000);
+  } catch (err: any) {
+    error.value =
+      err.response?.data?.errors?.otp?.[0] ||
+      err.response?.data?.message ||
+      "Verifikasi OTP gagal.";
+  } finally {
+    loading.value = false;
+  }
 };
 
 const handleResetPassword = async () => {
   if (newPassword.value !== confirmPassword.value) {
-    error.value = "Kata sandi tidak cocok.";
+    error.value = "Konfirmasi kata sandi tidak cocok.";
     return;
   }
   if (newPassword.value.length < 6) {
     error.value = "Kata sandi minimal 6 karakter.";
     return;
   }
-  
+
   loading.value = true;
   error.value = "";
-  // Simulate API Call
-  setTimeout(() => {
-    loading.value = false;
+  try {
+    await api.post("/forgot-password/reset", {
+      email: email.value,
+      reset_token: resetToken.value,
+      password: newPassword.value,
+      password_confirmation: confirmPassword.value,
+    });
     step.value = 4; // Go to Success
-  }, 1500);
+  } catch (err: any) {
+    error.value =
+      err.response?.data?.errors?.password?.[0] ||
+      err.response?.data?.message ||
+      "Gagal memperbarui kata sandi.";
+  } finally {
+    loading.value = false;
+  }
 };
 
 const goToLogin = () => {
@@ -114,7 +136,7 @@ const goToLogin = () => {
         Kembali ke Login
       </button>
 
-      <!-- Desktop Back Button (Optional, as they can use browser back, but good UX) -->
+      <!-- Desktop Back Button -->
       <button v-if="step === 1" @click="goToLogin" class="absolute top-12 right-12 hidden lg:flex items-center text-sm font-medium text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
         <ArrowLeft class="w-4 h-4 mr-2" />
         Kembali ke Login
@@ -153,7 +175,7 @@ const goToLogin = () => {
             
             <Button 
               type="submit" 
-              class="w-full h-12 mt-2 text-base font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-xl  transition-all active:scale-[0.98]" 
+              class="w-full h-12 mt-2 text-base font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-all active:scale-[0.98]" 
               :disabled="loading"
             >
               <Loader2 v-if="loading" class="w-5 h-5 mr-2 animate-spin" />
@@ -188,7 +210,7 @@ const goToLogin = () => {
             
             <Button 
               type="submit" 
-              class="w-full h-12 mt-2 text-base font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-xl  transition-all active:scale-[0.98]" 
+              class="w-full h-12 mt-2 text-base font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-all active:scale-[0.98]" 
               :disabled="loading"
             >
               <Loader2 v-if="loading" class="w-5 h-5 mr-2 animate-spin" />

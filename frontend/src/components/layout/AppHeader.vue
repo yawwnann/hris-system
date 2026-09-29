@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { Bell, Moon, Sun, Search, LogOut } from "lucide-vue-next";
+import { Moon, Sun, LogOut, Menu, X } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,12 +12,12 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useAuthStore } from "@/stores/auth";
-import { useRouter } from "vue-router";
+import { useUiStore } from "@/stores/ui";
 import { useDark, useToggle } from "@vueuse/core";
 import { ref } from "vue";
 
 const authStore = useAuthStore();
-const router = useRouter();
+const uiStore = useUiStore();
 
 const isDark = useDark();
 const toggleDark = useToggle(isDark);
@@ -33,39 +31,43 @@ const executeLogout = async () => {
 
 <template>
   <header
-    class="h-16 bg-white dark:bg-zinc-950 border-b-2 border-gray-100 dark:border-zinc-800 flex items-center justify-between px-8 sticky top-0 z-10 transition-colors"
+    class="sticky top-0 z-30 flex h-16 min-h-16 items-center justify-between border-b-2 border-gray-100 bg-white px-4 transition-colors dark:border-zinc-800 dark:bg-zinc-950 sm:px-6 md:px-8"
   >
-    <div class="flex items-center flex-1">
-      <div class="relative w-96">
-        <Search
-          class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 dark:text-zinc-400"
-        />
-        <Input
-          class="pl-9 bg-gray-50 dark:bg-zinc-900 border-none w-full focus-visible:ring-0 text-gray-900 dark:text-gray-100"
-          placeholder="Search..."
-        />
-      </div>
+    <div class="flex min-w-0 items-center gap-3">
+      <Button 
+        type="button"
+        @click.stop="uiStore.toggleMobileMenu()" 
+        variant="ghost" 
+        size="icon" 
+        :aria-expanded="uiStore.mobileMenuOpen"
+        aria-controls="mobile-navigation"
+        aria-label="Buka menu navigasi"
+        class="relative z-50 h-9 w-9 shrink-0 cursor-pointer rounded-lg text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-zinc-800 md:hidden"
+      >
+        <X v-if="uiStore.mobileMenuOpen" class="pointer-events-none h-5 w-5" />
+        <Menu v-else class="pointer-events-none h-5 w-5" />
+      </Button>
+      <span class="truncate text-base font-bold text-gray-900 dark:text-zinc-100 md:hidden">HRIS System</span>
+      <span class="hidden truncate text-sm font-semibold text-gray-700 dark:text-zinc-200 md:inline">
+        {{ authStore.user?.role === 'admin' ? 'Admin Dashboard' : 'Employee Portal' }}
+      </span>
     </div>
-    <div class="flex items-center space-x-2">
-      <Button variant="ghost" size="icon" class="relative text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full h-9 w-9">
-        <Bell class="w-5 h-5" />
-        <span class="absolute top-1 right-1.5 w-2 h-2 bg-red-50 dark:bg-red-900/200 rounded-full border border-white dark:border-zinc-900"></span>
+
+    <div class="flex shrink-0 items-center gap-1 sm:gap-2">
+      <Button @click="toggleDark()" variant="ghost" size="icon" aria-label="Ubah tema" class="h-9 w-9 rounded-full text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-800">
+        <Moon v-if="!isDark" class="h-5 w-5" />
+        <Sun v-else class="h-5 w-5" />
       </Button>
       
-      <Button @click="toggleDark()" variant="ghost" size="icon" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-full h-9 w-9">
-        <Moon v-if="!isDark" class="w-5 h-5" />
-        <Sun v-else class="w-5 h-5" />
-      </Button>
+      <div class="mx-1 h-6 w-px bg-gray-200 dark:bg-zinc-800"></div>
       
-      <div class="w-px h-6 bg-gray-200 dark:bg-zinc-800 mx-2"></div>
-      
-      <Button @click="isLogoutDialogOpen = true" variant="ghost" size="icon" class="text-red-500 hover:text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-full h-9 w-9" title="Logout">
-        <LogOut class="w-4 h-4" />
+      <Button @click="isLogoutDialogOpen = true" variant="ghost" size="icon" aria-label="Keluar" class="h-9 w-9 rounded-full text-red-500 hover:bg-red-50 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-950/30" title="Logout">
+        <LogOut class="h-4 w-4" />
       </Button>
     </div>
 
     <AlertDialog v-model:open="isLogoutDialogOpen">
-      <AlertDialogContent class="bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
+      <AlertDialogContent class="w-[calc(100%-2rem)] max-w-md border border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <AlertDialogHeader>
           <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Konfirmasi Logout</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">

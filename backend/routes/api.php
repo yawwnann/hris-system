@@ -13,8 +13,12 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\CalendarEventController;
 use App\Http\Controllers\AnnouncementController;
 
+use App\Http\Controllers\ForgotPasswordController;
+
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/forgot-password/request-otp', [ForgotPasswordController::class, 'requestOtp']);
+Route::post('/forgot-password/verify-otp', [ForgotPasswordController::class, 'verifyOtp']);
+Route::post('/forgot-password/reset', [ForgotPasswordController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [App\Http\Controllers\AuthController::class, 'logout']);

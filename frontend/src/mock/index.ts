@@ -58,6 +58,39 @@ export const setupMockAdapter = (api: AxiosInstance) => {
         } as AxiosResponse;
       }
 
+      if (url.includes('/forgot-password/request-otp') && method === 'post') {
+        return {
+          data: { message: 'Jika email terdaftar, kode OTP telah dikirimkan.' },
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config,
+          request: {}
+        } as AxiosResponse;
+      }
+
+      if (url.includes('/forgot-password/verify-otp') && method === 'post') {
+        return {
+          data: { message: 'OTP berhasil diverifikasi.', reset_token: 'mock-reset-token-123' },
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config,
+          request: {}
+        } as AxiosResponse;
+      }
+
+      if (url.includes('/forgot-password/reset') && method === 'post') {
+        return {
+          data: { message: 'Kata sandi berhasil diperbarui.' },
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config,
+          request: {}
+        } as AxiosResponse;
+      }
+
       if (url.includes('/dashboard/admin')) {
         data = adminDashboardMock;
       } else if (url.includes('/dashboard/employee')) {

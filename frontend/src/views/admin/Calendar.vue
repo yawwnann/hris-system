@@ -358,39 +358,39 @@ const executeDelete = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex bg-[#fbfbfb] dark:bg-zinc-950 text-sm transition-colors">
+  <div class="min-h-screen min-w-0 flex bg-[#fbfbfb] dark:bg-zinc-950 text-sm transition-colors">
     <AppSidebar />
     
-    <main class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+    <main class="flex min-h-screen min-w-0 flex-1 flex-col">
       <AppHeader />
       
-      <div class="flex-1 flex flex-col p-6 overflow-hidden">
+      <div class="flex-1 p-3 sm:p-4 md:p-6">
         <AppBreadcrumb />
         
-        <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+        <div class="mb-4 flex flex-col gap-4 sm:mb-6 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
+            <h1 class="flex items-center text-xl font-bold text-gray-900 dark:text-zinc-100 sm:text-2xl">
               Manajemen Kalender
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
               Manage work schedules, holidays, company agendas, and other events.
             </p>
           </div>
-          <Button v-if="authStore.user?.role === 'admin'" @click="openAddForm()" class="bg-orange-600 hover:bg-orange-700 text-white">
+          <Button v-if="authStore.user?.role === 'admin'" @click="openAddForm()" class="w-full bg-orange-600 text-white hover:bg-orange-700 sm:w-auto">
             <Plus class="w-4 h-4 mr-2" /> Tambah Acara
           </Button>
         </div>
 
-        <div class="flex-1 flex flex-col lg:flex-row gap-6 overflow-hidden">
+        <div class="grid min-w-0 grid-cols-1 items-start gap-4 lg:grid-cols-[16rem_minmax(0,1fr)_18rem] lg:gap-6">
           
           <!-- Sidebar Filter -->
-          <div class="w-full lg:w-64 flex-shrink-0 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex flex-col overflow-hidden">
+          <div class="order-2 flex w-full min-w-0 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:order-1 lg:sticky lg:top-20">
             <div class="p-4 border-b border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-950/30">
               <h3 class="font-semibold text-gray-800 dark:text-zinc-200 flex items-center">
                 <ListFilter class="w-4 h-4 mr-2" /> Category Filter
               </h3>
             </div>
-            <ScrollArea class="flex-1 p-4">
+            <ScrollArea class="max-h-56 p-4 lg:max-h-[calc(100vh-10rem)]">
               <div class="space-y-3">
                 <div v-for="cat in categoriesList" :key="cat.value" class="flex items-center space-x-2">
                   <Checkbox 
@@ -408,20 +408,20 @@ const executeDelete = async () => {
           </div>
 
           <!-- Calendar Area -->
-          <div class="flex-1 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex flex-col overflow-hidden shadow-sm">
+          <div class="order-1 flex min-h-[38rem] min-w-0 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 lg:order-2">
             <!-- Calendar Header -->
-            <div class="p-4 border-b border-gray-200 dark:border-zinc-800 flex items-center justify-between">
-              <div class="flex items-center space-x-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 p-3 dark:border-zinc-800 sm:p-4">
+              <div class="flex min-w-0 flex-wrap items-center gap-2 sm:gap-4">
                 <Button variant="outline" size="icon" @click="prevMonth" class="h-8 w-8">
                   <ChevronLeft class="w-4 h-4" />
                 </Button>
-                <h2 class="text-lg font-bold text-gray-800 dark:text-zinc-100 min-w-[150px] text-center">
+                <h2 class="min-w-[9rem] text-center text-base font-bold text-gray-800 dark:text-zinc-100 sm:text-lg">
                   {{ currentDate.format("MMMM YYYY") }}
                 </h2>
                 <Button variant="outline" size="icon" @click="nextMonth" class="h-8 w-8">
                   <ChevronRight class="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm" @click="currentDate = moment()" class="ml-2 text-orange-600 dark:text-orange-400">
+                <Button variant="ghost" size="sm" @click="currentDate = moment()" class="text-orange-600 dark:text-orange-400 sm:ml-2">
                   Today
                 </Button>
               </div>
@@ -430,18 +430,18 @@ const executeDelete = async () => {
             </div>
 
             <!-- Calendar Grid -->
-            <div class="flex-1 flex flex-col overflow-hidden">
-              <div class="grid grid-cols-7 border-b border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-950">
-                <div v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']" :key="day" class="py-2 text-center text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {{ day }}
+            <div class="min-h-0 flex-1 overflow-auto">
+              <div class="min-w-[44rem]">
+                <div class="grid grid-cols-7 border-b border-gray-200 bg-gray-50 dark:border-zinc-800 dark:bg-zinc-950">
+                  <div v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']" :key="day" class="truncate py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 sm:text-xs">
+                    {{ day }}
+                  </div>
                 </div>
-              </div>
-              <ScrollArea class="flex-1">
-                <div class="grid grid-cols-7 auto-rows-fr h-full min-h-[600px]">
+                <div class="grid min-h-[600px] grid-cols-7 auto-rows-[minmax(120px,1fr)]">
                   <div 
                     v-for="(day, index) in calendarDays" 
                     :key="index"
-                    class="border-b border-r border-gray-100 dark:border-zinc-800 p-1 flex flex-col min-h-[120px] transition-colors relative group"
+                    class="group relative flex min-h-[120px] flex-col border-b border-r border-gray-100 p-1 transition-colors dark:border-zinc-800 sm:p-2"
                     :class="[
                       day.isCurrentMonth ? 'bg-white dark:bg-zinc-900' : 'bg-gray-50 dark:bg-zinc-950/50',
                       { 'ring-2 ring-orange-500 ring-inset z-10': day.isToday },
@@ -459,13 +459,13 @@ const executeDelete = async () => {
                       >
                         {{ day.date.format("D") }}
                       </span>
-                      <Button v-if="authStore.user?.role === 'admin' && !day.isPast && day.date.day() !== 0" variant="ghost" size="icon" class="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" @click="openAddForm(day.dateStr)">
+                      <Button v-if="authStore.user?.role === 'admin' && !day.isPast && day.date.day() !== 0" variant="ghost" size="icon" class="h-6 w-6 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100" @click="openAddForm(day.dateStr)">
                         <Plus class="w-3 h-3" />
                       </Button>
                     </div>
 
                     <!-- Events list -->
-                    <div class="flex-1 overflow-y-auto mt-1 space-y-1 px-1 custom-scrollbar">
+                    <div class="mt-1 min-h-0 flex-1 space-y-1 overflow-y-auto px-1 custom-scrollbar">
                       <div 
                         v-for="event in day.events" 
                         :key="event.id"
@@ -483,18 +483,18 @@ const executeDelete = async () => {
                     </div>
                   </div>
                 </div>
-              </ScrollArea>
+              </div>
             </div>
           </div>
 
           <!-- Upcoming Agenda Sidebar -->
-          <div class="w-full lg:w-72 flex-shrink-0 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 flex flex-col overflow-hidden">
+          <div class="order-3 flex w-full min-w-0 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:order-3 lg:sticky lg:top-20">
             <div class="p-4 border-b border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-950/30">
               <h3 class="font-semibold text-gray-800 dark:text-zinc-200 flex items-center">
                 <CalendarIcon class="w-4 h-4 mr-2" /> Agenda Mendatang
               </h3>
             </div>
-            <ScrollArea class="flex-1 p-4">
+            <ScrollArea class="max-h-80 p-4 lg:max-h-[calc(100vh-10rem)]">
               <div v-if="upcomingEvents.length === 0" class="text-sm text-gray-500 text-center py-4">
                 Tidak ada agenda mendatang.
               </div>
