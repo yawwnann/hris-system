@@ -209,12 +209,12 @@ const executeDelete = async () => {
               <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
               <Input 
                 v-model="searchQuery"
-                placeholder="Cari departemen..." 
+                placeholder="Cari bidang..." 
                 class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100"
               />
             </div>
             <Button @click="openAddDialog" class="bg-orange-600 hover:bg-orange-700 text-white dark:text-white">
-              <Plus class="w-4 h-4 mr-2" /> Add Department
+              <Plus class="w-4 h-4 mr-2" /> Tambah Bidang
             </Button>
           </div>
         </div>
@@ -226,7 +226,7 @@ const executeDelete = async () => {
               <TableHeader class="bg-gray-50 dark:bg-zinc-950/50">
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
                   <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Nama Departemen</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Nama Bidang</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Total Karyawan</TableHead>
                   <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300">Aksi</TableHead>
                 </TableRow>
@@ -234,12 +234,12 @@ const executeDelete = async () => {
               <TableBody>
                 <TableRow v-if="loading">
                   <TableCell colspan="5" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    Loading department data...
+                    Memuat data bidang...
                   </TableCell>
                 </TableRow>
                 <TableRow v-else-if="paginatedDepartments.length === 0">
                   <TableCell colspan="5" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    No departments found.
+                    Tidak ada bidang ditemukan.
                   </TableCell>
                 </TableRow>
                 <TableRow 
@@ -267,10 +267,10 @@ const executeDelete = async () => {
                   <TableCell class="text-right py-4">
                     <div class="flex items-center justify-end space-x-2">
                       <Button variant="outline" size="sm" @click="openEditDialog(dept)" class="h-8 border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20">
-                        <Edit class="h-4 w-4 mr-1" /> Edit
+                        <Edit class="h-4 w-4 mr-1" /> Ubah
                       </Button>
                       <Button variant="outline" size="sm" @click="confirmDelete(dept.id)" class="h-8 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
-                        <Trash2 class="h-4 w-4 mr-1" /> Delete
+                        <Trash2 class="h-4 w-4 mr-1" /> Hapus
                       </Button>
                     </div>
                   </TableCell>
@@ -299,7 +299,7 @@ const executeDelete = async () => {
 <div class="text-sm text-gray-500 dark:text-zinc-400">
               Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedDepartments.length > 0 ? (currentPage - 1) * Number(itemsPerPage) + 1 : 0 }}</span> - 
               <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * Number(itemsPerPage), totalItems) }}</span> dari 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> departemen
+              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> bidang
             </div>
             </div>
             <div class="flex items-center space-x-2">
@@ -310,7 +310,7 @@ const executeDelete = async () => {
                 :disabled="currentPage === 1"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Previous
+                Sebelumnya
               </Button>
               <Button 
                 variant="outline" 
@@ -319,7 +319,7 @@ const executeDelete = async () => {
                 :disabled="currentPage >= totalPages"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Next
+                Selanjutnya
               </Button>
             </div>
           </div>
@@ -343,7 +343,7 @@ const executeDelete = async () => {
             <Input 
               id="name" 
               v-model="formData.name" 
-              placeholder="Example: IT Support" 
+              placeholder="Contoh: IT Support" 
               class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
               autoFocus
             />
@@ -351,10 +351,10 @@ const executeDelete = async () => {
           
           <DialogFooter class="pt-4">
             <Button type="button" variant="outline" @click="isDialogOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-              Cancel
+              Batal
             </Button>
             <Button type="submit" :disabled="isSubmitting" class="bg-orange-600 hover:bg-orange-700 text-white">
-              {{ isSubmitting ? 'Saving...' : 'Save' }}
+              {{ isSubmitting ? 'Menyimpan...' : 'Simpan' }}
             </Button>
           </DialogFooter>
         </form>
@@ -365,14 +365,14 @@ const executeDelete = async () => {
     <AlertDialog v-model:open="isDeleteDialogOpen">
       <AlertDialogContent class="bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800">
         <AlertDialogHeader>
-          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Delete Department?</AlertDialogTitle>
+          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Hapus Bidang?</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
-            This department will be deleted. Tindakan ini tidak dapat dibatalkan.
+            Bidang ini akan dihapus. Tindakan ini tidak dapat dibatalkan.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Batal</AlertDialogCancel>
-          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Yes, Delete</AlertDialogAction>
+          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Ya, Hapus</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

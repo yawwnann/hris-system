@@ -22,17 +22,17 @@ const emit = defineEmits(['update:open', 'edit', 'delete']);
 
 const getCategoryLabel = (catValue: string) => {
   const list = [
-    { value: 'WORKDAY', label: 'Workday', color: '#10b981' },
-    { value: 'WEEKEND', label: 'Weekend', color: '#6b7280' },
-    { value: 'NATIONAL_HOLIDAY', label: 'National Holiday', color: '#ef4444' },
-    { value: 'COMPANY_HOLIDAY', label: 'Company Holiday', color: '#f97316' },
-    { value: 'COLLECTIVE_LEAVE', label: 'Collective Leave', color: '#f59e0b' },
-    { value: 'SHIFT', label: 'Special Shift', color: '#8b5cf6' },
-    { value: 'TRAINING', label: 'Training', color: '#0ea5e9' },
+    { value: 'WORKDAY', label: 'Hari Kerja', color: '#10b981' },
+    { value: 'WEEKEND', label: 'Akhir Pekan', color: '#6b7280' },
+    { value: 'NATIONAL_HOLIDAY', label: 'Hari Libur Nasional', color: '#ef4444' },
+    { value: 'COMPANY_HOLIDAY', label: 'Libur Perusahaan', color: '#f97316' },
+    { value: 'COLLECTIVE_LEAVE', label: 'Cuti Bersama', color: '#f59e0b' },
+    { value: 'SHIFT', label: 'Shift Khusus', color: '#8b5cf6' },
+    { value: 'TRAINING', label: 'Pelatihan', color: '#0ea5e9' },
     { value: 'MEETING', label: 'Rapat', color: '#3b82f6' },
     { value: 'COMPANY_EVENT', label: 'Acara Perusahaan', color: '#ec4899' },
-    { value: 'MAINTENANCE', label: 'Maintenance', color: '#64748b' },
-    { value: 'OTHER', label: 'Other', color: '#94a3b8' },
+    { value: 'MAINTENANCE', label: 'Pemeliharaan', color: '#64748b' },
+    { value: 'OTHER', label: 'Lainnya', color: '#94a3b8' },
   ];
   const found = list.find(c => c.value === catValue);
   return found ? found.label : catValue;
@@ -41,17 +41,17 @@ const getCategoryLabel = (catValue: string) => {
 const getCategoryColor = (catValue: string, customColor: string | null) => {
   if (customColor) return customColor;
   const list = [
-    { value: 'WORKDAY', label: 'Workday', color: '#10b981' },
-    { value: 'WEEKEND', label: 'Weekend', color: '#6b7280' },
-    { value: 'NATIONAL_HOLIDAY', label: 'National Holiday', color: '#ef4444' },
-    { value: 'COMPANY_HOLIDAY', label: 'Company Holiday', color: '#f97316' },
-    { value: 'COLLECTIVE_LEAVE', label: 'Collective Leave', color: '#f59e0b' },
-    { value: 'SHIFT', label: 'Special Shift', color: '#8b5cf6' },
-    { value: 'TRAINING', label: 'Training', color: '#0ea5e9' },
+    { value: 'WORKDAY', label: 'Hari Kerja', color: '#10b981' },
+    { value: 'WEEKEND', label: 'Akhir Pekan', color: '#6b7280' },
+    { value: 'NATIONAL_HOLIDAY', label: 'Hari Libur Nasional', color: '#ef4444' },
+    { value: 'COMPANY_HOLIDAY', label: 'Libur Perusahaan', color: '#f97316' },
+    { value: 'COLLECTIVE_LEAVE', label: 'Cuti Bersama', color: '#f59e0b' },
+    { value: 'SHIFT', label: 'Shift Khusus', color: '#8b5cf6' },
+    { value: 'TRAINING', label: 'Pelatihan', color: '#0ea5e9' },
     { value: 'MEETING', label: 'Rapat', color: '#3b82f6' },
     { value: 'COMPANY_EVENT', label: 'Acara Perusahaan', color: '#ec4899' },
-    { value: 'MAINTENANCE', label: 'Maintenance', color: '#64748b' },
-    { value: 'OTHER', label: 'Other', color: '#94a3b8' },
+    { value: 'MAINTENANCE', label: 'Pemeliharaan', color: '#64748b' },
+    { value: 'OTHER', label: 'Lainnya', color: '#94a3b8' },
   ];
   const found = list.find(c => c.value === catValue);
   return found ? found.color : '#3b82f6';
@@ -133,7 +133,7 @@ const getInitials = (name: string) => {
 
       <DialogFooter v-if="isAdmin">
         <Button variant="outline" @click="emit('delete', selectedEvent?.id)" class="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200">
-          Delete
+          Hapus
         </Button>
         <Button @click="emit('edit', selectedEvent)" class="bg-orange-600 hover:bg-orange-700 text-white">
           Ubah Acara

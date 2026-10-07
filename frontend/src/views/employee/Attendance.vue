@@ -99,9 +99,22 @@ watch(currentPage, () => {
 const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYYY");
 const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:mm:ss").format("HH:mm") : "-";
 
+const getStatusLabel = (status: string) => {
+  const map: Record<string, string> = {
+    present: "Tepat Waktu",
+    late: "Terlambat",
+    overtime: "Lembur",
+    absent: "Alpha",
+    leave: "Cuti",
+    sick: "Sakit",
+    online: "Online",
+  };
+  return map[status] || status;
+};
+
 const handleClockAction = (type: 'in' | 'out') => {
   if (!navigator.geolocation) {
-    toast.error("Geolocation tidak didukung oleh browser Anda");
+    toast.error("Geolokasi tidak didukung oleh browser Anda");
     return;
   }
 
@@ -117,10 +130,10 @@ const handleClockAction = (type: 'in' | 'out') => {
         const endpoint = type === 'in' ? "/attendance/check-in" : "/attendance/check-out";
         const { data } = await api.post(endpoint, { lat, long });
         
-        toast.success(data.message || `Berhasil ${type === 'in' ? 'Check In' : 'Check Out'}`);
+        toast.success(data.message || `Berhasil ${type === 'in' ? 'Absen Masuk' : 'Absen Pulang'}`);
         fetchData(); 
       } catch (error: any) {
-        toast.error(error.response?.data?.message || `Gagal ${type === 'in' ? 'Check In' : 'Check Out'}`);
+        toast.error(error.response?.data?.message || `Gagal ${type === 'in' ? 'Absen Masuk' : 'Absen Pulang'}`);
         if(error.response?.data?.distance) {
             toast.error(`Jarak Anda: ${error.response.data.distance}. Batas: ${error.response.data.allowed_radius}`);
         }
@@ -174,12 +187,12 @@ const handleClockAction = (type: 'in' | 'out') => {
                 <div class="flex flex-wrap gap-4 mt-4">
                   <div class="flex items-center space-x-2 text-sm bg-white dark:bg-zinc-800 px-4 py-2 rounded-full border border-gray-200 dark:border-zinc-700 shadow-sm">
                     <Clock class="w-4 h-4 text-green-500" />
-                    <span class="text-gray-600 dark:text-zinc-300">In:</span>
+                    <span class="text-gray-600 dark:text-zinc-300">Masuk:</span>
                     <span class="font-bold text-gray-900 dark:text-zinc-100">{{ todayRecord?.time_in ? formatTime(todayRecord.time_in) : '--:--' }}</span>
                   </div>
                   <div class="flex items-center space-x-2 text-sm bg-white dark:bg-zinc-800 px-4 py-2 rounded-full border border-gray-200 dark:border-zinc-700 shadow-sm">
                     <Clock class="w-4 h-4 text-orange-500" />
-                    <span class="text-gray-600 dark:text-zinc-300">Out:</span>
+                    <span class="text-gray-600 dark:text-zinc-300">Keluar:</span>
                     <span class="font-bold text-gray-900 dark:text-zinc-100">{{ todayRecord?.time_out ? formatTime(todayRecord.time_out) : '--:--' }}</span>
                   </div>
                 </div>
@@ -193,7 +206,7 @@ const handleClockAction = (type: 'in' | 'out') => {
                   class="h-14 px-8 text-base font-bold bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
                 >
                   <MapPin class="w-5 h-5 mr-2" /> 
-                  {{ locationLoading ? 'Mendapatkan Lokasi...' : 'Clock In Sekarang' }}
+                  {{ locationLoading ? 'Mendapatkan Lokasi...' : 'Absen Masuk Sekarang' }}
                 </Button>
                 
                 <Button 
@@ -203,7 +216,7 @@ const handleClockAction = (type: 'in' | 'out') => {
                   class="h-14 px-8 text-base font-bold bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all"
                 >
                   <MapPin class="w-5 h-5 mr-2" /> 
-                  {{ locationLoading ? 'Mendapatkan Lokasi...' : 'Clock Out Sekarang' }}
+                  {{ locationLoading ? 'Mendapatkan Lokasi...' : 'Absen Pulang Sekarang' }}
                 </Button>
 
                 <div v-else class="flex items-center space-x-2 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-6 py-4 rounded-xl border border-green-200 dark:border-green-800/30">
@@ -328,7 +341,7 @@ const handleClockAction = (type: 'in' | 'out') => {
                       Terlambat
                     </Badge>
                     <Badge v-else variant="outline" class="bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-400 border-gray-200 dark:border-zinc-700">
-                      {{ record.status }}
+                      {{ getStatusLabel(record.status) }}
                     </Badge>
                   </TableCell>
                 </TableRow>

@@ -193,6 +193,15 @@ const executeDelete = async () => {
 
 const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYYY");
 const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:mm:ss").format("HH:mm") : "-";
+
+const getStatusLabel = (status: string) => {
+  const map: Record<string, string> = {
+    pending: "Menunggu",
+    approved: "Disetujui",
+    rejected: "Ditolak",
+  };
+  return map[status] || status;
+};
 </script>
 
 <template>
@@ -396,7 +405,11 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
           </div>
           <div class="flex justify-between border-b border-gray-100 dark:border-zinc-800 pb-2">
             <span class="text-gray-500">Status</span>
-            <span class="font-medium uppercase text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-zinc-800">{{ selectedOt.status }}</span>
+            <span class="font-medium text-xs px-2 py-0.5 rounded" :class="{
+              'bg-yellow-50 text-yellow-700': selectedOt.status === 'pending',
+              'bg-green-50 text-green-700': selectedOt.status === 'approved',
+              'bg-red-50 text-red-700': selectedOt.status === 'rejected'
+            }">{{ getStatusLabel(selectedOt.status) }}</span>
           </div>
           <div>
             <span class="text-gray-500 block mb-1">Kegiatan Pengerjaan:</span>

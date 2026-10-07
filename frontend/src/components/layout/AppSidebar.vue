@@ -143,7 +143,7 @@ const getRoute = (path: string) => {
     <div class="p-4 border-t-2 border-gray-100 dark:border-zinc-800">
       <div class="flex items-center p-2 rounded-lg">
         <div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-zinc-800 overflow-hidden flex-shrink-0 border border-gray-300 dark:border-zinc-700">
-          <img :src="authStore.user?.photo ? 'http://localhost:8000/' + authStore.user.photo : `https://ui-avatars.com/api/?name=${authStore.user?.name}&background=random`" alt="Profile" class="w-full h-full object-cover" />
+          <img :src="authStore.user?.photo ? 'http://localhost:8000/' + authStore.user.photo : `https://ui-avatars.com/api/?name=${authStore.user?.name}&background=random`" alt="Profil" class="w-full h-full object-cover" />
         </div>
         <div class="ml-3 flex-1 overflow-hidden">
           <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{{ authStore.user?.name || 'Administrator' }}</p>

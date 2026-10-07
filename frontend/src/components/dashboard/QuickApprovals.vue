@@ -52,7 +52,7 @@ const approvals = computed(() => {
                 <div class="flex items-center text-[11px] text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-zinc-800 rounded px-2 py-1 w-fit border border-gray-200 dark:border-zinc-700">
                   <CalendarHeart v-if="item.type === 'Leave'" class="w-3 h-3 mr-1.5 text-blue-500" />
                   <Clock v-else class="w-3 h-3 mr-1.5 text-amber-500" />
-                  <span class="font-medium mr-1">{{ item.type }}:</span> 
+                  <span class="font-medium mr-1">{{ item.type === 'Leave' ? 'Cuti' : item.type === 'Overtime' ? 'Lembur' : item.type }}:</span> 
                   {{ item.date }}
                   <span v-if="item.duration" class="ml-1 text-gray-400">({{ item.duration }})</span>
                 </div>

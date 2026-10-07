@@ -59,8 +59,8 @@ const docForm = ref({
 });
 
 const monthsList = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember"
 ];
 const currentYear = new Date().getFullYear();
 const yearsList = Array.from({ length: 5 }, (_, i) => currentYear - i);
@@ -110,8 +110,10 @@ watch([selectedMonth, selectedYear], () => {
 });
 
 const getStatusBadgeVariant = (status: string) => {
-  switch (status) {
-    case 'online': return 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/30';
+  switch (status?.toLowerCase()) {
+    case 'online':
+    case 'present': return 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/30';
+    case 'late':
     case 'terlambat': return 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800/30';
     case 'overtime': return 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800/30';
     case 'absent': return 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/30';
@@ -119,10 +121,24 @@ const getStatusBadgeVariant = (status: string) => {
   }
 };
 
+const getStatusLabel = (status: string) => {
+  switch (status?.toLowerCase()) {
+    case 'online':
+    case 'present': return 'Hadir';
+    case 'late':
+    case 'terlambat': return 'Terlambat';
+    case 'overtime': return 'Lembur';
+    case 'absent': return 'Alpha';
+    case 'leave': return 'Cuti';
+    case 'sick': return 'Sakit';
+    default: return status || '-';
+  }
+};
+
 const statItems = [
   { key: 'online', label: 'Hadir (Online)', icon: CheckCircle2, color: 'text-green-600 dark:text-green-400', bg: 'bg-green-50 dark:bg-green-900/20' },
   { key: 'terlambat', label: 'Terlambat', icon: Clock, color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20' },
-  { key: 'overtime', label: 'Overtime', icon: Clock, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-900/20' },
+  { key: 'overtime', label: 'Lembur', icon: Clock, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-900/20' },
   { key: 'absent', label: 'Absen', icon: XCircle, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20' },
   { key: 'leave', label: 'Cuti', icon: AlertCircle, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/20' },
 ];
@@ -211,7 +227,7 @@ onMounted(() => {
             </Button>
             <div>
               <h1 class="text-2xl font-bold text-gray-900 dark:text-zinc-100">Detail Karyawan</h1>
-              <p class="text-gray-500 dark:text-zinc-400 mt-0.5">Profile & rekap absensi karyawan.</p>
+              <p class="text-gray-500 dark:text-zinc-400 mt-0.5">Profil & rekap absensi karyawan.</p>
             </div>
           </div>
 
@@ -383,7 +399,7 @@ onMounted(() => {
                       <TableCell class="py-3 text-gray-600 dark:text-zinc-300">{{ att.time_out ? moment(att.time_out, 'HH:mm:ss').format('HH:mm') : '-' }}</TableCell>
                       <TableCell class="py-3 text-center">
                         <Badge variant="outline" :class="getStatusBadgeVariant(att.status)" class="capitalize">
-                          {{ att.status }}
+                          {{ getStatusLabel(att.status) }}
                         </Badge>
                       </TableCell>
                     </TableRow>
@@ -399,12 +415,12 @@ onMounted(() => {
                   Dokumen Karyawan
                 </h2>
                 <Button @click="openUploadDialog" variant="outline" class="bg-white dark:bg-zinc-900 text-gray-700 dark:text-gray-300">
-                  <Upload class="w-4 h-4 mr-2" /> Upload Dokumen
+                  <Upload class="w-4 h-4 mr-2" /> Unggah Dokumen
                 </Button>
               </div>
               
               <div v-if="documents.length === 0" class="text-center py-8 text-gray-500 dark:text-zinc-400 border border-dashed rounded-lg border-gray-200 dark:border-zinc-800">
-                Belum ada dokumen yang di-upload.
+                Belum ada dokumen yang diunggah.
               </div>
               <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div v-for="doc in documents" :key="doc.id" class="p-4 border border-gray-200 dark:border-zinc-800 rounded-lg flex items-center justify-between bg-gray-50 dark:bg-zinc-900/50">
@@ -436,9 +452,9 @@ onMounted(() => {
       <Dialog v-model:open="isUploadDialogOpen">
         <DialogContent class="sm:max-w-[425px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
           <DialogHeader>
-            <DialogTitle class="text-gray-900 dark:text-zinc-100">Upload Dokumen</DialogTitle>
+            <DialogTitle class="text-gray-900 dark:text-zinc-100">Unggah Dokumen</DialogTitle>
             <DialogDescription class="text-gray-500 dark:text-zinc-400">
-              Pilih jenis dokumen dan file untuk diupload (KTP, CV, dll).
+              Pilih jenis dokumen dan berkas untuk diunggah (KTP, CV, dll).
             </DialogDescription>
           </DialogHeader>
           
@@ -454,7 +470,7 @@ onMounted(() => {
             </div>
             
             <div class="space-y-2">
-              <Label class="text-gray-700 dark:text-gray-300">File Dokumen</Label>
+              <Label class="text-gray-700 dark:text-gray-300">Berkas Dokumen</Label>
               <Input 
                 type="file" 
                 @change="handleFileUpload" 
@@ -462,13 +478,13 @@ onMounted(() => {
                 accept=".pdf,.jpg,.jpeg,.png"
                 class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
               />
-              <p class="text-xs text-gray-500 mt-1">Format: PDF, JPG, PNG (Max 5MB)</p>
+              <p class="text-xs text-gray-500 mt-1">Format: PDF, JPG, PNG (Maks 5MB)</p>
             </div>
             
             <DialogFooter class="pt-4">
               <Button type="button" variant="outline" @click="isUploadDialogOpen = false" class="bg-white dark:bg-zinc-900 text-gray-700 border-gray-200">Batal</Button>
               <Button type="submit" :disabled="uploading" class="bg-orange-600 hover:bg-orange-700 text-white">
-                {{ uploading ? 'Uploading...' : 'Upload' }}
+                {{ uploading ? 'Mengunggah...' : 'Unggah' }}
               </Button>
             </DialogFooter>
           </form>

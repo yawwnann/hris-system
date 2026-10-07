@@ -149,10 +149,6 @@ onMounted(() => {
                 <h2 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Halo, {{ authStore.user?.name }}</h2>
                 <p class="text-gray-500 dark:text-gray-400 mt-1.5">{{ currentDateDisplay }} | {{ authStore.user?.position?.name || 'Karyawan' }}</p>
               </div>
-              <div class="flex items-center space-x-3 mt-5 md:mt-0">
-                <Button class="bg-black hover:bg-gray-800 text-white dark:bg-white dark:text-black dark:hover:bg-gray-200 h-10 px-6 font-medium">Jam Masuk</Button>
-                <Button variant="outline" class="border-gray-300 dark:border-zinc-700 bg-white text-gray-900 hover:bg-gray-50 dark:bg-zinc-900 dark:text-gray-100 h-10 px-6 font-medium">Ajukan Cuti</Button>
-              </div>
             </div>
 
             <!-- Stats Row -->
@@ -213,7 +209,7 @@ onMounted(() => {
                    </div>
                 </div>
                 <div class="mt-6 pt-3.5 border-t border-gray-100 dark:border-zinc-800 flex justify-between items-center text-[11px] font-medium text-gray-500 dark:text-gray-400">
-                  <span>Menunggu Approval: {{ stats.pending_overtime_this_month }} Jam</span>
+                  <span>Menunggu Persetujuan: {{ stats.pending_overtime_this_month }} Jam</span>
                   <MoreHorizontal class="w-4 h-4 text-gray-400" />
                 </div>
               </div>
@@ -242,7 +238,7 @@ onMounted(() => {
                          </div>
                          <div class="pt-0.5">
                            <div class="text-[13px] font-semibold text-gray-900 dark:text-gray-100 leading-tight">{{ event.title }}</div>
-                           <div class="text-[11px] text-gray-500 mt-0.5">{{ event.description || 'Online' }}</div>
+                           <div class="text-[11px] text-gray-500 mt-0.5">{{ event.description || 'Daring' }}</div>
                          </div>
                       </div>
                       <div class="text-xs font-bold text-gray-900 dark:text-gray-100 font-mono">{{ formatTime(event.date) }}</div>

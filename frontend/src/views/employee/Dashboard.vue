@@ -182,7 +182,7 @@ onMounted(() => {
                  </div>
               </div>
               <div class="mt-6 pt-3.5 border-t border-gray-100 dark:border-zinc-800 flex justify-between items-center text-[11px] font-medium text-gray-500 dark:text-gray-400">
-                <span>Menunggu Approval: {{ stats.pending_overtime_this_month }} Jam</span>
+                <span>Menunggu Persetujuan: {{ stats.pending_overtime_this_month }} Jam</span>
                 <MoreHorizontal class="w-4 h-4 text-gray-400" />
               </div>
             </div>
@@ -209,7 +209,7 @@ onMounted(() => {
                        </div>
                        <div class="pt-0.5">
                          <div class="text-[13px] font-semibold text-gray-900 dark:text-gray-100 leading-tight">{{ event.title }}</div>
-                         <div class="text-[11px] text-gray-500 mt-0.5">{{ event.description || 'Online' }}</div>
+                         <div class="text-[11px] text-gray-500 mt-0.5">{{ event.description || 'Daring' }}</div>
                        </div>
                     </div>
                     <div class="text-xs font-bold text-gray-900 dark:text-gray-100 font-mono">{{ formatTime(event.date) }}</div>

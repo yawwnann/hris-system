@@ -14,17 +14,28 @@ import {
 const route = useRoute();
 
 const breadcrumbs = computed(() => {
-const routeNameMap: Record<string, string> = {
-  'Dashboard': 'Dasbor',
-  'Announcements': 'Pengumuman',
-  'Reports': 'Laporan & Ekspor',
-  'Settings': 'Pengaturan',
-  'Employees': 'Manajemen Karyawan',
-  'Departments': 'Manajemen Departemen',
-  'Attendance': 'Absensi',
-  'Leaves': 'Pengajuan Cuti',
-  'Overtime': 'Pengajuan Lembur',
-};
+  const routeNameMap: Record<string, string> = {
+    'Dashboard': 'Dasbor',
+    'AdminEmployees': 'Manajemen Karyawan',
+    'AdminEmployeeDetail': 'Detail Karyawan',
+    'AdminDepartments': 'Manajemen Bidang',
+    'Attendance': 'Absensi',
+    'Calendar': 'Manajemen Kalender',
+    'Leaves': 'Pengajuan Cuti',
+    'Overtime': 'Pengajuan Lembur',
+    'Announcements': 'Pengumuman',
+    'AdminSettings': 'Pengaturan',
+    'EmployeeDashboard': 'Dasbor',
+    'EmployeeAttendance': 'Absensi Karyawan',
+    'EmployeeCalendar': 'Kalender Kerja',
+    'EmployeeLeaves': 'Pengajuan Cuti & Izin',
+    'EmployeeOvertime': 'Pengajuan Lembur',
+    'EmployeeAnnouncements': 'Pengumuman',
+    'Reports': 'Laporan & Ekspor',
+    'Settings': 'Pengaturan',
+    'Employees': 'Manajemen Karyawan',
+    'Departments': 'Manajemen Bidang',
+  };
 
   const currentName = route.name as string;
   const displayName = routeNameMap[currentName] || currentName;
@@ -49,10 +60,10 @@ const routeNameMap: Record<string, string> = {
       </BreadcrumbItem>
       
       <!-- Separator -->
-      <BreadcrumbSeparator v-if="breadcrumbs.name !== 'Dashboard'" />
+      <BreadcrumbSeparator v-if="breadcrumbs.name !== 'Dashboard' && breadcrumbs.name !== 'EmployeeDashboard'" />
       
       <!-- Current Page -->
-      <BreadcrumbItem v-if="breadcrumbs.name !== 'Dashboard'">
+      <BreadcrumbItem v-if="breadcrumbs.name !== 'Dashboard' && breadcrumbs.name !== 'EmployeeDashboard'">
         <BreadcrumbPage class="font-medium text-gray-900 dark:text-zinc-100">{{ breadcrumbs.displayName }}</BreadcrumbPage>
       </BreadcrumbItem>
     </BreadcrumbList>

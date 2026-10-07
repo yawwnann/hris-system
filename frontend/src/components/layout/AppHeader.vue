@@ -61,7 +61,7 @@ const executeLogout = async () => {
       
       <div class="mx-1 h-6 w-px bg-gray-200 dark:bg-zinc-800"></div>
       
-      <Button @click="isLogoutDialogOpen = true" variant="ghost" size="icon" aria-label="Keluar" class="h-9 w-9 rounded-full text-red-500 hover:bg-red-50 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-950/30" title="Logout">
+      <Button @click="isLogoutDialogOpen = true" variant="ghost" size="icon" aria-label="Keluar" class="h-9 w-9 rounded-full text-red-500 hover:bg-red-50 hover:text-red-600 dark:text-red-400 dark:hover:bg-red-950/30" title="Keluar">
         <LogOut class="h-4 w-4" />
       </Button>
     </div>
@@ -69,9 +69,9 @@ const executeLogout = async () => {
     <AlertDialog v-model:open="isLogoutDialogOpen">
       <AlertDialogContent class="w-[calc(100%-2rem)] max-w-md border border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <AlertDialogHeader>
-          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Konfirmasi Logout</AlertDialogTitle>
+          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Konfirmasi Keluar</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
-            Apakah Anda yakin ingin keluar dari sesi ini? Anda harus login kembali untuk mengakses aplikasi.
+            Apakah Anda yakin ingin keluar dari sesi ini? Anda harus masuk kembali untuk mengakses aplikasi.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter class="mt-6">

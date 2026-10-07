@@ -197,7 +197,7 @@ const prevPage = () => {
               />
             </div>
             <Button @click="openAddForm" class="bg-orange-600 hover:bg-orange-700 text-white dark:text-white">
-              <Plus class="w-4 h-4 mr-2" /> Add Employee
+              <Plus class="w-4 h-4 mr-2" /> Tambah Karyawan
             </Button>
           </div>
         </div>
@@ -209,9 +209,9 @@ const prevPage = () => {
               <TableHeader class="bg-gray-50 dark:bg-zinc-950/50">
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
                   <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
-                  <TableHead class="w-[250px] font-semibold text-gray-600 dark:text-zinc-300">Employee</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Position & Bidang</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Contact</TableHead>
+                  <TableHead class="w-[250px] font-semibold text-gray-600 dark:text-zinc-300">Karyawan</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Jabatan & Bidang</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Kontak</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Status Kepegawaian</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Lama Bekerja</TableHead>
                   <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300">Aksi</TableHead>
@@ -219,13 +219,13 @@ const prevPage = () => {
               </TableHeader>
               <TableBody>
                 <TableRow v-if="loading">
-                  <TableCell colspan="6" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    Loading employee data...
+                  <TableCell colspan="7" class="h-32 text-center text-gray-500 dark:text-zinc-400">
+                    Memuat data karyawan...
                   </TableCell>
                 </TableRow>
                 <TableRow v-else-if="paginatedEmployees.length === 0">
-                  <TableCell colspan="6" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    No data found.
+                  <TableCell colspan="7" class="h-32 text-center text-gray-500 dark:text-zinc-400">
+                    Tidak ada data ditemukan.
                   </TableCell>
                 </TableRow>
                 <TableRow 
@@ -289,10 +289,10 @@ const prevPage = () => {
                         <Eye class="h-4 w-4 mr-1" /> Detail
                       </Button>
                       <Button variant="outline" size="sm" @click="openEditForm(employee)" class="h-8 border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20">
-                        <Edit class="h-4 w-4 mr-1" /> Edit
+                        <Edit class="h-4 w-4 mr-1" /> Ubah
                       </Button>
                       <Button variant="outline" size="sm" @click="confirmDelete(employee.id)" class="h-8 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
-                        <Trash2 class="h-4 w-4 mr-1" /> Delete
+                        <Trash2 class="h-4 w-4 mr-1" /> Hapus
                       </Button>
                     </div>
                   </TableCell>
@@ -332,7 +332,7 @@ const prevPage = () => {
                 :disabled="currentPage === 1"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Previous
+                Sebelumnya
               </Button>
               <Button 
                 variant="outline" 
@@ -341,7 +341,7 @@ const prevPage = () => {
                 :disabled="currentPage >= totalPages"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Next
+                Selanjutnya
               </Button>
             </div>
           </div>
@@ -360,14 +360,14 @@ const prevPage = () => {
     <AlertDialog v-model:open="isDeleteDialogOpen">
       <AlertDialogContent class="bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800">
         <AlertDialogHeader>
-          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Delete Employee?</AlertDialogTitle>
+          <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Hapus Karyawan?</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
-            This employee will be deleted. All related data cannot be recovered.
+            Karyawan ini akan dihapus. Semua data terkait tidak dapat dipulihkan kembali.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Batal</AlertDialogCancel>
-          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Yes, Delete</AlertDialogAction>
+          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Ya, Hapus</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

@@ -278,7 +278,7 @@ const handleFileUpload = (event: Event) => {
               Pengajuan Cuti
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
-              {{ authStore.user?.role === 'admin' ? 'Manage employee leave requests and approvals.' : 'Ajukan dan pantau status permohonan cuti Anda.' }}
+              {{ authStore.user?.role === 'admin' ? 'Kelola pengajuan cuti dan persetujuan karyawan.' : 'Ajukan dan pantau status permohonan cuti Anda.' }}
             </p>
           </div>
           
@@ -322,7 +322,7 @@ const handleFileUpload = (event: Event) => {
               <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
               <Input 
                 v-model="searchQuery"
-                :placeholder="authStore.user?.role === 'admin' ? 'Search name or reason...' : 'Search reason...'"
+                :placeholder="authStore.user?.role === 'admin' ? 'Cari nama atau alasan...' : 'Cari alasan...'"
                 class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100"
               />
             </div>
@@ -339,7 +339,7 @@ const handleFileUpload = (event: Event) => {
               <TableHeader class="bg-gray-50 dark:bg-zinc-950/50">
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
                   <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
-                  <TableHead v-if="authStore.user?.role === 'admin'" class="font-semibold text-gray-600 dark:text-zinc-300">Employee</TableHead>
+                  <TableHead v-if="authStore.user?.role === 'admin'" class="font-semibold text-gray-600 dark:text-zinc-300">Karyawan</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Tipe</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Rentang Tanggal</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Alasan</TableHead>
@@ -350,12 +350,12 @@ const handleFileUpload = (event: Event) => {
               <TableBody>
                 <TableRow v-if="loading">
                   <TableCell :colspan="authStore.user?.role === 'admin' ? 7 : 6" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    Loading request data...
+                    Memuat data pengajuan...
                   </TableCell>
                 </TableRow>
                 <TableRow v-else-if="paginatedLeaves.length === 0">
                   <TableCell :colspan="authStore.user?.role === 'admin' ? 7 : 6" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    No request data found.
+                    Tidak ada data pengajuan ditemukan.
                   </TableCell>
                 </TableRow>
                 <TableRow 
@@ -410,10 +410,10 @@ const handleFileUpload = (event: Event) => {
                         size="icon" 
                         variant="outline" 
                         class="h-8 w-auto px-2 text-yellow-600 border-yellow-200 hover:bg-yellow-50 hover:border-yellow-300 hover:text-yellow-700 rounded-full transition-colors"
-                        title="View Details"
+                        title="Lihat Detail"
                       >
                         <Eye class="w-4 h-4" />
-                        Need Action
+                        Perlu Tindakan
                       </Button>
                     </div>
                   </TableCell>
@@ -438,7 +438,7 @@ const handleFileUpload = (event: Event) => {
                 </SelectContent>
               </Select>
             </div>
-<div class="text-sm text-gray-500 dark:text-zinc-400">
+            <div class="text-sm text-gray-500 dark:text-zinc-400">
               Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedLeaves.length > 0 ? (currentPage - 1) * Number(itemsPerPage) + 1 : 0 }}</span> - 
               <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * Number(itemsPerPage), totalItems) }}</span> dari 
               <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> pengajuan
@@ -452,7 +452,7 @@ const handleFileUpload = (event: Event) => {
                 :disabled="currentPage === 1"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Previous
+                Sebelumnya
               </Button>
               <Button 
                 variant="outline" 
@@ -461,7 +461,7 @@ const handleFileUpload = (event: Event) => {
                 :disabled="currentPage >= totalPages"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Next
+                Selanjutnya
               </Button>
             </div>
           </div>
@@ -489,7 +489,7 @@ const handleFileUpload = (event: Event) => {
             </div>
             <Select v-model="formData.type">
               <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100">
-                <SelectValue placeholder="Pilih type" />
+                <SelectValue placeholder="Pilih tipe" />
               </SelectTrigger>
               <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
                 <SelectGroup>
@@ -546,13 +546,13 @@ const handleFileUpload = (event: Event) => {
                   <Check class="w-5 h-5" />
                 </div>
                 <p class="text-sm font-medium text-gray-900 dark:text-zinc-100">{{ formData.attachment.name }}</p>
-                <p class="text-xs text-gray-500 dark:text-zinc-400 mt-1">Click to replace</p>
+                <p class="text-xs text-gray-500 dark:text-zinc-400 mt-1">Klik untuk mengganti</p>
               </div>
               <div v-else class="flex flex-col items-center justify-center">
                 <div class="w-10 h-10 mb-2 rounded-full bg-gray-100 dark:bg-zinc-800 flex items-center justify-center text-gray-500 dark:text-zinc-400">
                   <Paperclip class="w-5 h-5" />
                 </div>
-                <p class="text-sm text-gray-600 dark:text-zinc-300"><span class="font-semibold text-orange-600 dark:text-orange-400">Click to upload</span> or drag and drop</p>
+                <p class="text-sm text-gray-600 dark:text-zinc-300"><span class="font-semibold text-orange-600 dark:text-orange-400">Klik untuk unggah</span> atau seret dan lepas</p>
                 <p class="text-xs text-gray-500 dark:text-zinc-500 mt-1">PDF, JPG, JPEG, PNG</p>
               </div>
               <input 
@@ -568,10 +568,10 @@ const handleFileUpload = (event: Event) => {
           
           <DialogFooter class="pt-4">
             <Button type="button" variant="outline" @click="isAddDialogOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-              Cancel
+              Batal
             </Button>
             <Button type="submit" :disabled="isSubmitting" class="bg-orange-600 hover:bg-orange-700 text-white">
-              {{ isSubmitting ? 'Mengirim...' : 'Submit Request' }}
+              {{ isSubmitting ? 'Mengirim...' : 'Kirim Pengajuan' }}
             </Button>
           </DialogFooter>
         </form>
@@ -586,12 +586,12 @@ const handleFileUpload = (event: Event) => {
         <AlertDialogHeader>
           <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Batalkan Pengajuan?</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
-            Are you sure you want to cancel this request?
+            Apakah Anda yakin ingin membatalkan pengajuan ini?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">No</AlertDialogCancel>
-          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Yes, Cancel</AlertDialogAction>
+          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Tidak</AlertDialogCancel>
+          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Ya, Batalkan</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -644,16 +644,16 @@ const handleFileUpload = (event: Event) => {
           </div>
           
           <div v-if="selectedLeave.attachment">
-            <Label class="text-xs text-gray-500">Attachment / Proof</Label>
+            <Label class="text-xs text-gray-500">Lampiran / Bukti</Label>
             <div class="mt-1.5">
               <a :href="getAttachmentUrl(selectedLeave.attachment)" target="_blank" class="inline-flex items-center text-sm px-4 py-2 bg-orange-50 text-orange-700 hover:bg-orange-100 dark:bg-orange-900/30 dark:text-orange-400 dark:hover:bg-orange-900/50 rounded-lg transition-colors border border-orange-100 dark:border-orange-800/30">
-                <Paperclip class="w-4 h-4 mr-2" /> View Document
+                <Paperclip class="w-4 h-4 mr-2" /> Lihat Dokumen
               </a>
             </div>
           </div>
           
           <div v-if="selectedLeave.admin_note">
-            <Label class="text-xs text-gray-500">Admin Note</Label>
+            <Label class="text-xs text-gray-500">Catatan Admin</Label>
             <div class="text-sm mt-1.5 text-gray-700 dark:text-gray-300 italic">
               "{{ selectedLeave.admin_note }}"
             </div>
@@ -662,10 +662,10 @@ const handleFileUpload = (event: Event) => {
         
         <DialogFooter v-if="selectedLeave?.status === 'pending' && authStore.user?.role === 'admin'" class="pt-4 border-t border-gray-100 dark:border-zinc-800">
           <Button variant="outline" @click="directAction(selectedLeave.id, 'rejected'); isDetailDialogOpen = false" class="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
-            Reject
+            Tolak
           </Button>
           <Button @click="directAction(selectedLeave.id, 'approved'); isDetailDialogOpen = false" class="bg-green-600 hover:bg-green-700 text-white">
-            Approve
+            Setujui
           </Button>
         </DialogFooter>
       </DialogContent>

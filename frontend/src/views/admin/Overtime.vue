@@ -225,7 +225,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
               Pengajuan Lembur
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
-              {{ authStore.user?.role === 'admin' ? 'Manage employee overtime requests and approvals.' : 'Ajukan dan pantau status permohonan lembur Anda.' }}
+              {{ authStore.user?.role === 'admin' ? 'Kelola pengajuan lembur dan persetujuan karyawan.' : 'Ajukan dan pantau status permohonan lembur Anda.' }}
             </p>
           </div>
           
@@ -234,12 +234,12 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
               <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
               <Input 
                 v-model="searchQuery"
-                :placeholder="authStore.user?.role === 'admin' ? 'Search name...' : 'Search...'"
+                :placeholder="authStore.user?.role === 'admin' ? 'Cari nama...' : 'Cari...'"
                 class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100"
               />
             </div>
             <Button v-if="authStore.user?.role !== 'admin'" @click="openAddDialog" class="bg-orange-600 hover:bg-orange-700 text-white dark:text-white">
-              <Plus class="w-4 h-4 mr-2" /> Request Overtime
+              <Plus class="w-4 h-4 mr-2" /> Ajukan Lembur
             </Button>
           </div>
         </div>
@@ -251,7 +251,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
               <TableHeader class="bg-gray-50 dark:bg-zinc-950/50">
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
                   <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
-                  <TableHead v-if="authStore.user?.role === 'admin'" class="font-semibold text-gray-600 dark:text-zinc-300">Employee</TableHead>
+                  <TableHead v-if="authStore.user?.role === 'admin'" class="font-semibold text-gray-600 dark:text-zinc-300">Karyawan</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Tanggal</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Waktu</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Durasi</TableHead>
@@ -262,12 +262,12 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
               <TableBody>
                 <TableRow v-if="loading">
                   <TableCell :colspan="authStore.user?.role === 'admin' ? 8 : 7" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    Loading request data...
+                    Memuat data pengajuan...
                   </TableCell>
                 </TableRow>
                 <TableRow v-else-if="paginatedOvertimes.length === 0">
                   <TableCell :colspan="authStore.user?.role === 'admin' ? 8 : 7" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    No request data found.
+                    Tidak ada data pengajuan ditemukan.
                   </TableCell>
                 </TableRow>
                 <TableRow 
@@ -323,7 +323,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                           size="icon" 
                           variant="outline" 
                           class="h-8 w-8 text-green-600 border-green-200 hover:bg-green-50 hover:border-green-300 hover:text-green-700 rounded-full transition-colors"
-                          title="Approve"
+                          title="Setujui"
                         >
                           <Check class="w-4 h-4" />
                         </Button>
@@ -333,7 +333,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                           size="icon" 
                           variant="outline" 
                           class="h-8 w-8 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 hover:text-red-700 rounded-full transition-colors"
-                          title="Reject"
+                          title="Tolak"
                         >
                           <X class="w-4 h-4" />
                         </Button>
@@ -343,7 +343,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                           size="icon" 
                           variant="outline" 
                           class="h-8 w-8 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 hover:text-red-700 rounded-full transition-colors"
-                          title="Cancel Request"
+                          title="Batalkan Pengajuan"
                         >
                           <X class="w-4 h-4" />
                         </Button>
@@ -372,7 +372,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                 </SelectContent>
               </Select>
             </div>
-<div class="text-sm text-gray-500 dark:text-zinc-400">
+            <div class="text-sm text-gray-500 dark:text-zinc-400">
               Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedOvertimes.length > 0 ? (currentPage - 1) * Number(itemsPerPage) + 1 : 0 }}</span> - 
               <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * Number(itemsPerPage), totalItems) }}</span> dari 
               <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> pengajuan
@@ -386,7 +386,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                 :disabled="currentPage === 1"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Previous
+                Sebelumnya
               </Button>
               <Button 
                 variant="outline" 
@@ -395,7 +395,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                 :disabled="currentPage >= totalPages"
                 class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
               >
-                Next
+                Selanjutnya
               </Button>
             </div>
           </div>
@@ -465,10 +465,10 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
           
           <DialogFooter class="pt-4">
             <Button type="button" variant="outline" @click="isAddDialogOpen = false" class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-              Cancel
+              Batal
             </Button>
             <Button type="submit" :disabled="isSubmitting" class="bg-orange-600 hover:bg-orange-700 text-white">
-              {{ isSubmitting ? 'Mengirim...' : 'Submit Request' }}
+              {{ isSubmitting ? 'Mengirim...' : 'Kirim Pengajuan' }}
             </Button>
           </DialogFooter>
         </form>
@@ -523,7 +523,7 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
           </div>
           
           <div v-if="selectedOt.admin_note">
-            <Label class="text-xs text-gray-500">Admin Note</Label>
+            <Label class="text-xs text-gray-500">Catatan Admin</Label>
             <div class="text-sm mt-1.5 text-gray-700 dark:text-gray-300 italic">
               "{{ selectedOt.admin_note }}"
             </div>
@@ -532,10 +532,10 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
         
         <DialogFooter v-if="selectedOt?.status === 'pending' && authStore.user?.role === 'admin'" class="pt-4 border-t border-gray-100 dark:border-zinc-800">
           <Button variant="outline" @click="directAction(selectedOt.id, 'rejected'); isDetailDialogOpen = false" class="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
-            Reject
+            Tolak
           </Button>
           <Button @click="directAction(selectedOt.id, 'approved'); isDetailDialogOpen = false" class="bg-green-600 hover:bg-green-700 text-white">
-            Approve
+            Setujui
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -547,12 +547,12 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
         <AlertDialogHeader>
           <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Batalkan Pengajuan?</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
-            Are you sure you want to cancel this request?
+            Apakah Anda yakin ingin membatalkan pengajuan ini?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">No</AlertDialogCancel>
-          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Yes, Cancel</AlertDialogAction>
+          <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Tidak</AlertDialogCancel>
+          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Ya, Batalkan</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

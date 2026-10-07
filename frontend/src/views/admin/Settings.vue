@@ -199,7 +199,7 @@ const saveSettings = async () => {
   }
 };
 </script>
-```vue
+
 <template>
 
   <div class="min-h-screen flex bg-[#fbfbfb] dark:bg-zinc-950 text-sm transition-colors">
@@ -546,4 +546,3 @@ const saveSettings = async () => {
   </div>
 
 </template>
-```

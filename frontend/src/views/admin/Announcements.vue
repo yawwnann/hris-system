@@ -389,7 +389,7 @@ const formatDate = (dateString: string) =>
               :disabled="currentPage === 1"
               class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
             >
-              Previous
+              Sebelumnya
             </Button>
             <Button
               variant="outline"
@@ -398,7 +398,7 @@ const formatDate = (dateString: string) =>
               :disabled="currentPage >= totalPages"
               class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300"
             >
-              Next
+              Selanjutnya
             </Button>
           </div>
         </div>
@@ -436,7 +436,7 @@ const formatDate = (dateString: string) =>
             <div class="flex items-center justify-between px-8 pt-8 pb-2">
               <div>
                 <h2 class="text-xl font-bold text-gray-900 dark:text-zinc-100">
-                  {{ editId ? "Edit Pengumuman" : "Buat Pengumuman Baru" }}
+                  {{ editId ? "Ubah Pengumuman" : "Buat Pengumuman Baru" }}
                 </h2>
                 <p class="text-xs text-gray-500 dark:text-zinc-400 mt-1.5">
                   Pastikan isi pesan jelas dan mudah dipahami oleh semua karyawan.

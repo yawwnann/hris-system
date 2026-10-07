@@ -221,6 +221,15 @@ const getTypeLabel = (type: string) => {
   return map[type] || type;
 };
 
+const getStatusLabel = (status: string) => {
+  const map: Record<string, string> = {
+    pending: "Menunggu",
+    approved: "Disetujui",
+    rejected: "Ditolak",
+  };
+  return map[status] || status;
+};
+
 const handleFileUpload = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
@@ -471,7 +480,11 @@ const handleFileUpload = (event: Event) => {
           </div>
           <div class="flex justify-between border-b border-gray-100 dark:border-zinc-800 pb-2">
             <span class="text-gray-500">Status</span>
-            <span class="font-medium uppercase text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-zinc-800">{{ selectedLeave.status }}</span>
+            <span class="font-medium text-xs px-2 py-0.5 rounded" :class="{
+              'bg-yellow-50 text-yellow-700': selectedLeave.status === 'pending',
+              'bg-green-50 text-green-700': selectedLeave.status === 'approved',
+              'bg-red-50 text-red-700': selectedLeave.status === 'rejected'
+            }">{{ getStatusLabel(selectedLeave.status) }}</span>
           </div>
           <div>
             <span class="text-gray-500 block mb-1">Alasan:</span>
@@ -480,7 +493,7 @@ const handleFileUpload = (event: Event) => {
           <div v-if="selectedLeave.attachment">
             <span class="text-gray-500 block mb-1">Lampiran:</span>
             <a :href="getAttachmentUrl(selectedLeave.attachment)" target="_blank" class="inline-flex items-center text-orange-600 hover:underline">
-              <Paperclip class="w-4 h-4 mr-1.5" /> Lihat Lampiran File
+              <Paperclip class="w-4 h-4 mr-1.5" /> Lihat Berkas Lampiran
             </a>
           </div>
         </div>

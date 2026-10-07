@@ -24,9 +24,9 @@ export const mockPositions = {
 
 export const mockShifts = {
   data: [
-    { id: 1, name: 'Morning Shift (08:00 - 17:00)' },
-    { id: 2, name: 'Night Shift (20:00 - 05:00)' },
-    { id: 3, name: 'Evening Shift (14:00 - 22:00)' }
+    { id: 1, name: 'Shift Pagi (08:00 - 17:00)' },
+    { id: 2, name: 'Shift Malam (20:00 - 05:00)' },
+    { id: 3, name: 'Shift Sore (14:00 - 22:00)' }
   ],
   total: 3,
   last_page: 1
@@ -76,8 +76,8 @@ export const mockAnnouncements = {
     const date = new Date(Date.now() - Math.floor(Math.random() * 60) * 24 * 60 * 60 * 1000).toISOString();
     return {
       id: i + 1,
-      title: `Announcement Subject ${i + 1}`,
-      content: `This is the detailed content for announcement number ${i + 1}. Please read carefully.`,
+      title: `Judul Pengumuman ${i + 1}`,
+      content: `Ini adalah detail konten untuk pengumuman nomor ${i + 1}. Harap dibaca dengan cermat.`,
       status: isPublished ? 'published' : 'draft',
       publish_date: isPublished ? date : null,
       created_at: date
@@ -100,7 +100,7 @@ export const mockLeaves = {
       type: getRandom(leaveTypes),
       start_date: startDate.toISOString().split('T')[0],
       end_date: endDate.toISOString().split('T')[0],
-      reason: `Leave reason ${i + 1}`,
+      reason: `Alasan pengajuan cuti ${i + 1}`,
       status: getRandom(leaveStatuses),
       user: { name: getRandom(mockUsers) }
     };
@@ -123,7 +123,7 @@ export const mockOvertimes = {
       start_time,
       end_time,
       total_duration: duration,
-      reason: `Overtime reason ${i + 1}`,
+      reason: `Alasan pengajuan lembur ${i + 1}`,
       status: getRandom(leaveStatuses),
       user: { name: getRandom(mockUsers) }
     };

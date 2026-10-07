@@ -76,17 +76,17 @@ const activeCategories = ref<string[]>([
 ]);
 
 const categoriesList = [
-  { value: 'WORKDAY', label: 'Workday', color: '#10b981' },
-  { value: 'WEEKEND', label: 'Weekend', color: '#6b7280' },
-  { value: 'NATIONAL_HOLIDAY', label: 'National Holiday', color: '#ef4444' },
-  { value: 'COMPANY_HOLIDAY', label: 'Company Holiday', color: '#f97316' },
-  { value: 'COLLECTIVE_LEAVE', label: 'Collective Leave', color: '#f59e0b' },
-  { value: 'SHIFT', label: 'Special Shift', color: '#8b5cf6' },
-  { value: 'TRAINING', label: 'Training', color: '#0ea5e9' },
+  { value: 'WORKDAY', label: 'Hari Kerja', color: '#10b981' },
+  { value: 'WEEKEND', label: 'Akhir Pekan', color: '#6b7280' },
+  { value: 'NATIONAL_HOLIDAY', label: 'Hari Libur Nasional', color: '#ef4444' },
+  { value: 'COMPANY_HOLIDAY', label: 'Libur Perusahaan', color: '#f97316' },
+  { value: 'COLLECTIVE_LEAVE', label: 'Cuti Bersama', color: '#f59e0b' },
+  { value: 'SHIFT', label: 'Shift Khusus', color: '#8b5cf6' },
+  { value: 'TRAINING', label: 'Pelatihan', color: '#0ea5e9' },
   { value: 'MEETING', label: 'Rapat', color: '#3b82f6' },
   { value: 'COMPANY_EVENT', label: 'Acara Perusahaan', color: '#ec4899' },
-  { value: 'MAINTENANCE', label: 'Maintenance', color: '#64748b' },
-  { value: 'OTHER', label: 'Other', color: '#94a3b8' },
+  { value: 'MAINTENANCE', label: 'Pemeliharaan', color: '#64748b' },
+  { value: 'OTHER', label: 'Lainnya', color: '#94a3b8' },
 ];
 
 // Form
@@ -216,7 +216,7 @@ const calendarDays = computed(() => {
     if (day.day() === 0 && activeCategories.value.includes('WEEKEND')) {
       dayEvents.push({
         id: `sunday-${dateStr}`,
-        title: 'Weekend Holiday',
+        title: 'Libur Akhir Pekan',
         category: 'WEEKEND',
         is_all_day: true,
         start_datetime: dateStr,
@@ -373,7 +373,7 @@ const executeDelete = async () => {
               Manajemen Kalender
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
-              Manage work schedules, holidays, company agendas, and other events.
+              Kelola jadwal kerja, hari libur, agenda perusahaan, dan acara lainnya.
             </p>
           </div>
           <Button v-if="authStore.user?.role === 'admin'" @click="openAddForm()" class="w-full bg-orange-600 text-white hover:bg-orange-700 sm:w-auto">
@@ -387,7 +387,7 @@ const executeDelete = async () => {
           <div class="order-2 flex w-full min-w-0 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 lg:order-1 lg:sticky lg:top-20">
             <div class="p-4 border-b border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-950/30">
               <h3 class="font-semibold text-gray-800 dark:text-zinc-200 flex items-center">
-                <ListFilter class="w-4 h-4 mr-2" /> Category Filter
+                <ListFilter class="w-4 h-4 mr-2" /> Filter Kategori
               </h3>
             </div>
             <ScrollArea class="max-h-56 p-4 lg:max-h-[calc(100vh-10rem)]">
@@ -422,7 +422,7 @@ const executeDelete = async () => {
                   <ChevronRight class="w-4 h-4" />
                 </Button>
                 <Button variant="ghost" size="sm" @click="currentDate = moment()" class="text-orange-600 dark:text-orange-400 sm:ml-2">
-                  Today
+                  Hari Ini
                 </Button>
               </div>
               
@@ -433,7 +433,7 @@ const executeDelete = async () => {
             <div class="min-h-0 flex-1 overflow-auto">
               <div class="min-w-[44rem]">
                 <div class="grid grid-cols-7 border-b border-gray-200 bg-gray-50 dark:border-zinc-800 dark:bg-zinc-950">
-                  <div v-for="day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']" :key="day" class="truncate py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 sm:text-xs">
+                  <div v-for="day in ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']" :key="day" class="truncate py-2 text-center text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-400 sm:text-xs">
                     {{ day }}
                   </div>
                 </div>
@@ -502,7 +502,7 @@ const executeDelete = async () => {
                 <div v-for="evt in upcomingEvents" :key="evt.id" class="p-3 border border-gray-200 dark:border-zinc-800 rounded-lg bg-gray-50/50 dark:bg-zinc-950/50 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors" @click="viewEvent(evt)">
                   <div class="flex items-start justify-between mb-1">
                     <div class="text-[11px] text-gray-500 font-medium">
-                      {{ evt.is_all_day ? moment(evt.start_datetime).format('MMM D') + ', All Day' : moment(evt.start_datetime).format('MMM D, HH:mm') }}
+                      {{ evt.is_all_day ? moment(evt.start_datetime).format('MMM D') + ', Sepanjang Hari' : moment(evt.start_datetime).format('MMM D, HH:mm') }}
                     </div>
                     <Badge variant="outline" class="text-[9px] px-1.5 py-0 rounded-sm uppercase font-bold" :style="{ borderColor: getCategoryColor(evt.category, evt.color), color: getCategoryColor(evt.category, evt.color) }">
                       {{ getCategoryLabel(evt.category) }}
@@ -548,12 +548,12 @@ const executeDelete = async () => {
         <AlertDialogHeader>
           <AlertDialogTitle class="text-gray-900 dark:text-zinc-100">Hapus Acara?</AlertDialogTitle>
           <AlertDialogDescription class="text-gray-500 dark:text-zinc-400">
-            Apakah Anda yakin ingin menghapus this event from the calendar?
+            Apakah Anda yakin ingin menghapus acara ini dari kalender?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800">Batal</AlertDialogCancel>
-          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Yes, Delete</AlertDialogAction>
+          <AlertDialogAction @click="executeDelete" class="bg-red-600 text-white hover:bg-red-700">Ya, Hapus</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

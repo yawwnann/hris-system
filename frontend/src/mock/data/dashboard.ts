@@ -13,8 +13,8 @@ export const adminDashboardMock = {
   monthly_attendance_rate: 95,
   recent_activities: Array.from({ length: 8 }).map((_, i) => ({
     id: i + 1,
-    text: `User ${i+1} performed an action`,
-    time: `0${8 + i}:00 AM`
+    text: `Pengguna ${i+1} melakukan aksi`,
+    time: `0${8 + i}:00 WIB`
   })),
   departments: departments.map(name => ({ name, count: Math.floor(Math.random() * 40) + 5 })),
   attendance_chart: (() => {
@@ -62,9 +62,9 @@ export const employeeDashboardMock = {
   overtime_this_month: 5,
   pending_overtime_this_month: 2,
   upcoming_events: [
-    { id: 1, type: 'meeting', title: 'Daily Standup', description: 'Online', date: '2026-08-27T10:00:00' },
-    { id: 2, type: 'other', title: 'Code Review', description: 'Office', date: '2026-08-27T14:00:00' },
-    { id: 3, type: 'meeting', title: 'Project Sync', description: 'Room A', date: '2026-08-28T11:00:00' }
+    { id: 1, type: 'meeting', title: 'Daily Standup', description: 'Daring', date: '2026-08-27T10:00:00' },
+    { id: 2, type: 'other', title: 'Code Review', description: 'Kantor', date: '2026-08-27T14:00:00' },
+    { id: 3, type: 'meeting', title: 'Sinkronisasi Proyek', description: 'Ruang Rapat A', date: '2026-08-28T11:00:00' }
   ],
   recent_attendances: Array.from({ length: 5 }).map((_, i) => ({
     id: i + 1,

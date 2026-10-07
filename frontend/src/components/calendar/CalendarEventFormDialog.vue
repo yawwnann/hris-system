@@ -57,7 +57,7 @@ const toggleDivision = (id: any) => {
     <DialogContent class="sm:max-w-[600px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800 p-0 overflow-hidden">
       <DialogHeader class="p-6 pb-0">
         <DialogTitle class="text-xl text-gray-900 dark:text-zinc-100">{{ editId ? 'Ubah Acara' : 'Tambah Acara' }}</DialogTitle>
-        <DialogDescription>Fill in the calendar event details below.</DialogDescription>
+        <DialogDescription>Isi detail acara kalender di bawah ini.</DialogDescription>
       </DialogHeader>
       
       <form @submit.prevent="emit('save')" class="p-6">
@@ -66,7 +66,7 @@ const toggleDivision = (id: any) => {
             <!-- Title -->
             <div>
               <Label>Nama Acara</Label>
-              <Input v-model="eventForm.title" placeholder="E.g., Team Rapat, National Holiday" required class="mt-1" />
+              <Input v-model="eventForm.title" placeholder="Contoh: Rapat Tim, Libur Nasional" required class="mt-1" />
             </div>
             
             <!-- Category -->
@@ -75,7 +75,7 @@ const toggleDivision = (id: any) => {
                 <Label>Kategori</Label>
                 <Select v-model="eventForm.category">
                   <SelectTrigger class="mt-1">
-                    <SelectValue placeholder="Pilih Category" />
+                    <SelectValue placeholder="Pilih Kategori" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem v-for="cat in categoriesList" :key="cat.value" :value="cat.value">
@@ -123,13 +123,13 @@ const toggleDivision = (id: any) => {
             <!-- Location -->
             <div>
               <Label>Lokasi</Label>
-              <Input v-model="eventForm.location" placeholder="Rapat Room A, Zoom, etc." class="mt-1" />
+              <Input v-model="eventForm.location" placeholder="Ruang Rapat A, Zoom, dll." class="mt-1" />
             </div>
 
             <!-- Description -->
             <div>
               <Label>Deskripsi</Label>
-              <Textarea v-model="eventForm.description" rows="3" placeholder="Additional event details..." class="mt-1" />
+              <Textarea v-model="eventForm.description" rows="3" placeholder="Detail tambahan acara..." class="mt-1" />
             </div>
 
             <!-- Peserta -->
@@ -141,7 +141,7 @@ const toggleDivision = (id: any) => {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" class="w-full justify-between font-normal text-left">
-                        <span>{{ eventForm.division_ids.length > 0 ? `${eventForm.division_ids.length} Divisions Selected` : 'Pilih Bidang...' }}</span>
+                        <span>{{ eventForm.division_ids.length > 0 ? `${eventForm.division_ids.length} Bidang Dipilih` : 'Pilih Bidang...' }}</span>
                         <span class="opacity-50 text-xs">▼</span>
                       </Button>
                     </DropdownMenuTrigger>
@@ -163,7 +163,7 @@ const toggleDivision = (id: any) => {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" class="w-full justify-between font-normal text-left">
-                        <span>{{ eventForm.user_ids.length > 0 ? `${eventForm.user_ids.length} Employees Selected` : 'Pilih Karyawan...' }}</span>
+                        <span>{{ eventForm.user_ids.length > 0 ? `${eventForm.user_ids.length} Karyawan Dipilih` : 'Pilih Karyawan...' }}</span>
                         <span class="opacity-50 text-xs">▼</span>
                       </Button>
                     </DropdownMenuTrigger>
@@ -188,7 +188,7 @@ const toggleDivision = (id: any) => {
         <div class="flex justify-end gap-3 pt-6 mt-2 border-t border-gray-100 dark:border-zinc-800">
           <Button type="button" variant="outline" @click="emit('update:open', false)">Batal</Button>
           <Button type="submit" :disabled="isSubmitting" class="bg-orange-600 text-white hover:bg-orange-700">
-            {{ isSubmitting ? 'Saving...' : 'Simpan Acara' }}
+            {{ isSubmitting ? 'Menyimpan...' : 'Simpan Acara' }}
           </Button>
         </div>
       </form>
