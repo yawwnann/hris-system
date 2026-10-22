@@ -15,6 +15,22 @@ export const useAuthStore = defineStore("auth", () => {
     localStorage.setItem("access_token", data.access_token);
   };
 
+  const register = async (payload: {
+    name: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+  }) => {
+    const { data } = await api.post("/register", payload);
+    // Backend contract not final: persist the session only if /register returns a token.
+    if (data?.access_token) {
+      token.value = data.access_token;
+      user.value = data.user ?? null;
+      localStorage.setItem("access_token", data.access_token);
+    }
+    return data;
+  };
+
   const fetchUser = async () => {
     if (!token.value) return null;
     try {
@@ -38,5 +54,5 @@ export const useAuthStore = defineStore("auth", () => {
     if (router) router.push("/login");
   };
 
-  return { user, token, login, fetchUser, logout };
+  return { user, token, login, register, fetchUser, logout };
 });

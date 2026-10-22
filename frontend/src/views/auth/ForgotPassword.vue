@@ -5,7 +5,31 @@ import api from "@/lib/axios";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Loader2, Mail, KeyRound, CheckCircle2, ArrowLeft, Lock } from "lucide-vue-next";
+import {
+  AlertCircle,
+  ArrowLeft,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  KeyRound,
+  Loader2,
+  Lock,
+  Mail,
+} from "lucide-vue-next";
+import AuthShell from "./AuthShell.vue";
+import {
+  authEnterClass,
+  authErrorClass,
+  authEyeButtonClass,
+  authHeadingClass,
+  authIconChipClass,
+  authInputClass,
+  authLabelClass,
+  authLeadClass,
+  authLinkClass,
+  authPrimaryButtonClass,
+  authSuccessChipClass,
+} from "./auth-ui";
 
 const router = useRouter();
 
@@ -20,6 +44,10 @@ const otp = ref("");
 const resetToken = ref("");
 const newPassword = ref("");
 const confirmPassword = ref("");
+const showNewPassword = ref(false);
+const showConfirmPassword = ref(false);
+
+const stepLabels = ["Email", "Kode OTP", "Sandi baru"];
 
 const handleSendEmail = async () => {
   if (!email.value) return;
@@ -96,198 +124,197 @@ const goToLogin = () => {
 </script>
 
 <template>
-  <div class="min-h-screen w-full flex bg-gray-50 dark:bg-zinc-950 font-sans">
-    
-    <!-- Left Section - Same Branding as Login -->
-    <div class="hidden lg:flex w-1/2 bg-orange-500 relative flex-col justify-between overflow-hidden">
-      <!-- Decorative pattern -->
-      <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
-        <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full border-[40px] border-white"></div>
-        <div class="absolute top-1/2 right-12 w-64 h-64 rounded-full border-[20px] border-white"></div>
-        <div class="absolute -bottom-32 -right-32 w-128 h-128 rounded-full border-[60px] border-white"></div>
-      </div>
+  <AuthShell>
+    <!-- Conditional on the <template> itself so the shell renders no header row on the success step -->
+    <template v-if="step !== 4" #header-action>
+      <router-link
+        to="/login"
+        :class="[authLinkClass, 'inline-flex items-center gap-1.5 text-sm']"
+      >
+        <ArrowLeft class="size-4" aria-hidden="true" />
+        Kembali ke Login
+      </router-link>
+    </template>
 
-      <div class="relative z-10 p-12 mt-12">
-        <div class="flex items-center space-x-3 mb-10 cursor-pointer" @click="goToLogin">
-          <span class="text-white text-3xl font-bold tracking-tight">HRIS System</span>
-        </div>
-        
-        <h1 class="text-white text-5xl font-bold leading-tight mb-6">
-          Keamanan Akun<br />Terjamin.
-        </h1>
-        <p class="text-orange-100 text-lg max-w-md leading-relaxed">
-          Kami memprioritaskan keamanan data Anda. Ikuti langkah mudah untuk memulihkan akses ke akun Anda.
-        </p>
-      </div>
-
-      <div class="relative z-10 p-12">
-        <div class="text-white text-sm font-medium opacity-80">
-          Sistem Informasi Manajemen SDM &copy; 2026
-        </div>
-      </div>
+    <!-- Step indicator -->
+    <div v-if="step !== 4" class="mb-6 flex items-center justify-between">
+      <ol class="flex items-center gap-2" :aria-label="`Langkah ${step} dari ${stepLabels.length}`">
+        <li
+          v-for="(label, index) in stepLabels"
+          :key="label"
+          :aria-label="label"
+          :aria-current="step === index + 1 ? 'step' : undefined"
+          class="h-1.5 w-10 rounded-full transition-colors motion-reduce:transition-none"
+          :class="
+            step > index + 1
+              ? 'bg-emerald-600'
+              : step === index + 1
+                ? 'bg-orange-500'
+                : 'bg-gray-200 dark:bg-zinc-800'
+          "
+        ></li>
+      </ol>
+      <span class="text-xs font-medium text-gray-400 dark:text-zinc-500">
+        Langkah {{ step }} dari {{ stepLabels.length }}
+      </span>
     </div>
 
-    <!-- Right Section - Forms -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative bg-white dark:bg-zinc-950">
-      
-      <!-- Mobile Back Button -->
-      <button @click="goToLogin" class="absolute top-8 left-8 flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors lg:hidden">
-        <ArrowLeft class="w-4 h-4 mr-2" />
-        Kembali ke Login
-      </button>
-
-      <!-- Desktop Back Button -->
-      <button v-if="step === 1" @click="goToLogin" class="absolute top-12 right-12 hidden lg:flex items-center text-sm font-medium text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-        <ArrowLeft class="w-4 h-4 mr-2" />
-        Kembali ke Login
-      </button>
-
-      <div class="w-full max-w-md">
-        
-        <!-- Error Alert -->
-        <div
-          v-if="error"
-          class="mb-6 p-4 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400 border border-red-100 dark:border-red-900/50 rounded-xl flex items-start"
-        >
-          <span>{{ error }}</span>
-        </div>
-
-        <!-- STEP 1: Enter Email -->
-        <div v-if="step === 1" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
-            <Mail class="w-6 h-6" />
-          </div>
-          <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Lupa Kata Sandi?</h2>
-          <p class="text-gray-500 dark:text-zinc-400 mb-8">Jangan khawatir! Masukkan alamat email yang terdaftar, dan kami akan mengirimkan kode verifikasi (OTP).</p>
-
-          <form @submit.prevent="handleSendEmail" class="space-y-5">
-            <div class="space-y-1.5">
-              <Label for="email" class="text-sm font-medium text-gray-700 dark:text-gray-300">Email Perusahaan</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="nama@perusahaan.com"
-                required
-                v-model="email"
-                class="h-12 px-4 bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 focus:border-orange-500 focus:ring-orange-500/20 rounded-xl transition-all"
-              />
-            </div>
-            
-            <Button 
-              type="submit" 
-              class="w-full h-12 mt-2 text-base font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-all active:scale-[0.98]" 
-              :disabled="loading"
-            >
-              <Loader2 v-if="loading" class="w-5 h-5 mr-2 animate-spin" />
-              {{ loading ? "Mengirim..." : "Kirim Kode OTP" }}
-            </Button>
-          </form>
-        </div>
-
-        <!-- STEP 2: Enter OTP -->
-        <div v-else-if="step === 2" class="animate-in fade-in slide-in-from-right-8 duration-500">
-          <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
-            <KeyRound class="w-6 h-6" />
-          </div>
-          <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Verifikasi OTP</h2>
-          <p class="text-gray-500 dark:text-zinc-400 mb-8">
-            Kami telah mengirimkan kode 6-digit ke <span class="font-medium text-gray-900 dark:text-gray-200">{{ email }}</span>.
-          </p>
-
-          <form @submit.prevent="handleVerifyOTP" class="space-y-5">
-            <div class="space-y-1.5">
-              <Label for="otp" class="text-sm font-medium text-gray-700 dark:text-gray-300">Kode OTP</Label>
-              <Input
-                id="otp"
-                type="text"
-                placeholder="000000"
-                required
-                maxlength="6"
-                v-model="otp"
-                class="h-12 px-4 text-center tracking-[0.5em] text-xl font-bold bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 focus:border-orange-500 focus:ring-orange-500/20 rounded-xl transition-all"
-              />
-            </div>
-            
-            <Button 
-              type="submit" 
-              class="w-full h-12 mt-2 text-base font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-xl transition-all active:scale-[0.98]" 
-              :disabled="loading"
-            >
-              <Loader2 v-if="loading" class="w-5 h-5 mr-2 animate-spin" />
-              {{ loading ? "Memverifikasi..." : "Verifikasi Kode" }}
-            </Button>
-            
-            <div class="text-center mt-6">
-              <button type="button" @click="step = 1; otp = ''" class="text-sm font-medium text-orange-600 hover:text-orange-700 dark:text-orange-500 transition-colors">
-                Salah email? Kembali
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- STEP 3: Reset Password -->
-        <div v-else-if="step === 3" class="animate-in fade-in slide-in-from-right-8 duration-500">
-          <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-500 rounded-2xl flex items-center justify-center mb-6 shadow-inner">
-            <Lock class="w-6 h-6" />
-          </div>
-          <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Buat Sandi Baru</h2>
-          <p class="text-gray-500 dark:text-zinc-400 mb-8">Sandi baru Anda harus unik dan berbeda dari kata sandi sebelumnya.</p>
-
-          <form @submit.prevent="handleResetPassword" class="space-y-5">
-            <div class="space-y-1.5">
-              <Label for="newPassword" class="text-sm font-medium text-gray-700 dark:text-gray-300">Kata Sandi Baru</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                placeholder="Minimal 6 karakter"
-                required
-                v-model="newPassword"
-                class="h-12 px-4 bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 focus:border-orange-500 focus:ring-orange-500/20 rounded-xl transition-all"
-              />
-            </div>
-            
-            <div class="space-y-1.5">
-              <Label for="confirmPassword" class="text-sm font-medium text-gray-700 dark:text-gray-300">Konfirmasi Sandi Baru</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Ulangi kata sandi baru"
-                required
-                v-model="confirmPassword"
-                class="h-12 px-4 bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 focus:border-orange-500 focus:ring-orange-500/20 rounded-xl transition-all"
-              />
-            </div>
-            
-            <Button 
-              type="submit" 
-              class="w-full h-12 mt-4 text-base font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg shadow-orange-500/30 transition-all active:scale-[0.98]" 
-              :disabled="loading"
-            >
-              <Loader2 v-if="loading" class="w-5 h-5 mr-2 animate-spin" />
-              {{ loading ? "Menyimpan..." : "Simpan Sandi Baru" }}
-            </Button>
-          </form>
-        </div>
-
-        <!-- STEP 4: Success -->
-        <div v-else-if="step === 4" class="animate-in zoom-in-95 fade-in duration-500 text-center">
-          <div class="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-            <CheckCircle2 class="w-10 h-10" />
-          </div>
-          <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Sandi Diperbarui!</h2>
-          <p class="text-gray-500 dark:text-zinc-400 mb-8 leading-relaxed">
-            Kata sandi Anda telah berhasil diubah. Silakan gunakan kata sandi baru Anda untuk masuk ke sistem.
-          </p>
-          
-          <Button 
-            @click="goToLogin" 
-            class="w-full h-12 text-base font-semibold bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg shadow-orange-500/30 transition-all active:scale-[0.98]"
-          >
-            Kembali ke Login
-          </Button>
-        </div>
-
-      </div>
+    <!-- Error Alert -->
+    <div v-if="error" role="alert" :class="[authErrorClass, 'mb-6']">
+      <AlertCircle class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+      <span>{{ error }}</span>
     </div>
-  </div>
+
+    <!-- STEP 1: Enter Email -->
+    <div v-if="step === 1" :class="authEnterClass">
+      <div :class="authIconChipClass">
+        <Mail class="size-6" aria-hidden="true" />
+      </div>
+      <h1 :class="authHeadingClass">Lupa Kata Sandi?</h1>
+      <p :class="[authLeadClass, 'mb-8']">
+        Jangan khawatir! Masukkan alamat email yang terdaftar, dan kami akan mengirimkan kode verifikasi (OTP).
+      </p>
+
+      <form @submit.prevent="handleSendEmail" class="space-y-5">
+        <div class="space-y-1.5">
+          <Label for="email" :class="authLabelClass">Email Perusahaan</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="nama@perusahaan.com"
+            autocomplete="email"
+            required
+            v-model="email"
+            :class="authInputClass"
+          />
+        </div>
+
+        <Button type="submit" :class="[authPrimaryButtonClass, 'mt-2']" :disabled="loading">
+          <Loader2 v-if="loading" class="animate-spin" aria-hidden="true" />
+          {{ loading ? "Mengirim..." : "Kirim Kode OTP" }}
+        </Button>
+      </form>
+    </div>
+
+    <!-- STEP 2: Enter OTP -->
+    <div v-else-if="step === 2" class="animate-in fade-in slide-in-from-right-8 duration-500 motion-reduce:animate-none">
+      <div :class="authIconChipClass">
+        <KeyRound class="size-6" aria-hidden="true" />
+      </div>
+      <h1 :class="authHeadingClass">Verifikasi OTP</h1>
+      <p :class="[authLeadClass, 'mb-8']">
+        Kami telah mengirimkan kode 6-digit ke
+        <span class="font-medium text-gray-900 dark:text-gray-200">{{ email }}</span>.
+      </p>
+
+      <form @submit.prevent="handleVerifyOTP" class="space-y-5">
+        <div class="space-y-1.5">
+          <Label for="otp" :class="authLabelClass">Kode OTP</Label>
+          <Input
+            id="otp"
+            type="text"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            placeholder="000000"
+            required
+            maxlength="6"
+            v-model="otp"
+            :class="[authInputClass, 'h-12 text-center text-xl font-bold tracking-[0.5em]']"
+          />
+        </div>
+
+        <Button type="submit" :class="[authPrimaryButtonClass, 'mt-2']" :disabled="loading">
+          <Loader2 v-if="loading" class="animate-spin" aria-hidden="true" />
+          {{ loading ? "Memverifikasi..." : "Verifikasi Kode" }}
+        </Button>
+
+        <div class="mt-6 text-center">
+          <button type="button" @click="step = 1; otp = ''" :class="[authLinkClass, 'text-sm']">
+            Salah email? Kembali
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- STEP 3: Reset Password -->
+    <div v-else-if="step === 3" class="animate-in fade-in slide-in-from-right-8 duration-500 motion-reduce:animate-none">
+      <div :class="authIconChipClass">
+        <Lock class="size-6" aria-hidden="true" />
+      </div>
+      <h1 :class="authHeadingClass">Buat Sandi Baru</h1>
+      <p :class="[authLeadClass, 'mb-8']">
+        Sandi baru Anda harus unik dan berbeda dari kata sandi sebelumnya.
+      </p>
+
+      <form @submit.prevent="handleResetPassword" class="space-y-5">
+        <div class="space-y-1.5">
+          <Label for="newPassword" :class="authLabelClass">Kata Sandi Baru</Label>
+          <div class="relative">
+            <Input
+              id="newPassword"
+              :type="showNewPassword ? 'text' : 'password'"
+              placeholder="Minimal 6 karakter"
+              autocomplete="new-password"
+              required
+              v-model="newPassword"
+              :class="[authInputClass, 'pr-12']"
+            />
+            <button
+              type="button"
+              @click="showNewPassword = !showNewPassword"
+              :class="authEyeButtonClass"
+              :aria-label="showNewPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'"
+              :aria-pressed="showNewPassword"
+            >
+              <Eye v-if="!showNewPassword" class="size-5" aria-hidden="true" />
+              <EyeOff v-else class="size-5" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <Label for="confirmPassword" :class="authLabelClass">Konfirmasi Sandi Baru</Label>
+          <div class="relative">
+            <Input
+              id="confirmPassword"
+              :type="showConfirmPassword ? 'text' : 'password'"
+              placeholder="Ulangi kata sandi baru"
+              autocomplete="new-password"
+              required
+              v-model="confirmPassword"
+              :class="[authInputClass, 'pr-12']"
+            />
+            <button
+              type="button"
+              @click="showConfirmPassword = !showConfirmPassword"
+              :class="authEyeButtonClass"
+              :aria-label="showConfirmPassword ? 'Sembunyikan konfirmasi kata sandi' : 'Tampilkan konfirmasi kata sandi'"
+              :aria-pressed="showConfirmPassword"
+            >
+              <Eye v-if="!showConfirmPassword" class="size-5" aria-hidden="true" />
+              <EyeOff v-else class="size-5" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+
+        <Button type="submit" :class="[authPrimaryButtonClass, 'mt-4']" :disabled="loading">
+          <Loader2 v-if="loading" class="animate-spin" aria-hidden="true" />
+          {{ loading ? "Menyimpan..." : "Simpan Sandi Baru" }}
+        </Button>
+      </form>
+    </div>
+
+    <!-- STEP 4: Success -->
+    <div v-else-if="step === 4" class="animate-in zoom-in-95 fade-in duration-500 text-center motion-reduce:animate-none">
+      <div :class="authSuccessChipClass">
+        <CheckCircle2 class="size-10" aria-hidden="true" />
+      </div>
+      <h1 :class="authHeadingClass">Sandi Diperbarui!</h1>
+      <p :class="[authLeadClass, 'mb-8']">
+        Kata sandi Anda telah berhasil diubah. Silakan gunakan kata sandi baru Anda untuk masuk ke sistem.
+      </p>
+
+      <Button @click="goToLogin" :class="authPrimaryButtonClass">Kembali ke Login</Button>
+    </div>
+  </AuthShell>
 </template>

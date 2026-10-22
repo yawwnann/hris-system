@@ -230,7 +230,7 @@ const saveSettings = async () => {
 
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
 
-              Konfigurasikan pengaturan utama aplikasi HRIS.
+              Konfigurasikan pengaturan utama aplikasi Lazizmu.
 
             </p>
 

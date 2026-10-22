@@ -47,7 +47,7 @@ const executeLogout = async () => {
         <X v-if="uiStore.mobileMenuOpen" class="pointer-events-none h-5 w-5" />
         <Menu v-else class="pointer-events-none h-5 w-5" />
       </Button>
-      <span class="truncate text-base font-bold text-gray-900 dark:text-zinc-100 md:hidden">HRIS System</span>
+      <span class="truncate text-base font-bold text-gray-900 dark:text-zinc-100 md:hidden">Lazizmu</span>
       <span class="hidden truncate text-sm font-semibold text-gray-700 dark:text-zinc-200 md:inline">
         {{ authStore.user?.role === 'admin' ? 'Dasbor Admin' : 'Portal Karyawan' }}
       </span>

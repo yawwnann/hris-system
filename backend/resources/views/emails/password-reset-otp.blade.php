@@ -3,7 +3,7 @@
 
 Halo,
 
-Anda menerima email ini karena kami menerima permintaan pemulihan kata sandi untuk akun HRIS System Anda.
+Anda menerima email ini karena kami menerima permintaan pemulihan kata sandi untuk akun Lazizmu Anda.
 
 Berikut adalah kode OTP verifikasi Anda:
 
@@ -11,7 +11,7 @@ Berikut adalah kode OTP verifikasi Anda:
 # {!! $otp !!}
 @endcomponent
 
-Kode ini berlaku selama **10 menit**. Jangan berikan kode OTP ini kepada siapa pun, termasuk pihak HRIS System.
+Kode ini berlaku selama **10 menit**. Jangan berikan kode OTP ini kepada siapa pun, termasuk pihak Lazizmu.
 
 Jika Anda tidak merasa melakukan permintaan ini, abaikan email ini.
 
