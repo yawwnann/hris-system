@@ -109,6 +109,33 @@ export const mockLeaves = {
   last_page: 2
 };
 
+// Sample overtime activities and completed outputs for Lazizmu
+const overtimeReasons = [
+  'Penyusunan Laporan Pertanggungjawaban (LPJ) Program Ramadhan 1447H & Rekapitulasi Data Donatur',
+  'Audit Internal Akhir Kuartal dan Rekonsiliasi 4 Rekening Bank Penyaluran ZISWAF',
+  'Pemeliharaan & Migrasi Server Basis Data Mustahik ke Infrastruktur Cloud',
+  'Distribusi Paket Sembako Darurat Bencana Banjir & Pendataan Korban Terdampak Lapangan',
+  'Penyusunan Konten Digital & Kampanye Zakat Penghasilan Akhir Tahun',
+  'Input Data Massal Calon Penerima Beasiswa Sang Surya dan Verifikasi Berkas Fisik',
+  'Penyusunan Draft Rencana Kerja dan Anggaran Tahunan (RKAT) Divisi Program',
+  'Pelayanan Konsultasi ZISWAF dan Pembukuan Donasi Khusus Muzaki Korporasi',
+  'Penyelesaian Rekap Kehadiran dan Penggajian Karyawan Bulanan',
+  'Penyusunan Publikasi Laporan Keuangan Lazizmu Semester I'
+];
+
+const overtimeOutputs = [
+  'LPJ selesai disusun 100%, seluruh kwitansi penyaluran terlampir dan telah diserahkan ke Manajer Program.',
+  'Rekonsiliasi 4 rekening bank selesai tuntas, seluruh selisih mutasi terkonfirmasi dan neraca seimbang.',
+  'Migrasi database 15.000 data mustahik berhasil tanpa data loss, downtime hanya 45 menit.',
+  '120 paket sembako berhasil disalurkan ke posko utama RT 02 & RT 03, berita acara serah terima terlampir.',
+  '5 materi infografis dan 2 video kampanye selesai di-render dan dijadwalkan tayang di Instagram Lazizmu.',
+  '50 berkas calon penerima beasiswa terverifikasi, 45 berkas memenuhi syarat dan siap di-SK-kan.',
+  'Draft RKAT bab 1-3 rampung dan siap dipresentasikan dalam rapat pleno hari Senin.',
+  'Layanan muzaki korporasi selesai, penerimaan zakat perusahaan tercatat Rp 125.000.000,- dan kuitansi resmi terbit.',
+  'Rekap presensi seluruh 150 staf tervalidasi dan laporan gaji siap ditransfer ke bank mitra.',
+  'Bahan draft publikasi laporan keuangan semester I siap cetak dan sudah disetujui tim audit internal.'
+];
+
 // Generate Overtimes (20 records)
 export const mockOvertimes = {
   data: Array.from({ length: 20 }).map((_, i) => {
@@ -117,14 +144,22 @@ export const mockOvertimes = {
     const startHour = 17 + Math.floor(Math.random() * 2);
     const start_time = `${startHour}:00:00`;
     const end_time = `${startHour + duration}:00:00`;
+    const reasonIndex = i % overtimeReasons.length;
+    const status = getRandom(leaveStatuses);
+    // If approved and not the newest, set output
+    const hasOutput = status === 'approved' && i % 3 !== 0;
+
     return {
       id: i + 1,
       date,
       start_time,
       end_time,
       total_duration: duration,
-      reason: `Alasan pengajuan lembur ${i + 1}`,
-      status: getRandom(leaveStatuses),
+      reason: overtimeReasons[reasonIndex],
+      output: hasOutput ? overtimeOutputs[reasonIndex] : null,
+      status_pengerjaan: hasOutput ? 'done' : 'pending',
+      admin_note: status === 'rejected' ? 'Beban kerja dapat diselesaikan pada jam reguler besok.' : (status === 'approved' ? 'Disetujui. Harap isi laporan hasil pengerjaan setelah selesai.' : null),
+      status,
       user: { name: getRandom(mockUsers) }
     };
   }),

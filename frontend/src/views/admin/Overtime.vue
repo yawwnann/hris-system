@@ -2,17 +2,22 @@
 import { ref, onMounted, computed, watch } from "vue";
 import { 
   Plus, 
-  Search,
-  Check,
-  X,
-  Eye,
-  Clock
+  Search, 
+  Check, 
+  X, 
+  Eye, 
+  Clock,
+  FileText,
+  CheckCircle2,
+  AlertCircle,
+  Calendar,
+  User,
+  Filter
 } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
@@ -43,7 +48,6 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -60,6 +64,7 @@ const authStore = useAuthStore();
 const overtimes = ref<any[]>([]);
 const loading = ref(true);
 const searchQuery = ref("");
+const filterStatus = ref("all");
 
 // Pagination
 const currentPage = ref(1);
@@ -73,8 +78,10 @@ const totalItems = ref(0);
 
 // Dialogs State
 const isAddDialogOpen = ref(false);
-const isApprovalDialogOpen = ref(false);
+const isDetailDialogOpen = ref(false);
 const isSubmitting = ref(false);
+const selectedOt = ref<any>(null);
+const adminNoteInput = ref("");
 
 const isDeleteDialogOpen = ref(false);
 const itemToDelete = ref<number | null>(null);
@@ -83,26 +90,27 @@ const formData = ref({
   date: "",
   start_time: "",
   end_time: "",
-  proof: "",
-});
-
-const approvalData = ref({
-  id: null as number | null,
-  status: "approved",
-  admin_note: "",
+  reason: "",
+  proof: "Hasil Pekerjaan",
 });
 
 const fetchOvertimes = async () => {
   loading.value = true;
   try {
-    const { data } = await api.get("/overtime-requests", {
-      params: { search: searchQuery.value, page: currentPage.value, per_page: Number(itemsPerPage.value) }
-    });
-    overtimes.value = data.data;
-    totalPages.value = data.last_page;
-    totalItems.value = data.total;
+    const params: any = { 
+      search: searchQuery.value, 
+      page: currentPage.value, 
+      per_page: Number(itemsPerPage.value) 
+    };
+    if (filterStatus.value !== "all") {
+      params.status = filterStatus.value;
+    }
+    const { data } = await api.get("/overtime-requests", { params });
+    overtimes.value = data.data || [];
+    totalPages.value = data.last_page || 1;
+    totalItems.value = data.total || 0;
   } catch (error) {
-    console.error("Failed to fetch overtime requests", error);
+    console.error("Gagal memuat data lembur", error);
     toast.error("Gagal memuat data lembur");
   } finally {
     loading.value = false;
@@ -115,15 +123,13 @@ onMounted(() => {
 
 const paginatedOvertimes = computed(() => overtimes.value);
 
-const isDetailDialogOpen = ref(false);
-const selectedOt = ref<any>(null);
-
 const openDetailDialog = (ot: any) => {
   selectedOt.value = ot;
+  adminNoteInput.value = ot.admin_note || "";
   isDetailDialogOpen.value = true;
 };
 
-watch(searchQuery, () => {
+watch([searchQuery, filterStatus], () => {
   currentPage.value = 1;
   fetchOvertimes();
 });
@@ -145,13 +151,14 @@ const openAddDialog = () => {
     date: "",
     start_time: "",
     end_time: "",
-    proof: "",
+    reason: "",
+    proof: "Hasil Pekerjaan",
   };
   isAddDialogOpen.value = true;
 };
 
 const submitOvertimeRequest = async () => {
-  if (!formData.value.date || !formData.value.start_time || !formData.value.end_time || !formData.value.proof) {
+  if (!formData.value.date || !formData.value.start_time || !formData.value.end_time || !formData.value.reason) {
     toast.error("Harap isi semua kolom wajib");
     return;
   }
@@ -169,20 +176,26 @@ const submitOvertimeRequest = async () => {
   }
 };
 
-const directAction = async (id: number, status: 'approved' | 'rejected') => {
+const directAction = async (id: number, status: 'approved' | 'rejected', note = "") => {
   isSubmitting.value = true;
   try {
     await api.put(`/overtime-requests/${id}/status`, {
       status,
-      admin_note: "",
+      admin_note: note,
     });
-    toast.success(`Pengajuan berhasil ${status}`);
+    toast.success(`Pengajuan lembur berhasil ${status === 'approved' ? 'disetujui' : 'ditolak'}`);
     fetchOvertimes();
   } catch (error: any) {
     toast.error(error.response?.data?.message || "Gagal memproses persetujuan");
   } finally {
     isSubmitting.value = false;
   }
+};
+
+const actionFromDetail = async (status: 'approved' | 'rejected') => {
+  if (!selectedOt.value) return;
+  await directAction(selectedOt.value.id, status, adminNoteInput.value);
+  isDetailDialogOpen.value = false;
 };
 
 const confirmDelete = (id: number) => {
@@ -206,7 +219,6 @@ const executeDelete = async () => {
 
 const formatDate = (dateString: string) => moment(dateString).format("DD MMM YYYY");
 const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:mm:ss").format("HH:mm") : "-";
-
 </script>
 
 <template>
@@ -225,20 +237,35 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
               Pengajuan Lembur
             </h1>
             <p class="text-gray-500 dark:text-zinc-400 mt-1">
-              {{ authStore.user?.role === 'admin' ? 'Kelola pengajuan lembur dan persetujuan karyawan.' : 'Ajukan dan pantau status permohonan lembur Anda.' }}
+              Pantau kegiatan pengerjaan lembur karyawan, tinjau laporan output, dan kelola persetujuan.
             </p>
           </div>
           
-          <div class="flex items-center space-x-3">
-            <div class="relative w-64 hidden md:block">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <!-- Filter Status -->
+            <Select v-model="filterStatus">
+              <SelectTrigger class="w-[150px] bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 h-9">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                <SelectItem value="all">Semua Status</SelectItem>
+                <SelectItem value="pending">Menunggu</SelectItem>
+                <SelectItem value="approved">Disetujui</SelectItem>
+                <SelectItem value="rejected">Ditolak</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <!-- Search -->
+            <div class="relative w-full sm:w-64">
               <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500" />
               <Input 
                 v-model="searchQuery"
-                :placeholder="authStore.user?.role === 'admin' ? 'Cari nama...' : 'Cari...'"
-                class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100"
+                placeholder="Cari nama atau kegiatan..."
+                class="pl-9 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100 h-9"
               />
             </div>
-            <Button v-if="authStore.user?.role !== 'admin'" @click="openAddDialog" class="bg-orange-600 hover:bg-orange-700 text-white dark:text-white">
+
+            <Button v-if="authStore.user?.role !== 'admin'" @click="openAddDialog" class="bg-orange-600 hover:bg-orange-700 text-white">
               <Plus class="w-4 h-4 mr-2" /> Ajukan Lembur
             </Button>
           </div>
@@ -251,23 +278,24 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
               <TableHeader class="bg-gray-50 dark:bg-zinc-950/50">
                 <TableRow class="border-b border-gray-200 dark:border-zinc-800 hover:bg-transparent">
                   <TableHead class="w-16 text-center font-semibold text-gray-600 dark:text-zinc-300">No.</TableHead>
-                  <TableHead v-if="authStore.user?.role === 'admin'" class="font-semibold text-gray-600 dark:text-zinc-300">Karyawan</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Karyawan</TableHead>
                   <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Tanggal</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Waktu</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Durasi</TableHead>
-                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Status</TableHead>
-                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300 pr-4">Aksi / Bukti</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Waktu & Durasi</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Kegiatan Pengerjaan</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300">Laporan Output</TableHead>
+                  <TableHead class="font-semibold text-gray-600 dark:text-zinc-300 text-center">Status</TableHead>
+                  <TableHead class="text-right font-semibold text-gray-600 dark:text-zinc-300 pr-4">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <TableRow v-if="loading">
-                  <TableCell :colspan="authStore.user?.role === 'admin' ? 8 : 7" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    Memuat data pengajuan...
+                  <TableCell colspan="8" class="h-32 text-center text-gray-500 dark:text-zinc-400">
+                    Memuat data pengajuan lembur...
                   </TableCell>
                 </TableRow>
                 <TableRow v-else-if="paginatedOvertimes.length === 0">
-                  <TableCell :colspan="authStore.user?.role === 'admin' ? 8 : 7" class="h-32 text-center text-gray-500 dark:text-zinc-400">
-                    Tidak ada data pengajuan ditemukan.
+                  <TableCell colspan="8" class="h-32 text-center text-gray-500 dark:text-zinc-400">
+                    Tidak ada data pengajuan lembur ditemukan.
                   </TableCell>
                 </TableRow>
                 <TableRow 
@@ -276,32 +304,61 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                   :key="ot.id"
                   class="border-b border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
                 >
+                  <!-- No -->
                   <TableCell class="py-4 text-center text-gray-500 dark:text-zinc-400 font-medium">
                     {{ (currentPage - 1) * Number(itemsPerPage) + index + 1 }}
                   </TableCell>
-                  <TableCell v-if="authStore.user?.role === 'admin'" class="py-4">
-                    <div class="font-medium text-gray-900 dark:text-zinc-100">{{ ot.user?.name || '-' }}</div>
+
+                  <!-- Karyawan -->
+                  <TableCell class="py-4">
+                    <div class="font-semibold text-gray-900 dark:text-zinc-100">{{ ot.user?.name || '-' }}</div>
+                    <div class="text-xs text-gray-500 dark:text-zinc-400">{{ ot.user?.email || '-' }}</div>
                   </TableCell>
                   
+                  <!-- Tanggal -->
                   <TableCell class="py-4">
-                    <div class="text-gray-900 dark:text-zinc-200">
+                    <div class="text-gray-900 dark:text-zinc-200 font-medium whitespace-nowrap">
                       {{ formatDate(ot.date) }}
                     </div>
                   </TableCell>
                   
-                  <TableCell class="py-4">
-                    <div class="text-gray-700 dark:text-zinc-300 whitespace-nowrap">
+                  <!-- Waktu & Durasi -->
+                  <TableCell class="py-4 whitespace-nowrap">
+                    <div class="text-gray-700 dark:text-zinc-300 font-mono text-xs">
                       {{ formatTime(ot.start_time) }} - {{ formatTime(ot.end_time) }}
                     </div>
-                  </TableCell>
-                  
-                  <TableCell class="py-4 text-center">
-                    <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400">
-                      {{ ot.total_duration }} Jam
+                    <div class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 mt-1">
+                      <Clock class="w-3 h-3 mr-1" /> {{ ot.total_duration }} Jam
                     </div>
                   </TableCell>
                   
-                  <TableCell class="py-4">
+                  <!-- Kegiatan Pengerjaan -->
+                  <TableCell class="py-4 max-w-[220px]">
+                    <div class="text-gray-900 dark:text-zinc-100 font-medium truncate" :title="ot.reason || '-'">
+                      {{ ot.reason || '-' }}
+                    </div>
+                    <div class="text-[11px] text-gray-400 truncate mt-0.5" v-if="ot.proof">
+                      Bukti: {{ ot.proof }}
+                    </div>
+                  </TableCell>
+
+                  <!-- Laporan Output -->
+                  <TableCell class="py-4 max-w-[220px]">
+                    <div v-if="ot.output" class="flex flex-col gap-1">
+                      <span class="inline-flex items-center w-fit px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/40">
+                        <CheckCircle2 class="w-3 h-3 mr-1 shrink-0" /> Ada Laporan
+                      </span>
+                      <span class="text-xs text-gray-700 dark:text-zinc-300 truncate" :title="ot.output">
+                        {{ ot.output }}
+                      </span>
+                    </div>
+                    <div v-else class="text-xs text-gray-400 dark:text-zinc-500 italic flex items-center">
+                      <AlertCircle class="w-3.5 h-3.5 mr-1 text-gray-400 shrink-0" /> Belum diisi
+                    </div>
+                  </TableCell>
+                  
+                  <!-- Status -->
+                  <TableCell class="py-4 text-center">
                     <Badge v-if="ot.status === 'approved'" variant="outline" class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/30">
                       Disetujui
                     </Badge>
@@ -313,39 +370,35 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
                     </Badge>
                   </TableCell>
                   
-                  <TableCell class="text-right py-4 pr-4">
+                  <!-- Aksi -->
+                  <TableCell class="text-right py-4 pr-4 whitespace-nowrap">
                     <div class="flex items-center justify-end space-x-2">
-                    
-                      <template v-if="ot.status === 'pending'">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        @click="openDetailDialog(ot)" 
+                        class="h-8 border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-zinc-800/50"
+                      >
+                        <Eye class="w-4 h-4 mr-1" /> Detail
+                      </Button>
+
+                      <template v-if="ot.status === 'pending' && authStore.user?.role === 'admin'">
                         <Button 
-                          v-if="authStore.user?.role === 'admin'" 
                           @click="directAction(ot.id, 'approved')" 
-                          size="icon" 
-                          variant="outline" 
-                          class="h-8 w-8 text-green-600 border-green-200 hover:bg-green-50 hover:border-green-300 hover:text-green-700 rounded-full transition-colors"
+                          size="sm"
+                          class="h-8 bg-green-600 hover:bg-green-700 text-white px-2.5"
                           title="Setujui"
                         >
-                          <Check class="w-4 h-4" />
+                          <Check class="w-4 h-4 mr-1" /> Setujui
                         </Button>
                         <Button 
-                          v-if="authStore.user?.role === 'admin'" 
                           @click="directAction(ot.id, 'rejected')" 
-                          size="icon" 
+                          size="sm"
                           variant="outline" 
-                          class="h-8 w-8 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 hover:text-red-700 rounded-full transition-colors"
+                          class="h-8 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 px-2.5"
                           title="Tolak"
                         >
-                          <X class="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          v-else 
-                          @click="confirmDelete(ot.id)" 
-                          size="icon" 
-                          variant="outline" 
-                          class="h-8 w-8 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 hover:text-red-700 rounded-full transition-colors"
-                          title="Batalkan Pengajuan"
-                        >
-                          <X class="w-4 h-4" />
+                          <X class="w-4 h-4 mr-1" /> Tolak
                         </Button>
                       </template>
                     </div>
@@ -358,25 +411,25 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
           <!-- Pagination -->
           <div class="border-t border-gray-200 dark:border-zinc-800 px-6 py-4 flex items-center justify-between bg-gray-50 dark:bg-zinc-950/50">
             <div class="flex items-center">
-            <div class="flex items-center space-x-2 mr-4">
-              <span class="text-sm text-gray-500 dark:text-zinc-400">Tampilkan</span>
-              <Select v-model="itemsPerPage">
-                <SelectTrigger class="w-[70px] h-8 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-xs">
-                  <SelectValue placeholder="10" />
-                </SelectTrigger>
-                <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div class="text-sm text-gray-500 dark:text-zinc-400">
-              Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedOvertimes.length > 0 ? (currentPage - 1) * Number(itemsPerPage) + 1 : 0 }}</span> - 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * Number(itemsPerPage), totalItems) }}</span> dari 
-              <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> pengajuan
-            </div>
+              <div class="flex items-center space-x-2 mr-4">
+                <span class="text-sm text-gray-500 dark:text-zinc-400">Tampilkan</span>
+                <Select v-model="itemsPerPage">
+                  <SelectTrigger class="w-[70px] h-8 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-xs">
+                    <SelectValue placeholder="10" />
+                  </SelectTrigger>
+                  <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div class="text-sm text-gray-500 dark:text-zinc-400">
+                Menampilkan <span class="font-medium text-gray-900 dark:text-zinc-100">{{ paginatedOvertimes.length > 0 ? (currentPage - 1) * Number(itemsPerPage) + 1 : 0 }}</span> - 
+                <span class="font-medium text-gray-900 dark:text-zinc-100">{{ Math.min(currentPage * Number(itemsPerPage), totalItems) }}</span> dari 
+                <span class="font-medium text-gray-900 dark:text-zinc-100">{{ totalItems }}</span> pengajuan
+              </div>
             </div>
             <div class="flex items-center space-x-2">
               <Button 
@@ -403,13 +456,136 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
       </ScrollArea>
     </main>
 
-    <!-- Dialog Submit Overtime Request -->
+    <!-- Dialog Detail Pengajuan & Laporan Hasil Lembur -->
+    <Dialog v-model:open="isDetailDialogOpen">
+      <DialogContent class="sm:max-w-[620px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
+        <DialogHeader>
+          <DialogTitle class="text-xl font-bold text-gray-900 dark:text-zinc-100 flex items-center">
+            <Clock class="w-5 h-5 mr-2 text-orange-600" /> Detail Pengajuan & Hasil Lembur
+          </DialogTitle>
+          <DialogDescription class="text-gray-500 dark:text-zinc-400">
+            Tinjau rencana kegiatan dan laporan hasil pengerjaan nyata dari karyawan.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div v-if="selectedOt" class="space-y-5 py-4">
+          <!-- Grid Info Utama -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-gray-50 dark:bg-zinc-900/60 rounded-xl border border-gray-100 dark:border-zinc-800 text-sm">
+            <div>
+              <span class="text-xs text-gray-500 block">Karyawan</span>
+              <span class="font-semibold text-gray-900 dark:text-zinc-100">{{ selectedOt.user?.name || '-' }}</span>
+            </div>
+            <div>
+              <span class="text-xs text-gray-500 block">Tanggal</span>
+              <span class="font-semibold text-gray-900 dark:text-zinc-100">{{ formatDate(selectedOt.date) }}</span>
+            </div>
+            <div>
+              <span class="text-xs text-gray-500 block">Waktu Lembur</span>
+              <span class="font-semibold text-gray-900 dark:text-zinc-100">{{ formatTime(selectedOt.start_time) }} - {{ formatTime(selectedOt.end_time) }}</span>
+            </div>
+            <div>
+              <span class="text-xs text-gray-500 block">Total Durasi</span>
+              <span class="font-semibold text-blue-600 dark:text-blue-400">{{ selectedOt.total_duration }} Jam</span>
+            </div>
+          </div>
+
+          <!-- Status Bar -->
+          <div class="flex items-center justify-between px-4 py-2.5 bg-gray-50/50 dark:bg-zinc-900/40 rounded-lg border border-gray-100 dark:border-zinc-800 text-sm">
+            <span class="text-gray-500">Status Persetujuan:</span>
+            <Badge v-if="selectedOt.status === 'approved'" variant="outline" class="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/30">
+              Disetujui
+            </Badge>
+            <Badge v-else-if="selectedOt.status === 'rejected'" variant="outline" class="bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/30">
+              Ditolak
+            </Badge>
+            <Badge v-else variant="outline" class="bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800/30">
+              Menunggu Persetujuan
+            </Badge>
+          </div>
+
+          <!-- 1. Kegiatan Pengerjaan Lembur (Rencana Kerja) -->
+          <div>
+            <div class="flex items-center text-xs font-semibold text-gray-700 dark:text-zinc-300 uppercase tracking-wider mb-2">
+              <FileText class="w-4 h-4 mr-1.5 text-orange-500" /> Kegiatan Pengerjaan Lembur
+            </div>
+            <div class="p-3.5 bg-gray-50 dark:bg-zinc-900/70 border border-gray-200 dark:border-zinc-800 rounded-xl text-sm leading-relaxed text-gray-800 dark:text-zinc-200 whitespace-pre-wrap">
+              {{ selectedOt.reason || 'Tidak ada keterangan kegiatan.' }}
+            </div>
+          </div>
+
+          <!-- 2. Laporan Output / Hasil Pengerjaan (Apa saja yang sudah dikerjakan) -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center text-xs font-semibold text-gray-700 dark:text-zinc-300 uppercase tracking-wider">
+                <CheckCircle2 class="w-4 h-4 mr-1.5 text-green-500" /> Laporan Output / Hasil Pekerjaan
+              </div>
+              <Badge v-if="selectedOt.output" variant="outline" class="bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 text-[10px]">
+                Sudah Dilaporkan
+              </Badge>
+              <Badge v-else variant="outline" class="bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 border-gray-200 text-[10px]">
+                Belum Diisi Karyawan
+              </Badge>
+            </div>
+            
+            <div v-if="selectedOt.output" class="p-3.5 bg-green-50/40 dark:bg-green-950/20 border border-green-200/70 dark:border-green-800/30 rounded-xl text-sm leading-relaxed text-gray-900 dark:text-zinc-100 whitespace-pre-wrap">
+              {{ selectedOt.output }}
+            </div>
+            <div v-else class="p-4 bg-gray-50 dark:bg-zinc-900/40 border border-dashed border-gray-200 dark:border-zinc-800 rounded-xl text-xs text-gray-400 italic text-center">
+              Karyawan belum menginput laporan output pekerjaan untuk sesi lembur ini.
+            </div>
+          </div>
+
+          <!-- Catatan Admin -->
+          <div v-if="selectedOt.status === 'pending' && authStore.user?.role === 'admin'">
+            <Label for="admin_note" class="text-xs text-gray-600 dark:text-zinc-400 font-medium">Catatan Admin (Opsional):</Label>
+            <Input 
+              id="admin_note" 
+              v-model="adminNoteInput" 
+              placeholder="Tuliskan catatan persetujuan atau alasan jika menolak..." 
+              class="mt-1.5 text-sm bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800"
+            />
+          </div>
+          <div v-else-if="selectedOt.admin_note">
+            <Label class="text-xs text-gray-500">Catatan Admin:</Label>
+            <div class="text-sm mt-1 p-2.5 bg-gray-50 dark:bg-zinc-900/40 border border-gray-200 dark:border-zinc-800 rounded-lg text-gray-700 dark:text-zinc-300 italic">
+              "{{ selectedOt.admin_note }}"
+            </div>
+          </div>
+        </div>
+        
+        <DialogFooter class="pt-4 border-t border-gray-100 dark:border-zinc-800 flex items-center justify-between sm:justify-between w-full">
+          <Button variant="outline" @click="isDetailDialogOpen = false">
+            Tutup
+          </Button>
+
+          <div v-if="selectedOt?.status === 'pending' && authStore.user?.role === 'admin'" class="flex items-center space-x-2">
+            <Button 
+              variant="outline" 
+              @click="actionFromDetail('rejected')" 
+              :disabled="isSubmitting"
+              class="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+            >
+              <X class="w-4 h-4 mr-1.5" /> Tolak Pengajuan
+            </Button>
+            <Button 
+              @click="actionFromDetail('approved')" 
+              :disabled="isSubmitting"
+              class="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Check class="w-4 h-4 mr-1.5" /> Setujui Pengajuan
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    <!-- Dialog Submit Overtime Request (Karyawan) -->
     <Dialog v-model:open="isAddDialogOpen">
       <DialogContent class="sm:max-w-[500px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
         <DialogHeader>
           <DialogTitle class="text-gray-900 dark:text-zinc-100">Ajukan Permohonan Lembur</DialogTitle>
           <DialogDescription class="text-gray-500 dark:text-zinc-400">
-            Isi formulir di bawah ini untuk mengajukan jam lembur.
+            Isi formulir di bawah ini untuk mengajukan jam lembur dan rencana kegiatan.
           </DialogDescription>
         </DialogHeader>
         
@@ -418,10 +594,10 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
             <Label for="date" class="text-gray-700 dark:text-gray-300">Tanggal Lembur</Label>
             <Input 
               id="date" 
-              type="date"
+              type="date" 
               v-model="formData.date" 
-              class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
-              required
+              class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" 
+              required 
             />
           </div>
 
@@ -430,37 +606,33 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
               <Label for="start_time" class="text-gray-700 dark:text-gray-300">Jam Mulai</Label>
               <Input 
                 id="start_time" 
-                type="time"
+                type="time" 
                 v-model="formData.start_time" 
-                class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
-                required
+                class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" 
+                required 
               />
             </div>
             <div class="space-y-2">
               <Label for="end_time" class="text-gray-700 dark:text-gray-300">Jam Selesai</Label>
               <Input 
                 id="end_time" 
-                type="time"
+                type="time" 
                 v-model="formData.end_time" 
-                class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100"
-                required
+                class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" 
+                required 
               />
             </div>
           </div>
-          
+
           <div class="space-y-2">
-            <Label for="proof" class="text-gray-700 dark:text-gray-300">Bukti Lembur</Label>
-            <Select v-model="formData.proof">
-              <SelectTrigger class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-gray-100">
-                <SelectValue placeholder="Pilih Bukti Lembur" />
-              </SelectTrigger>
-              <SelectContent class="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-                <SelectItem value="Hasil Pekerjaan">Hasil Pekerjaan</SelectItem>
-                <SelectItem value="Laporan Tugas">Laporan Tugas</SelectItem>
-                <SelectItem value="Persetujuan Klien">Persetujuan Klien</SelectItem>
-                <SelectItem value="Lainnya">Lainnya</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label for="reason" class="text-gray-700 dark:text-gray-300">Kegiatan Pengerjaan</Label>
+            <Input 
+              id="reason" 
+              v-model="formData.reason" 
+              placeholder="Tuliskan tugas yang akan dikerjakan saat lembur..." 
+              class="bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-zinc-100" 
+              required 
+            />
           </div>
           
           <DialogFooter class="pt-4">
@@ -472,72 +644,6 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
             </Button>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
-
-    <!-- Dialog View Overtime Detail -->
-    <Dialog v-model:open="isDetailDialogOpen">
-      <DialogContent class="sm:max-w-[500px] bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800">
-        <DialogHeader>
-          <DialogTitle class="text-gray-900 dark:text-zinc-100">Detail Pengajuan Lembur</DialogTitle>
-          <DialogDescription class="text-gray-500 dark:text-zinc-400">
-            Lihat informasi detail tentang pengajuan lembur ini.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div v-if="selectedOt" class="space-y-4 py-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <Label class="text-xs text-gray-500">Nama Karyawan</Label>
-              <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ selectedOt.user?.name }}</div>
-            </div>
-            <div>
-              <Label class="text-xs text-gray-500">Tanggal</Label>
-              <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ formatDate(selectedOt.date) }}</div>
-            </div>
-            <div>
-              <Label class="text-xs text-gray-500">Waktu</Label>
-              <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ formatTime(selectedOt.start_time) }} - {{ formatTime(selectedOt.end_time) }}</div>
-            </div>
-            <div>
-              <Label class="text-xs text-gray-500">Total Durasi</Label>
-              <div class="font-medium text-sm mt-1 text-gray-900 dark:text-gray-100">{{ selectedOt.total_duration }} Jam</div>
-            </div>
-            <div>
-              <Label class="text-xs text-gray-500">Status</Label>
-              <div class="mt-1">
-                <Badge v-if="selectedOt.status === 'approved'" variant="outline" class="bg-green-50 text-green-700 border-green-200 px-2 py-0.5 text-xs rounded-full">Disetujui</Badge>
-                <Badge v-else-if="selectedOt.status === 'rejected'" variant="outline" class="bg-red-50 text-red-700 border-red-200 px-2 py-0.5 text-xs rounded-full">Ditolak</Badge>
-                <Badge v-else variant="outline" class="bg-yellow-50 text-yellow-700 border-yellow-200 px-2 py-0.5 text-xs rounded-full">Menunggu</Badge>
-              </div>
-            </div>
-          </div>
-          
-          <div class="border-t border-gray-100 dark:border-zinc-800 my-4"></div>
-          
-          <div>
-            <Label class="text-xs text-gray-500">Bukti Lembur</Label>
-            <div class="text-sm mt-1.5 bg-gray-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-gray-300">
-              {{ selectedOt.proof || '-' }}
-            </div>
-          </div>
-          
-          <div v-if="selectedOt.admin_note">
-            <Label class="text-xs text-gray-500">Catatan Admin</Label>
-            <div class="text-sm mt-1.5 text-gray-700 dark:text-gray-300 italic">
-              "{{ selectedOt.admin_note }}"
-            </div>
-          </div>
-        </div>
-        
-        <DialogFooter v-if="selectedOt?.status === 'pending' && authStore.user?.role === 'admin'" class="pt-4 border-t border-gray-100 dark:border-zinc-800">
-          <Button variant="outline" @click="directAction(selectedOt.id, 'rejected'); isDetailDialogOpen = false" class="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
-            Tolak
-          </Button>
-          <Button @click="directAction(selectedOt.id, 'approved'); isDetailDialogOpen = false" class="bg-green-600 hover:bg-green-700 text-white">
-            Setujui
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
 
@@ -556,6 +662,5 @@ const formatTime = (timeString: string) => timeString ? moment(timeString, "HH:m
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-
   </div>
 </template>
