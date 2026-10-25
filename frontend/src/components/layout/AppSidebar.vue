@@ -36,9 +36,13 @@ onUnmounted(() => {
 });
 
 const getRoute = (path: string) => {
-  const prefix = authStore.user?.role === 'employee' ? '/employee' : '';
-  if (path === '/') return prefix ? `${prefix}/dashboard` : '/';
-  return `${prefix}${path}`;
+  if (authStore.user?.role === 'employee') {
+    if (path === '/') return '/employee/dashboard';
+    return `/employee${path}`;
+  }
+  const isAdminPrefixed = route.path.startsWith('/admin');
+  if (path === '/') return isAdminPrefixed ? '/admin/dashboard' : '/';
+  return isAdminPrefixed ? `/admin${path}` : path;
 };
 </script>
 

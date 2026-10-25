@@ -13,9 +13,21 @@ import {
 
 const route = useRoute();
 
+const isDashboard = computed(() => {
+  return (
+    breadcrumbs.value.name === 'Dashboard' ||
+    breadcrumbs.value.name === 'AdminDashboard' ||
+    breadcrumbs.value.name === 'EmployeeDashboard' ||
+    route.path === '/' ||
+    route.path === '/admin/dashboard' ||
+    route.path === '/employee/dashboard'
+  );
+});
+
 const breadcrumbs = computed(() => {
   const routeNameMap: Record<string, string> = {
     'Dashboard': 'Dasbor',
+    'AdminDashboard': 'Dasbor Admin',
     'AdminEmployees': 'Manajemen Karyawan',
     'AdminEmployeeDetail': 'Detail Karyawan',
     'AdminDepartments': 'Manajemen Bidang',
@@ -25,7 +37,7 @@ const breadcrumbs = computed(() => {
     'Overtime': 'Pengajuan Lembur',
     'Announcements': 'Pengumuman',
     'AdminSettings': 'Pengaturan',
-    'EmployeeDashboard': 'Dasbor',
+    'EmployeeDashboard': 'Dasbor Karyawan',
     'EmployeeAttendance': 'Absensi Karyawan',
     'EmployeeCalendar': 'Kalender Kerja',
     'EmployeeLeaves': 'Pengajuan Cuti & Izin',
@@ -37,7 +49,7 @@ const breadcrumbs = computed(() => {
     'Departments': 'Manajemen Bidang',
   };
 
-  const currentName = route.name as string;
+  const currentName = (route.name as string) || '';
   const displayName = routeNameMap[currentName] || currentName;
 
   return {
@@ -60,10 +72,10 @@ const breadcrumbs = computed(() => {
       </BreadcrumbItem>
       
       <!-- Separator -->
-      <BreadcrumbSeparator v-if="breadcrumbs.name !== 'Dashboard' && breadcrumbs.name !== 'EmployeeDashboard'" />
+      <BreadcrumbSeparator v-if="!isDashboard" />
       
       <!-- Current Page -->
-      <BreadcrumbItem v-if="breadcrumbs.name !== 'Dashboard' && breadcrumbs.name !== 'EmployeeDashboard'">
+      <BreadcrumbItem v-if="!isDashboard">
         <BreadcrumbPage class="font-medium text-gray-900 dark:text-zinc-100">{{ breadcrumbs.displayName }}</BreadcrumbPage>
       </BreadcrumbItem>
     </BreadcrumbList>
